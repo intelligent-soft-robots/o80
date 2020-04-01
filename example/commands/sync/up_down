@@ -1,0 +1,70 @@
+#! /usr/bin/env python
+
+from pyplot import runtime
+import math,copy,threading,time
+import o80_example as robot
+import sys
+
+    
+
+def up_down_motion(id):
+
+    DOF0 = 0
+    DOF1 = 1
+    
+    iteration = None
+    first_set = True
+    
+    for i in range(3):
+
+        time.sleep(0.6)
+
+        if iteration is None:
+            iteration = robot.last_iteration(id)
+
+        robot.add_command(id,
+                          DOF0,
+                          200,
+                          iteration+500,
+                          robot.Mode.STACK)
+        
+        robot.add_command(id,
+                          DOF1,
+                          800,
+                          iteration+500,
+                          robot.Mode.STACK)
+        
+        robot.add_command(id,
+                          DOF0,
+                          800,
+                          iteration+1000,
+                          robot.Mode.STACK)
+        
+        robot.add_command(id,
+                          DOF1,
+                          200,
+                          iteration+1000,
+                          robot.Mode.STACK)
+
+        print "\nset for iterations: [",iteration,",",iteration+1000,"]"
+        
+        if first_set:
+            robot.pulse(id)
+            print "iteration: ",robot.last_iteration(id)
+            print "no wait"
+            first_set = False
+            
+        else:
+            print "wait for iteration :",iteration
+            t = time.time()
+            robot.iteration_wait(id,iteration)
+            print "iteration: ",robot.last_iteration(id)
+            print "waited: ",time.time()-t 
+        
+        iteration+=1000
+
+up_down_motion(int(sys.argv[1]))
+print
+
+
+

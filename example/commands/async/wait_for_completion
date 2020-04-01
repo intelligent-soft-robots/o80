@@ -1,0 +1,61 @@
+#! /usr/bin/env python
+
+from pyplot import runtime
+import math,copy,threading,time
+import o80_example as robot
+import sys
+
+    
+
+def up_down_motion(id):
+
+    iteration = robot.last_iteration(id)
+
+    # first dof, up then down
+    
+    robot.add_command(id,
+                       0,
+                       1000,
+                       iteration+1000,
+                       robot.Mode.OVERWRITE)
+
+    robot.add_command(id,
+                       0,
+                       0,
+                       iteration+2000,
+                       robot.Mode.STACK)
+
+    # second dof, up then down, twice
+    
+    robot.add_command(id,
+                       1,
+                       500,
+                       iteration+500,
+                       robot.Mode.OVERWRITE)
+
+    robot.add_command(id,
+                       1,
+                       0,
+                       iteration+1000,
+                       robot.Mode.STACK)
+
+    robot.add_command(id,
+                       1,
+                       500,
+                       iteration+1500,
+                       robot.Mode.STACK)
+
+    robot.add_command(id,
+                       1,
+                       0,
+                       iteration+2000,
+                       robot.Mode.STACK)
+    
+    robot.wait_for_completion(id)
+    
+
+up_down_motion(int(sys.argv[1]))
+
+
+
+

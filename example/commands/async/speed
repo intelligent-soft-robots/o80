@@ -1,0 +1,46 @@
+#! /usr/bin/env python
+
+from pyplot import runtime
+import math,copy,threading,time
+import o80_example as robot
+import sys
+
+    
+
+def up_down_motion(id):
+
+    robot.add_speed_command(id,
+                            0,
+                            800,
+                            1000,
+                            robot.Mode.OVERWRITE)
+
+    robot.add_speed_command(id,
+                            1,
+                            800,
+                            500,
+                            robot.Mode.OVERWRITE)
+
+    robot.add_speed_command(id,
+                            0,
+                            0,
+                            500,
+                            robot.Mode.QUEUE)
+
+    robot.add_speed_command(id,
+                            1,
+                            0,
+                            1000,
+                            robot.Mode.QUEUE)
+
+    
+
+    
+    robot.pulse(id)
+    
+
+up_down_motion(int(sys.argv[1]))
+
+
+
+

@@ -1,0 +1,63 @@
+#! /usr/bin/env python
+
+from pyplot import runtime
+import math,copy,threading,time
+import o80_example
+import sys
+
+
+
+
+def plotting(ID):
+
+    
+    DOFS = ["robot"]
+    runtime.PYPLOT.CHANNELS = copy.deepcopy(DOFS)
+    runtime.PYPLOT.LIMITS = {"robot":(0.0,1000.0)}
+    runtime.PYPLOT.SLOTS = ["v0","v1"]
+    runtime.PYPLOT.SLOTS_COLORS = {
+        "v0":(0,255,0) ,
+        "v1":(255,0,0) 
+    }
+    runtime.PYPLOT.DATA_SIZE = 1000
+    runtime.PYPLOT.TITLE = "o80_EXAMPLE"
+    runtime.PYPLOT.WINDOWS_SIZE = [500,500]
+
+    def clip(value):
+        return min(max(value,0),1000)
+    
+    def plotting():
+
+        previous_iteration = None 
+        
+        while True:
+
+            iteration = o80_example.last_iteration(ID)
+
+            if iteration!=previous_iteration :
+
+                previous_iteration = iteration
+
+                states = o80_example.read(ID)
+                
+                data = {}
+
+                for index,dof in enumerate(DOFS):
+                    v0 = clip(states.get(0).get())
+                    v1 = clip(states.get(1).get())
+                    data[dof]={"v0":v0,
+                               "v1":v1}
+
+                runtime.set_data(data)
+
+            time.sleep(0.0001)
+
+
+    runtime.start_plotting(plotting)
+
+
+if __name__ == '__main__':
+
+    ID = int(sys.argv[1])
+
+    plotting(ID)

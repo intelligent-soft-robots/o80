@@ -1,0 +1,8 @@
+#! /usr/bin/env python
+
+from pyplot import runtime
+import math,copy,threading,time
+import o80_example
+import sys
+
+o80_example.status(int(sys.argv[1]))

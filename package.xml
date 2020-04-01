@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>o80</name>
+  <version>1.0.0</version>
+  <description>synchronizing via python c++ processes</description>
+  <author email="vincent.berenz@tuebingen.mpg.de">Vincent Berenz</author>
+  <maintainer email="vincent.berenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>shared_memory</build_depend>
+  <build_depend>real_time_tools</build_depend>
+  <build_depend>synchronizer</build_depend>
+  <build_depend>robot_interfaces</build_depend>
+  
+  <run_depend>shared_memory</run_depend>
+  <run_depend>real_time_tools</run_depend>
+  <run_depend>synchronizer</run_depend>
+  <run_depend>robot_interfaces</run_depend>
+
+  <export>
+  </export>
+</package>
