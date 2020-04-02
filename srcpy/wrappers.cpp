@@ -9,7 +9,7 @@
 
 using namespace o80;
 
-PYBIND11_MODULE(o80_py, m)
+PYBIND11_MODULE(o80, m)
 {
     m.def("time_now", &time_now);
 

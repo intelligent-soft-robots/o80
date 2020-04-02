@@ -47,12 +47,13 @@ target_link_libraries(o80 ${catkin_LIBRARIES})
 ###################
 
 pybind11_add_module(o80_py srcpy/wrappers.cpp)
-target_link_libraries(o80_py
-  PRIVATE o80 ${catkin_LIBRARIES})
+target_link_libraries(
+  o80_py PRIVATE o80 ${catkin_LIBRARIES})
 set_target_properties(o80_py PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION})
-install(TARGETS o80_py
-  DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
+  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
+  OUTPUT_NAME o80
+  )
+install(TARGETS o80_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
 
 #######################
 # Example executables #
@@ -76,6 +77,7 @@ target_link_libraries(drivers_demo o80 ${catkin_LIBRARIES})
 pybind11_add_module(o80_example example/srcpy/wrappers.cpp)
 target_link_libraries(o80_example PRIVATE o80 ${catkin_LIBRARIES})
 install(TARGETS o80_example DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
+
 
 ##############
 # Unit tests #
