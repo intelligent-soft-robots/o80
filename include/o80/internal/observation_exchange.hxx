@@ -9,9 +9,19 @@
 
 TEMPLATE_OE
 OBSERVATIONEXCHANGE::ObservationExchange(std::string segment_id,
-                                         std::string object_id)
-    : segment_id_(segment_id), object_id_(object_id)
+                                         std::string object_id,
+					 size_t history_size,
+					 bool leader)
+    : segment_id_(segment_id), object_id_(object_id),
+      segment_id_history_(segment_id+"_history"),
+      history_(segment_id_history_,history_size,leader)
 {
+}
+
+TEMPLATE_OE
+time_series::MultiprocessTimeSeries<OBSERVATION>& OBSERVATIONEXCHANGE::get_history()
+{
+    return history_;
 }
 
 TEMPLATE_OE
@@ -22,7 +32,9 @@ void OBSERVATIONEXCHANGE::write(
     serialized_ = serializer_.serialize(observation);
     shared_memory::set(segment_id_, object_id_, serialized_);
     mutex_.unlock();
+    history_.append(observation);
 }
+
 
 TEMPLATE_OE
 bool OBSERVATIONEXCHANGE::read(

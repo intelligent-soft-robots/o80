@@ -4,9 +4,11 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 #include "internal/commands_setter.hpp"
 #include "internal/observation_exchange.hpp"
 #include "synchronizer/leader.hpp"
+
 
 namespace o80
 
@@ -18,8 +20,9 @@ namespace internal
 void set_bursting(const std::string &segment_id, int nb_iterations);
 }
 
-typedef std::shared_ptr<synchronizer::Leader> LeaderPtr;
+    typedef std::shared_ptr<synchronizer::Leader> LeaderPtr;
 
+    
 /**
  * @brief FrontEnd is the user interface communicating
  * with a BackEnd. It uses an interprocess shared memory
@@ -46,6 +49,18 @@ template <int QUEUE_SIZE,
           class EXTENDED_STATE>
 class FrontEnd
 {
+
+public:
+    
+    typedef time_series::MultiprocessTimeSeries<Observation<NB_ACTUATORS,
+							    ROBOT_STATE,
+							    EXTENDED_STATE>> History;
+
+    typedef std::vector<Observation<NB_ACTUATORS,
+				    ROBOT_STATE,
+				    EXTENDED_STATE>> HistoryChunk;
+
+    
 public:
     /**
      * @param segment_id should be the same for the
@@ -53,6 +68,10 @@ public:
      */
     FrontEnd(std::string segment_id);
 
+    time_series::Index get_newest_timeindex();
+    HistoryChunk get_history_since(time_series::Index timeindex);
+    HistoryChunk get_latest(size_t nb_items);
+    
     /**
      * @brief Add an iteration command to the local command queue.
      * "iteration" means this command aims at the robot to reach

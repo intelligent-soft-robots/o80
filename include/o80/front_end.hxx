@@ -19,12 +19,62 @@ void set_bursting(const std::string &segment_id, int nb_iterations)
 TEMPLATE_FRONTEND
 FRONTEND::FrontEnd(std::string segment_id)
     : segment_id_(segment_id),
-      observation_exchange_(segment_id, std::string("observations")),
+      observation_exchange_(segment_id,
+			    std::string("observations"),
+			    QUEUE_SIZE,
+			    false),
       commands_setter_(segment_id, std::string("commands")),
       leader_(nullptr)
 {
     internal::set_bursting(segment_id, 1);
 }
+
+TEMPLATE_FRONTEND
+time_series::Index FRONTEND::get_newest_timeindex()
+{
+    return observation_exchange_.get_history().newest_timeindex();
+}
+
+TEMPLATE_FRONTEND
+std::vector<Observation<NB_ACTUATORS,
+			ROBOT_STATE,
+			EXTENDED_STATE>>
+    FRONTEND::get_history_since(time_series::Index time_index)
+{
+    History& history = observation_exchange_.get_history();
+    time_series::Index oldest = history.oldest_timeindex();
+    time_series::Index newest = history.newest_timeindex();
+    if (time_index > newest || time_index<oldest)
+	{
+	    return HistoryChunk(0);
+	}
+    HistoryChunk chunk;
+    for(time_series::Index index=time_index; index<=newest; index++)
+	{
+	    chunk.push_back(history[index]);
+	}
+    return chunk;
+}
+
+TEMPLATE_FRONTEND
+std::vector<Observation<NB_ACTUATORS,
+			ROBOT_STATE,
+			EXTENDED_STATE>>
+FRONTEND::get_latest(size_t nb_items)
+{
+    History& history = observation_exchange_.get_history();
+    time_series::Index oldest = history.oldest_timeindex();
+    time_series::Index newest = history.newest_timeindex();
+    time_series::Index target = newest-nb_items+1;
+    if (target<oldest) target=oldest;
+    HistoryChunk chunk;
+    for(time_series::Index index=target; index<=newest; index++)
+	{
+	    chunk.push_back(history[index]);
+	}
+    return chunk;
+}
+
 
 TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator,

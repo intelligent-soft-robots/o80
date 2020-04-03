@@ -12,11 +12,13 @@
   <build_depend>real_time_tools</build_depend>
   <build_depend>synchronizer</build_depend>
   <build_depend>robot_interfaces</build_depend>
-  
+  <build_depend>time_series</build_depend>
+    
   <run_depend>shared_memory</run_depend>
   <run_depend>real_time_tools</run_depend>
   <run_depend>synchronizer</run_depend>
   <run_depend>robot_interfaces</run_depend>
+  <run_depend>time_series</run_depend>
 
   <export>
   </export>

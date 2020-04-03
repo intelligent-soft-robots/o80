@@ -46,6 +46,9 @@ void create_min_python_bindings(pybind11::module &m,
         frontend;
     pybind11::class_<frontend>(m, "FrontEnd")
         .def(pybind11::init<std::string>())
+	.def("get_newest_timeindex",&frontend::get_newest_timeindex)
+	.def("get_history_since",&frontend::get_history_since)
+	.def("get_latest",&frontend::get_latest)
         .def("add_command",
              (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
                  frontend::add_command)

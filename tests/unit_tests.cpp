@@ -529,6 +529,7 @@ TEST_F(o80_tests, front_and_backends_basic)
     ASSERT_EQ(j1.value, 400);
 }
 
+
 static std::atomic<bool> RUNNING(true);
 
 static void* frontend_wait_fn(void*)
@@ -609,9 +610,8 @@ TEST_F(o80_tests, robot_interfaces_destructions)
     typedef o80_example::Action RiAction;
     typedef o80_example::Driver RiDriver;
     typedef std::shared_ptr<RiDriver> RiDriverPtr;
-    typedef robot_interfaces::RobotData<o80_example::Action,
-                                        o80_example::Observation,
-                                        robot_interfaces::Status>
+    typedef robot_interfaces::SingleProcessRobotData<o80_example::Action,
+                                        o80_example::Observation>
         RiData;
     typedef std::shared_ptr<RiData> RiDataPtr;
     typedef robot_interfaces::RobotBackend<o80_example::Action,
@@ -656,8 +656,8 @@ TEST_F(o80_tests, standalone_runner)
 {
     std::string segment_id("ut_standalone_runner");
 
-    start_standalone<o80_example::Driver, o80_example::Standalone>(
-        segment_id, 500, false, 0, 1000);
+    start_standalone<o80_example::Driver,
+		     o80_example::Standalone>(segment_id, 500, false, 0, 1000);
     usleep(2000);
     stop_standalone(segment_id);
 }
@@ -816,3 +816,64 @@ TEST_F(o80_tests, frontend_burst)
 
     thread.join();
 }
+
+TEST_F(o80_tests, history)
+{
+    RUNNING = true;
+    clear_shared_memory("burst_unittests");
+    real_time_tools::RealTimeThread thread;
+    thread.create_realtime_thread(bursting_standalone_fn);
+
+    usleep(50000);
+
+    FrontEnd<o80_EXAMPLE_QUEUE_SIZE,
+             o80_EXAMPLE_NB_DOFS,
+             o80_example::Joint,
+             o80::EmptyExtendedState>
+        frontend("burst_unittests");
+
+    for(int i=0;i<100;i++)
+	{
+	    frontend.add_command(0, o80_example::Joint(i), Mode::QUEUE);
+	}
+    frontend.burst(120);
+
+    time_series::Index newest = frontend.get_newest_timeindex();
+    ASSERT_EQ(newest,119);
+
+    typedef Observation<o80_EXAMPLE_NB_DOFS,
+			o80_example::Joint,
+			o80::EmptyExtendedState> OBS;
+
+    std::vector<OBS> history1 = frontend.get_history_since(90);
+    std::vector<OBS> history2 = frontend.get_latest(30);
+    ASSERT_EQ(history1.size(),30);
+    ASSERT_EQ(history2.size(),30);
+
+    std::array<std::vector<OBS>,2> histories = {history1,history2};
+
+    for(int i=0;i<10;i++)
+	{
+	    for(const std::vector<OBS>& history: histories)
+		{
+		    States<2, o80_example::Joint> states = history[i].get_desired_states();
+		    o80_example::Joint j = states.get(0);
+		    ASSERT_EQ(j.value,90+i);
+		}
+	}
+
+    for(int i=0;i<20;i++)
+	{
+	    for(const std::vector<OBS>& history: histories)
+		{
+		    States<2, o80_example::Joint> states = history[i+10].get_desired_states();
+		    o80_example::Joint j = states.get(0);
+		    ASSERT_EQ(j.value,100);
+		}
+	}
+    
+    RUNNING = false;
+    frontend.final_burst();
+    thread.join();
+}
+

@@ -8,7 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   robot_interfaces
   synchronizer
   shared_memory
-  real_time_tools)
+  real_time_tools
+  time_series)
 
 # defined in catkin_package mpi_cmake_modules,
 # used to detected for example if using real time computer,
@@ -18,7 +19,12 @@ DEFINE_OS()
 catkin_package(
  LIBRARIES  o80
  INCLUDE_DIRS include example/include
- CATKIN_DEPENDS shared_memory real_time_tools synchronizer robot_interfaces
+ CATKIN_DEPENDS
+ shared_memory
+ real_time_tools
+ synchronizer
+ robot_interfaces
+ time_series
 )
 
 include_directories(include
