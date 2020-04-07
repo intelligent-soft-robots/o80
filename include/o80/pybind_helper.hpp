@@ -29,6 +29,7 @@ template <int QUEUE_SIZE,
           class o80_STATE,
           class o80_EXTENDED_STATE>
 void create_min_python_bindings(pybind11::module &m,
+				bool states = true,
                                 bool state = true,
                                 bool extended_state = true);
 
@@ -48,12 +49,14 @@ template <int QUEUE_SIZE,
           class o80_EXTENDED_STATE,
           typename... DriverArgs>
 void _create_python_bindings(pybind11::module &m,
+			     bool states = true,
                              bool state = true,
                              bool extended_state = true,
                              bool min_bindings = true);
 
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
 void create_python_bindings(pybind11::module &m,
+			    bool states = true,
                             bool state = true,
                             bool extended_state = true,
                             bool min_bindings = true);

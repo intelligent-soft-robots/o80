@@ -6,16 +6,20 @@ template <int QUEUE_SIZE,
           class o80_STATE,
           class o80_EXTENDED_STATE>
 void create_min_python_bindings(pybind11::module &m,
+				bool states,
                                 bool state,
                                 bool extended_state)
 {
-    typedef States<NB_ACTUATORS, o80_STATE> states;
-    pybind11::class_<states>(m, "States")
-        .def(pybind11::init<>())
-        .def("set", &states::set)
-        .def("get", &states::get)
-        .def_readwrite("values", &states::values);
 
+    if(states)
+	{
+	    typedef States<NB_ACTUATORS, o80_STATE> states;
+	    pybind11::class_<states>(m, "States")
+		.def(pybind11::init<>())
+		.def("set", &states::set)
+		.def("get", &states::get)
+		.def_readwrite("values", &states::values);
+	}
     if (state)
     {
         pybind11::class_<o80_STATE>(m, "State")
@@ -46,7 +50,7 @@ void create_min_python_bindings(pybind11::module &m,
         frontend;
     pybind11::class_<frontend>(m, "FrontEnd")
         .def(pybind11::init<std::string>())
-	.def("get_newest_timeindex",&frontend::get_newest_timeindex)
+	.def("get_current_iteration",&frontend::get_current_iteration)
 	.def("get_history_since",&frontend::get_history_since)
 	.def("get_latest",&frontend::get_latest)
         .def("add_command",
@@ -75,6 +79,7 @@ template <int QUEUE_SIZE,
           class o80_EXTENDED_STATE,
           typename... DriverArgs>
 void _create_python_bindings(pybind11::module &m,
+			     bool states,
                              bool state,
                              bool extended_state,
                              bool min_bindings)
@@ -106,7 +111,7 @@ void _create_python_bindings(pybind11::module &m,
                                    NB_ACTUATORS,
                                    o80_STATE,
                                    o80_EXTENDED_STATE>(
-            m, state, extended_state);
+						       m, states, state, extended_state);
     }
 
     // adding robot driver and standalone
@@ -117,7 +122,8 @@ void _create_python_bindings(pybind11::module &m,
              bool bursting,
              DriverArgs... driver_args) {
               start_standalone<RobotDriver, RobotStandalone>(
-                  segment_id, frequency, bursting, (driver_args)...);
+                  segment_id, frequency, bursting,
+		  (driver_args)...);
           });
 
     m.def("stop_standalone", &stop_standalone);
@@ -129,6 +135,7 @@ void _create_python_bindings(pybind11::module &m,
 
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
 void create_python_bindings(pybind11::module &m,
+			    bool states,
                             bool state,
                             bool extended_state,
                             bool min_bindings)
@@ -142,5 +149,5 @@ void create_python_bindings(pybind11::module &m,
                             RobotStandalone,
                             typename RobotStandalone::o80ExtendedState,
                             DriverArgs...>(
-        m, state, extended_state, min_bindings);
+					   m, states, state, extended_state, min_bindings);
 }
