@@ -610,7 +610,7 @@ TEST_F(o80_tests, robot_interfaces_destructions)
     typedef o80_example::Action RiAction;
     typedef o80_example::Driver RiDriver;
     typedef std::shared_ptr<RiDriver> RiDriverPtr;
-    typedef robot_interfaces::SingleProcessRobotData<o80_example::Action,
+    typedef robot_interfaces::RobotData<o80_example::Action,
                                         o80_example::Observation>
         RiData;
     typedef std::shared_ptr<RiData> RiDataPtr;
@@ -629,7 +629,7 @@ TEST_F(o80_tests, robot_interfaces_destructions)
 
     RiFrontend frontend(data_ptr);
 
-    RiBackend* backend = new RiBackend(driver_ptr, data_ptr, 1.0, 1.0);
+    RiBackend* backend = new RiBackend(driver_ptr, data_ptr,true);
     // backend->initialize();
 
     RiAction action;
@@ -649,7 +649,7 @@ TEST_F(o80_tests, standalone_destruction)
     o80::clear_shared_memory(segment_id);
     std::shared_ptr<o80_example::Driver> driver_ptr(
         new o80_example::Driver(0, 1000));
-    o80_example::Standalone standalone(driver_ptr, 1.0, 1.0, 100.0, segment_id);
+    o80_example::Standalone standalone(driver_ptr, 100.0, segment_id);
 }
 
 TEST_F(o80_tests, standalone_runner)
@@ -657,7 +657,9 @@ TEST_F(o80_tests, standalone_runner)
     std::string segment_id("ut_standalone_runner");
 
     start_standalone<o80_example::Driver,
-		     o80_example::Standalone>(segment_id, 500, false, 0, 1000);
+		     o80_example::Standalone>(segment_id, 500, false,
+					      o80::EmptyExtendedState{},	      
+					      0, 1000);
     usleep(2000);
     stop_standalone(segment_id);
 }
@@ -737,8 +739,6 @@ static void* bursting_standalone_fn(void*)
     std::shared_ptr<o80_example::Driver> driver =
         std::make_shared<o80_example::Driver>(0, 1000);
     o80_example::Standalone standalone(driver,
-                                       std::numeric_limits<double>::infinity(),
-                                       std::numeric_limits<double>::infinity(),
                                        frequency,
                                        "burst_unittests");
 
@@ -838,7 +838,7 @@ TEST_F(o80_tests, history)
 	}
     frontend.burst(120);
 
-    time_series::Index newest = frontend.get_newest_timeindex();
+    time_series::Index newest = frontend.get_current_iteration();
     ASSERT_EQ(newest,119);
 
     typedef Observation<o80_EXAMPLE_NB_DOFS,
@@ -868,7 +868,7 @@ TEST_F(o80_tests, history)
 		{
 		    States<2, o80_example::Joint> states = history[i+10].get_desired_states();
 		    o80_example::Joint j = states.get(0);
-		    ASSERT_EQ(j.value,100);
+		    ASSERT_EQ(j.value,99);
 		}
 	}
     

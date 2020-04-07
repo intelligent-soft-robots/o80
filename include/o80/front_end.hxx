@@ -30,30 +30,65 @@ FRONTEND::FrontEnd(std::string segment_id)
 }
 
 TEMPLATE_FRONTEND
-time_series::Index FRONTEND::get_newest_timeindex()
+time_series::Index FRONTEND::get_current_iteration()
 {
     return observation_exchange_.get_history().newest_timeindex();
 }
 
 TEMPLATE_FRONTEND
-std::vector<Observation<NB_ACTUATORS,
-			ROBOT_STATE,
-			EXTENDED_STATE>>
-    FRONTEND::get_history_since(time_series::Index time_index)
+bool FRONTEND::update_history_since(time_series::Index time_index,
+				 std::vector<Observation<NB_ACTUATORS,
+				 ROBOT_STATE,
+				 EXTENDED_STATE>>& v)
 {
     History& history = observation_exchange_.get_history();
     time_series::Index oldest = history.oldest_timeindex();
     time_series::Index newest = history.newest_timeindex();
     if (time_index > newest || time_index<oldest)
 	{
-	    return HistoryChunk(0);
+	    return false;
 	}
-    HistoryChunk chunk;
     for(time_series::Index index=time_index; index<=newest; index++)
 	{
-	    chunk.push_back(history[index]);
+	    v.push_back(history[index]);
 	}
-    return chunk;
+    return true;
+}
+
+TEMPLATE_FRONTEND
+std::vector<Observation<NB_ACTUATORS,
+			ROBOT_STATE,
+			EXTENDED_STATE>>
+FRONTEND::get_history_since(time_series::Index time_index)
+{
+    std::vector<Observation<NB_ACTUATORS,
+			    ROBOT_STATE,
+			    EXTENDED_STATE>> v;
+    update_history_since(time_index,v);
+    return v;
+}
+
+TEMPLATE_FRONTEND
+bool FRONTEND::update_latest(size_t nb_items,
+			     std::vector<Observation<NB_ACTUATORS,
+			     ROBOT_STATE,
+			     EXTENDED_STATE>>& v)
+{
+    bool r=true;
+    History& history = observation_exchange_.get_history();
+    time_series::Index oldest = history.oldest_timeindex();
+    time_series::Index newest = history.newest_timeindex();
+    time_series::Index target = newest-nb_items+1;
+    if (target<oldest)
+	{
+	    target=oldest;
+	    r=false;
+	}
+    for(time_series::Index index=target; index<=newest; index++)
+	{
+	    v.push_back(history[index]);
+	}
+    return r;
 }
 
 TEMPLATE_FRONTEND
@@ -62,19 +97,13 @@ std::vector<Observation<NB_ACTUATORS,
 			EXTENDED_STATE>>
 FRONTEND::get_latest(size_t nb_items)
 {
-    History& history = observation_exchange_.get_history();
-    time_series::Index oldest = history.oldest_timeindex();
-    time_series::Index newest = history.newest_timeindex();
-    time_series::Index target = newest-nb_items+1;
-    if (target<oldest) target=oldest;
-    HistoryChunk chunk;
-    for(time_series::Index index=target; index<=newest; index++)
-	{
-	    chunk.push_back(history[index]);
-	}
-    return chunk;
+    std::vector<Observation<NB_ACTUATORS,
+			    ROBOT_STATE,
+			    EXTENDED_STATE>> v;
+    update_latest(nb_items,v);
+    return v;
+			    
 }
-
 
 TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator,

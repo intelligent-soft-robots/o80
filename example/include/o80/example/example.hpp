@@ -300,8 +300,6 @@ class Standalone
 {
 public:
     Standalone(std::shared_ptr<Driver> driver_ptr,
-               double max_action_duration_s,
-               double max_inter_action_duration_s,
                double frequency,
                std::string segment_id)
         : o80::Standalone<o80_EXAMPLE_QUEUE_SIZE,
@@ -310,27 +308,8 @@ public:
                           Observation,
                           Joint,
                           o80::EmptyExtendedState>(driver_ptr,
-                                                   max_action_duration_s,
-                                                   max_inter_action_duration_s,
                                                    frequency,
                                                    segment_id)
-    {
-    }
-
-    Standalone(std::shared_ptr<Driver> driver_ptr,
-               double frequency,
-               std::string segment_id)
-        : o80::Standalone<o80_EXAMPLE_QUEUE_SIZE,
-                          2,
-                          Action,
-                          Observation,
-                          Joint,
-                          o80::EmptyExtendedState>(
-              driver_ptr,
-              std::numeric_limits<double>::infinity(),
-              std::numeric_limits<double>::infinity(),
-              frequency,
-              segment_id)
     {
     }
 
@@ -354,7 +333,14 @@ public:
         states.set(1, Joint(observation.values[1]));
         return states;
     }
+
+    void enrich_extended_state(o80::EmptyExtendedState &extended_state,
+		 const Observation &observation)
+    {}
+    
 };
+
+    
 
 std::string get_segment_id(int id)
 {

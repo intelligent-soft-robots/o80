@@ -25,8 +25,6 @@ class StandaloneRunner : public StandaloneRunnerInterface
 public:
     template <typename... Args>
     StandaloneRunner(std::string segment_id,
-                     double max_action_duration_s,
-                     double max_inter_action_duration_s,
                      double frequency,
                      bool bursting,
                      Args&&... args);

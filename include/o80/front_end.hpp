@@ -68,9 +68,16 @@ public:
      */
     FrontEnd(std::string segment_id);
 
-    time_series::Index get_newest_timeindex();
-    HistoryChunk get_history_since(time_series::Index timeindex);
+    time_series::Index get_current_iteration();
+    bool update_history_since(time_series::Index iteration,
+			   HistoryChunk& push_back_to);
+    bool update_latest(size_t nb_items,
+		    HistoryChunk& push_back_to);
+
+    HistoryChunk get_history_since(time_series::Index iteration);
     HistoryChunk get_latest(size_t nb_items);
+
+
     
     /**
      * @brief Add an iteration command to the local command queue.

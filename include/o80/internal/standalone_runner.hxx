@@ -3,8 +3,6 @@
 template <class RobotDriver, class o80Standalone>
 template <typename... Args>
 SRUNNER::StandaloneRunner(std::string segment_id,
-                          double max_action_duration_s,
-                          double max_inter_action_duration_s,
                           double frequency,
                           bool bursting,
                           Args&&... args)
@@ -12,8 +10,6 @@ SRUNNER::StandaloneRunner(std::string segment_id,
       running_(false),
       driver_ptr_(std::make_shared<RobotDriver>(std::forward<Args>(args)...)),
       standalone_(driver_ptr_,
-                  max_action_duration_s,
-                  max_inter_action_duration_s,
                   frequency,
                   segment_id)
 {
@@ -34,7 +30,7 @@ void SRUNNER::start()
     driver_ptr_->initialize();
     standalone_.start();
     thread_.create_realtime_thread(run_helper<RobotDriver, o80Standalone>,
-                                   (void*)this);
+				   (void*)this);
 }
 
 template <class RobotDriver, class o80Standalone>

@@ -33,6 +33,10 @@ public:
     {
         return *this;
     }
+    void console() const
+    {
+	std::cout << "empty extended state" << std::endl;
+    }
     template <class Archive>
     void serialize(Archive& archive)
     {

@@ -79,8 +79,9 @@ public:
     typedef o80_EXTENDED_STATE o80ExtendedState;
 
 private:
-    typedef robot_interfaces::SingleProcessRobotData<RI_ACTION,
-						     RI_OBSERVATION>
+    typedef robot_interfaces::RobotData<RI_ACTION,
+					RI_OBSERVATION,
+					robot_interfaces::Status>
         RiData;
     typedef std::shared_ptr<RiData> RiDataPtr;
     typedef robot_interfaces::RobotBackend<RI_ACTION, RI_OBSERVATION> RiBackend;
@@ -98,8 +99,6 @@ public:
      * Creates instances of o80 backend, and RI front/back ends based
      * on the templated parameter and the robot driver.
      * @param ri_driver robot_interfaces robot driver
-     * @param max_action_duration_s see robot_interface frontend documentation
-     * @param max_inter_action_duration_s see robot_interface frontend
      * documentation
      * @param frequency  in non burst mode, spin function will wait at each
      * iteration the
@@ -108,8 +107,6 @@ public:
      * o80 frontend instance should use the same.
      */
     Standalone(RiDriverPtr ri_driver_ptr,
-               double max_action_duration_s,
-               double max_inter_action_duration_s,
                double frequency,
                std::string segment_id);
 
@@ -165,17 +162,13 @@ public:
      * RI frontend. The extended state will be added to the o80 observation
      * written to the shared memory.
      */
-    void enrich_extended_state(o80_EXTENDED_STATE& extended_state,
-                               const RI_OBSERVATION& observation)
-    {
-    }
+    virtual void enrich_extended_state(o80_EXTENDED_STATE& extended_state,
+				       const RI_OBSERVATION& observation) = 0;
 
 private:
     bool iterate(const TimePoint& time_now, o80_EXTENDED_STATE& extended_state);
 
 private:
-    double max_action_duration_s_;
-    double max_inter_action_duration_s_;
     double frequency_;
     Microseconds period_;
     TimePoint now_;
@@ -195,15 +188,17 @@ private:
  * if another standalone of the same segment_id has already
  * been started.
  */
-template <class RobotDriver, class o80Standalone, typename... Args>
+template <class RobotDriver,
+	  class o80Standalone,
+	  typename... Args>
 void start_action_timed_standalone(std::string segment_id,
-                                   double max_action_duration_s,
-                                   double max_inter_action_duration_s,
                                    double frequency,
                                    bool bursting,
                                    Args&&... args);
 
-template <class RobotDriver, class o80Standalone, typename... Args>
+template <class RobotDriver,
+	  class o80Standalone,
+	  typename... Args>
 void start_standalone(std::string segment_id,
                       double frequency,
                       bool bursting,

@@ -31,13 +31,9 @@ static void reset_bursting(const std::string& segment_id)
 
 TEMPLATE_STANDALONE
 STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
-                       double max_action_duration_s,
-                       double max_inter_action_duration_s,
                        double frequency,
                        std::string segment_id)
-    : max_action_duration_s_(max_action_duration_s),
-      max_inter_action_duration_s_(max_inter_action_duration_s),
-      frequency_(frequency),
+    : frequency_(frequency),
       period_(static_cast<long int>((1.0 / frequency + 0.5) * 10E6)),
       now_(time_now()),
       burster_(nullptr),
@@ -64,8 +60,8 @@ void STANDALONE::start()
     {
         ri_backend_ptr_ = new RiBackend(ri_driver_ptr_,
                                         ri_data_ptr_,
-                                        max_action_duration_s_,
-                                        max_inter_action_duration_s_);
+					std::numeric_limits<double>::infinity(),
+					std::numeric_limits<double>::infinity());
         ri_backend_ptr_->initialize();
 
         RI_ACTION action;
@@ -198,8 +194,6 @@ bool STANDALONE::spin(bool bursting)
 
 template <class RobotDriver, class o80Standalone, typename... Args>
 void start_action_timed_standalone(std::string segment_id,
-                                   double max_action_duration_s,
-                                   double max_inter_action_duration_s,
                                    double frequency,
                                    bool bursting,
                                    Args&&... args)
@@ -218,27 +212,23 @@ void start_action_timed_standalone(std::string segment_id,
     typedef std::shared_ptr<SR> SRPtr;
 
     SRPtr runner(new SR(segment_id,
-                        max_action_duration_s,
-                        max_inter_action_duration_s,
                         frequency,
                         bursting,
                         std::forward<Args>(args)...));
-
     runner->start();
-
     internal::add_standalone(segment_id, runner);
 }
 
-template <class RobotDriver, class o80Standalone, typename... Args>
+template <class RobotDriver, class o80Standalone,typename... Args>
 void start_standalone(std::string segment_id,
                       double frequency,
                       bool bursting,
                       Args&&... args)
 {
-    start_action_timed_standalone<RobotDriver, o80Standalone, Args...>(
+    start_action_timed_standalone<RobotDriver,
+				  o80Standalone,
+				  Args...>(
         segment_id,
-        std::numeric_limits<double>::infinity(),
-        std::numeric_limits<double>::infinity(),
         frequency,
         bursting,
         std::forward<Args>(args)...);
