@@ -611,7 +611,8 @@ TEST_F(o80_tests, robot_interfaces_destructions)
     typedef o80_example::Driver RiDriver;
     typedef std::shared_ptr<RiDriver> RiDriverPtr;
     typedef robot_interfaces::RobotData<o80_example::Action,
-                                        o80_example::Observation>
+                                        o80_example::Observation,
+					robot_interfaces::Status>
         RiData;
     typedef std::shared_ptr<RiData> RiDataPtr;
     typedef robot_interfaces::RobotBackend<o80_example::Action,
@@ -629,7 +630,9 @@ TEST_F(o80_tests, robot_interfaces_destructions)
 
     RiFrontend frontend(data_ptr);
 
-    RiBackend* backend = new RiBackend(driver_ptr, data_ptr,true);
+    RiBackend* backend = new RiBackend(driver_ptr, data_ptr,
+				       std::numeric_limits<double>::infinity(),
+				       std::numeric_limits<double>::infinity());
     // backend->initialize();
 
     RiAction action;
@@ -658,7 +661,6 @@ TEST_F(o80_tests, standalone_runner)
 
     start_standalone<o80_example::Driver,
 		     o80_example::Standalone>(segment_id, 500, false,
-					      o80::EmptyExtendedState{},	      
 					      0, 1000);
     usleep(2000);
     stop_standalone(segment_id);
