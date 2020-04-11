@@ -50,6 +50,7 @@ void create_min_python_bindings(pybind11::module &m,
         frontend;
     pybind11::class_<frontend>(m, "FrontEnd")
         .def(pybind11::init<std::string>())
+	.def("get_nb_actuators",&frontend::get_nb_actuators)
 	.def("get_current_iteration",&frontend::get_current_iteration)
 	.def("get_history_since",&frontend::get_history_since)
 	.def("get_latest",&frontend::get_latest)

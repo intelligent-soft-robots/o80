@@ -68,6 +68,8 @@ public:
      */
     FrontEnd(std::string segment_id);
 
+    int get_nb_actuators() const;
+    
     time_series::Index get_current_iteration();
     bool update_history_since(time_series::Index iteration,
 			   HistoryChunk& push_back_to);

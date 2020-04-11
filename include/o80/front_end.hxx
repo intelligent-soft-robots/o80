@@ -36,6 +36,13 @@ time_series::Index FRONTEND::get_current_iteration()
 }
 
 TEMPLATE_FRONTEND
+int FRONTEND::get_nb_actuators() const
+{
+    return NB_ACTUATORS;
+}
+
+
+TEMPLATE_FRONTEND
 bool FRONTEND::update_history_since(time_series::Index time_index,
 				 std::vector<Observation<NB_ACTUATORS,
 				 ROBOT_STATE,
