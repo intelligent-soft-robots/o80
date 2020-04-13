@@ -9,7 +9,6 @@
 #include "o80/observation.hpp"
 #include "o80/typedefs.hpp"
 #include "observation.hpp"
-#include "real_time_tools/spinner.hpp"
 #include "robot_interfaces/robot_backend.hpp"
 #include "robot_interfaces/robot_data.hpp"
 #include "robot_interfaces/robot_driver.hpp"
@@ -172,7 +171,6 @@ private:
     double frequency_;
     Microseconds period_;
     TimePoint now_;
-    real_time_tools::Spinner spinner_;
     std::shared_ptr<Burster> burster_;
     std::string segment_id_;
     RiDriverPtr ri_driver_ptr_;

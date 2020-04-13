@@ -34,7 +34,7 @@ STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
                        double frequency,
                        std::string segment_id)
     : frequency_(frequency),
-      period_(static_cast<long int>((1.0 / frequency + 0.5) * 10E6)),
+      period_(static_cast<long int>((1.0 / frequency) * 1E6 +0.5)),
       now_(time_now()),
       burster_(nullptr),
       segment_id_(segment_id),
@@ -74,7 +74,7 @@ void STANDALONE::start()
     {
         throw std::runtime_error("a standalone should not be started twice");
     }
-    spinner_.set_frequency(frequency_);
+    //spinner_.set_frequency(frequency_);
 }
 
 TEMPLATE_STANDALONE
@@ -118,10 +118,6 @@ bool STANDALONE::iterate(const TimePoint& time_now,
     // applying actions to robot
     robot_interfaces::TimeIndex ti = ri_frontend_.append_desired_action(action);
 
-    // TO DO : this is supposed to wait for the action to be applied (???)
-    // does not work (there seems to be one iteration shift)
-    ri_frontend_.wait_until_timeindex(ti);
-
     // check if stop command written by user in shared memory
     bool should_stop;
     shared_memory::get<bool>(segment_id_, "should_stop", should_stop);
@@ -162,7 +158,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
         // not in bursting, running at desired frequency
         if (!bursting)
         {
-            spinner_.spin();
+	    usleep(period_.count());
             now_ = time_now();
         }
 
@@ -179,7 +175,6 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
     if (bursting && should_not_stop)
     {
         burster_->pulse();
-        // follower_->pulse();
     }
 
     return should_not_stop;

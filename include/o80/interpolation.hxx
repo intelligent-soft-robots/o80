@@ -101,8 +101,5 @@ T intermediate_state(long int iteration_start,
     double diff_state = ratio * static_cast<double>(total_state);
     double desired_state = diff_state + static_cast<double>(start_state);
     T ds = static_cast<T>(desired_state);
-    std::cout << "interpolation: " << iteration_start << " " << iteration_now
-              << " " << current_state << " " << target_state << " " << ds
-              << "\n";
     return ds;
 }
