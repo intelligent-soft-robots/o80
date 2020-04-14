@@ -5,9 +5,9 @@ namespace o80
 {
 TimePoint time_now()
 {
-    std::chrono::system_clock::time_point now = Clock::now();
-    Microseconds m =
-        std::chrono::duration_cast<Microseconds>(now.time_since_epoch());
+    std::chrono::steady_clock::time_point now = Clock::now();
+    Nanoseconds m =
+        std::chrono::duration_cast<Nanoseconds>(now.time_since_epoch());
     return m;
 }
 

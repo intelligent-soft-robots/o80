@@ -4,6 +4,7 @@
 #pragma once
 
 #include "back_end.hpp"
+#include "o80/frequency_manager.hpp"
 #include "o80/burster.hpp"
 #include "o80/internal/standalone_runner.hpp"
 #include "o80/observation.hpp"
@@ -170,6 +171,7 @@ private:
 private:
     double frequency_;
     Microseconds period_;
+    FrequencyManager frequency_manager_;
     TimePoint now_;
     std::shared_ptr<Burster> burster_;
     std::string segment_id_;

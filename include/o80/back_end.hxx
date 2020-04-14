@@ -34,7 +34,6 @@ BACKEND::BackEnd(std::string segment_id)
 			    QUEUE_SIZE,true),
       desired_states_(),
       iteration_(0),
-      frequency_measure_(0, 0),
       observed_frequency_(-1)
 {
     frequency_measure_.tick();
@@ -86,8 +85,7 @@ void BACKEND::iterate(const TimePoint& time_now,
     controllers_manager_.get_newly_executed_commands(completed_commands_);
     commands_getter_.write_completed_commands_to_memory(completed_commands_);
 
-    frequency_measure_.tick();
-    observed_frequency_ = frequency_measure_.get_current_frequency();
+    observed_frequency_ = frequency_measure_.tick();
 }
 
 TEMPLATE_BACKEND

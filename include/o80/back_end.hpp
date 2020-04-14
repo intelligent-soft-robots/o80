@@ -7,7 +7,7 @@
 #include "o80/internal/controllers_manager.hpp"
 #include "o80/internal/observation_exchange.hpp"
 #include "o80/states.hpp"
-#include "real_time_tools/realtime_check.hpp"
+#include "o80/frequency_measure.hpp"
 
 namespace o80
 
@@ -132,7 +132,7 @@ private:
 
     // compute the current frequency (frequency of call to iterate),
     // related frequency is written in the Observation
-    real_time_tools::RealTimeCheck frequency_measure_;
+    FrequencyMeasure frequency_measure_;
     double observed_frequency_;
 };
 

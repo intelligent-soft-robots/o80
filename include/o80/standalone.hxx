@@ -35,6 +35,7 @@ STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
                        std::string segment_id)
     : frequency_(frequency),
       period_(static_cast<long int>((1.0 / frequency) * 1E6 +0.5)),
+      frequency_manager_(frequency_),
       now_(time_now()),
       burster_(nullptr),
       segment_id_(segment_id),
@@ -158,7 +159,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
         // not in bursting, running at desired frequency
         if (!bursting)
         {
-	    usleep(period_.count());
+	    frequency_manager_.wait();
             now_ = time_now();
         }
 

@@ -2,7 +2,6 @@
 // Author : Vincent Berenz
 
 #include "o80/internal/time_stamp.hpp"
-#include <iostream>
 
 namespace o80
 {

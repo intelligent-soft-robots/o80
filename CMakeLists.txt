@@ -45,7 +45,9 @@ add_library( o80
   src/command_type.cpp
   src/burster.cpp
   src/bool_state.cpp
-  src/void_state.cpp )
+  src/void_state.cpp
+  src/frequency_manager.cpp
+  src/frequency_measure.cpp )
 target_link_libraries(o80 ${catkin_LIBRARIES})
 
 ###################
