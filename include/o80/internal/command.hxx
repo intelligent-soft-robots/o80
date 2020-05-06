@@ -139,7 +139,7 @@ void Command<STATE>::print() const
     }
     else
     {
-        std::cout << " | mode: stack";
+        std::cout << " | mode: queue";
     }
     if (command_type_.type == Type::DIRECT)
     {

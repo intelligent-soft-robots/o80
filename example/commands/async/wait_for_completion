@@ -23,7 +23,7 @@ def up_down_motion(id):
                        0,
                        0,
                        iteration+2000,
-                       robot.Mode.STACK)
+                       robot.Mode.QUEUE)
 
     # second dof, up then down, twice
     
@@ -37,19 +37,19 @@ def up_down_motion(id):
                        1,
                        0,
                        iteration+1000,
-                       robot.Mode.STACK)
+                       robot.Mode.QUEUE)
 
     robot.add_command(id,
                        1,
                        500,
                        iteration+1500,
-                       robot.Mode.STACK)
+                       robot.Mode.QUEUE)
 
     robot.add_command(id,
                        1,
                        0,
                        iteration+2000,
-                       robot.Mode.STACK)
+                       robot.Mode.QUEUE)
     
     robot.wait_for_completion(id)
     

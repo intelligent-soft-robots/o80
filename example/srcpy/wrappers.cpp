@@ -1,5 +1,5 @@
 #include "o80/example/example.hpp"
-#include "o80/pybind_helper.hpp"
+#include "o80/pybind11_helper.hpp"
 
 PYBIND11_MODULE(o80_example, m)
 {

@@ -49,7 +49,7 @@ public:
      * @param segment_id should be the same for the
      * backend and the frontend
      */
-    BackEnd(std::string segment_id);
+    BackEnd(std::string segment_id, bool new_commands_observations=false);
 
     /**
      * @brief delete the shared memory segment
@@ -76,26 +76,12 @@ public:
         const States<NB_ACTUATORS, STATE>& current_states,
         const EXTENDED_STATE& extended_state,
         bool iteration_update = true,
-        long int current_iteration = -1,
-        bool print_observation = true);
+        long int current_iteration = -1);
 
-    /**
-     * The backend iterates once.
-     * @param time_now : current time stamp in microseconds
-     * @param current_states : current state for each actuator
-     * @return the desired states for each actuator, based on the current queue
-     * of commands
-     */
-    const States<NB_ACTUATORS, STATE>& pulse(
-        const TimePoint& time_now,
-        const States<NB_ACTUATORS, STATE>& current_states,
-        bool iteration_update = true,
-        long int current_iteration = -1,
-        bool print_observation = true);
 
 private:
     // performing on iteration. Called internally by "pulse"
-    void iterate(const TimePoint& time_now,
+    bool iterate(const TimePoint& time_now,
                  const States<NB_ACTUATORS, STATE>& current_states,
                  bool iteration_update = true,
                  long int current_iteration = -1);
@@ -134,6 +120,11 @@ private:
     // related frequency is written in the Observation
     FrequencyMeasure frequency_measure_;
     double observed_frequency_;
+
+    // if true (default is false), only observation generated
+    // a new commands execution times are shared
+    // via the shared memory
+    bool new_commands_observations_;
 };
 
 #include "back_end.hxx"

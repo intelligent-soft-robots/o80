@@ -13,7 +13,7 @@ namespace o80
 {
 template <int NB_ACTUATORS,
           class ROBOT_STATE,
-          class EXTENDED_STATE = EmptyExtendedState>
+          class EXTENDED_STATE = VoidExtendedState>
 class ObservationExchange
 {
 

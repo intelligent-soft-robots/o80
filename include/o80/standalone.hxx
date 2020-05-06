@@ -106,7 +106,7 @@ bool STANDALONE::iterate(const TimePoint& time_now,
     // adding information to extended state, based on all what is available
     enrich_extended_state(extended_state, ri_current_states);
 
-    // o80 machinery : reading the stack of command and using controller to
+    // o80 machinery : reading the queue of command and using controller to
     // compute
     //                  desired state for each actuator, writing observation to
     //                  shared memory

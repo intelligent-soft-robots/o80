@@ -13,6 +13,19 @@ ControllersManager<NB_ACTUATORS, STATE>::ControllersManager()
 }
 
 template <int NB_ACTUATORS, class STATE>
+bool ControllersManager<NB_ACTUATORS, STATE>::reapplied_desired_states() const
+{
+    for (int dof = 0; dof < NB_ACTUATORS; dof++)
+	{
+	    if (!controllers_[dof].reapplied_desired_state())
+		{
+		    return false;
+		}
+	}
+    return true;
+}
+
+template <int NB_ACTUATORS, class STATE>
 void ControllersManager<NB_ACTUATORS, STATE>::add_command(
     const Command<STATE>& command)
 {

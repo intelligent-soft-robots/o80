@@ -26,25 +26,25 @@ def up_down_motion(id):
                           DOF0,
                           200,
                           iteration+500,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
         
         robot.add_command(id,
                           DOF1,
                           800,
                           iteration+500,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
         
         robot.add_command(id,
                           DOF0,
                           800,
                           iteration+1000,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
         
         robot.add_command(id,
                           DOF1,
                           200,
                           iteration+1000,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
 
         print "\nset for iterations: [",iteration,",",iteration+1000,"]"
         

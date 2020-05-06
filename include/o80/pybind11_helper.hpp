@@ -18,6 +18,22 @@
 
 namespace o80
 {
+
+    class Pybind11Config
+    {
+    public:
+	Pybind11Config()
+	    : prefix("")
+	{}
+	bool states = true;
+	bool state = true;
+	bool observation = true;
+	bool extended_state = true;
+	bool frontend = true;
+	bool backend = true;
+	std::string prefix;
+    };
+    
 /**
  * @brief creates in python module m python bindings
  * for Burster, Iteration, Direct, Duration_us, Speed,
@@ -28,11 +44,16 @@ template <int QUEUE_SIZE,
           int NB_ACTUATORS,
           class o80_STATE,
           class o80_EXTENDED_STATE>
-void create_min_python_bindings(pybind11::module &m,
-				bool states = true,
-                                bool state = true,
-                                bool extended_state = true);
+void create_core_python_bindings(pybind11::module &m,
+				 Pybind11Config pybind11_config);
 
+template <int QUEUE_SIZE,
+          int NB_ACTUATORS,
+          class o80_STATE,
+          class o80_EXTENDED_STATE>
+void create_core_python_bindings(pybind11::module &m);
+    
+    
 /**
  * @brief creates in python module m python bindings
  * for Burster, Iteration, Direct, Duration_us, Speed,
@@ -49,17 +70,12 @@ template <int QUEUE_SIZE,
           class o80_EXTENDED_STATE,
           typename... DriverArgs>
 void _create_python_bindings(pybind11::module &m,
-			     bool states = true,
-                             bool state = true,
-                             bool extended_state = true,
-                             bool min_bindings = true);
+			     Pybind11Config pybind11_config);
 
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
 void create_python_bindings(pybind11::module &m,
-			    bool states = true,
-                            bool state = true,
-                            bool extended_state = true,
-                            bool min_bindings = true);
+			    Pybind11Config pybind11_config);
 
-#include "pybind_helper.hxx"
+#include "pybind11_helper.hxx"
+
 }

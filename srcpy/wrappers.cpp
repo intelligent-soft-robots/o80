@@ -1,6 +1,7 @@
+#include "o80/back_end.hpp"
 #include "o80/bool_state.hpp"
 #include "o80/burster.hpp"
-#include "o80/pybind_helper.hpp"
+#include "o80/pybind11_helper.hpp"
 #include "o80/type.hpp"
 #include "o80/typedefs.hpp"
 
@@ -11,6 +12,8 @@ using namespace o80;
 
 PYBIND11_MODULE(o80, m)
 {
+    m.def("clear_shared_memory",&clear_shared_memory);
+
     m.def("time_now", &time_now);
 
     m.def("time_diff", [](const TimePoint& before, const TimePoint& after) {
@@ -41,7 +44,7 @@ PYBIND11_MODULE(o80, m)
     pybind11::class_<o80::Speed>(m, "Speed").def(pybind11::init<double>());
 
     pybind11::enum_<o80::Mode>(m, "Mode")
-        .value("STACK", o80::QUEUE)
+        .value("QUEUE", o80::QUEUE)
         .value("OVERWRITE", o80::OVERWRITE);
 
     pybind11::enum_<o80::Type>(m, "Type")

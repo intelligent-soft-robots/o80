@@ -76,7 +76,7 @@ const STATE& CommandStatus<STATE>::get_starting_state() const
 // (or equal to), then duration will be smaller than a control iteration, and
 // not achievable. In this case, this method returns false, i.e. the command
 // should
-// be considered as invalid and simply removed from the stack
+// be considered as invalid and simply removed from the queue
 template <class STATE>
 bool CommandStatus<STATE>::set_initial_conditions(
     long int starting_iteration,

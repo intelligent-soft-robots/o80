@@ -26,7 +26,7 @@ void clear_shared_memory(std::string segment_id)
 }
 
 TEMPLATE_BACKEND
-BACKEND::BackEnd(std::string segment_id)
+BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
     : segment_id_(segment_id),
       commands_getter_(segment_id, std::string("commands")),
       controllers_manager_(),
@@ -34,7 +34,8 @@ BACKEND::BackEnd(std::string segment_id)
 			    QUEUE_SIZE,true),
       desired_states_(),
       iteration_(0),
-      observed_frequency_(-1)
+      observed_frequency_(-1),
+      new_commands_observations_(new_commands_observations)
 {
     frequency_measure_.tick();
 }
@@ -46,7 +47,7 @@ BACKEND::~BackEnd()
 }
 
 TEMPLATE_BACKEND
-void BACKEND::iterate(const TimePoint& time_now,
+bool BACKEND::iterate(const TimePoint& time_now,
                       const States<NB_ACTUATORS, STATE>& current_states,
                       bool iteration_update,
                       long int current_iteration)
@@ -86,6 +87,8 @@ void BACKEND::iterate(const TimePoint& time_now,
     commands_getter_.write_completed_commands_to_memory(completed_commands_);
 
     observed_frequency_ = frequency_measure_.tick();
+
+    return controllers_manager_.reapplied_desired_states();
 }
 
 TEMPLATE_BACKEND
@@ -94,13 +97,22 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     const States<NB_ACTUATORS, STATE>& current_states,
     const EXTENDED_STATE& extended_state,
     bool iteration_update,
-    long int current_iteration,
-    bool print_observation)
+    long int current_iteration)
 {
-    iterate(time_now, current_states, iteration_update, current_iteration);
+    bool reapplied_desired_states = iterate(time_now, current_states,
+				       iteration_update, current_iteration);
+
+    bool print_obs = true;
+    if (new_commands_observations_)
+	{
+	    if(reapplied_desired_states)
+		{
+		    print_obs=false;
+		}
+	}
 
     // writting current states to shared memory
-    if (print_observation)
+    if (print_obs)
     {
         Observation<NB_ACTUATORS, STATE, EXTENDED_STATE> observation(
             current_states,
@@ -115,27 +127,3 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     return desired_states_;
 }
 
-TEMPLATE_BACKEND
-const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
-    const TimePoint& time_now,
-    const States<NB_ACTUATORS, STATE>& current_states,
-    bool iteration_update,
-    long int current_iteration,
-    bool print_observation)
-{
-    iterate(time_now, current_states, iteration_update, current_iteration);
-
-    // writting current states to shared memory
-    if (print_observation)
-    {
-        Observation<NB_ACTUATORS, STATE, EXTENDED_STATE> observation(
-            current_states,
-            desired_states_,
-            time_now.count(),
-            iteration_,
-            observed_frequency_);
-        observation_exchange_.write(observation);
-    }
-
-    return desired_states_;
-}

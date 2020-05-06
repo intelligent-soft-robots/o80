@@ -7,43 +7,11 @@
 #include "shared_memory/serializer.hpp"
 #include "states.hpp"
 #include "typedefs.hpp"
+#include "void_extended_state.hpp"
 
 namespace o80
 
 {
-// Observation (below) as an optional template (Extended State).
-// The class EmptyExtendedState is used if this templated is unspecified.
-class EmptyExtendedState
-{
-public:
-    EmptyExtendedState()
-    {
-    }
-    EmptyExtendedState(const EmptyExtendedState& other)
-    {
-    }
-    EmptyExtendedState(EmptyExtendedState&& other) noexcept
-    {
-    }
-    EmptyExtendedState& operator=(const EmptyExtendedState& other)
-    {
-        return *this;
-    }
-    EmptyExtendedState& operator=(EmptyExtendedState&& other) noexcept
-    {
-        return *this;
-    }
-    void console() const
-    {
-	std::cout << "empty extended state" << std::endl;
-    }
-    template <class Archive>
-    void serialize(Archive& archive)
-    {
-        archive(foo);
-    }
-    char foo;
-};
 
 /**
  * @brief Encapsulate the current robot state, the desired robot state
@@ -149,6 +117,8 @@ public:
      */
     double get_frequency() const;
 
+    long int get_time_stamp() const;
+    
     /**
      * @brief returns a string description of the observation
      */

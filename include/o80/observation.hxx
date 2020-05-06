@@ -172,6 +172,13 @@ double OBSERVATION::get_frequency() const
 }
 
 TEMPLATE_OBSERVATION
+long int OBSERVATION::get_time_stamp() const
+{
+    return stamp_;
+}
+
+
+TEMPLATE_OBSERVATION
 std::string OBSERVATION::to_string() const
 {
     std::stringstream ss;

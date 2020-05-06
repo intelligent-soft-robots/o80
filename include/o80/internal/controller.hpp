@@ -47,6 +47,8 @@ public:
     int get_current_command_id() const;
     void get_newly_executed_commands(std::queue<int>& q);
 
+    bool reapplied_desired_state() const;
+    
 private:
     // control iteration is used to remove invalid commands, i.e. commands
     // that would require to change pressure in a duration smaller than one
@@ -66,6 +68,11 @@ private:
     std::queue<int> executed_commands_;
     STATE desired_state_;
     const STATE* current_state_;
+    // memory weather or not the latest called to
+    // get_desired_state was based on command execution,
+    // or returning the same desired state (i.e. command
+    // queue was empty)
+    bool reapplied_desired_state_;
 };
 }
 

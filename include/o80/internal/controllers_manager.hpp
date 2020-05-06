@@ -30,6 +30,8 @@ public:
 
     void get_newly_executed_commands(std::queue<int> &get);
 
+    bool reapplied_desired_states() const;
+    
 private:
     Controllers controllers_;
     States<NB_ACTUATORS, STATE> previous_desired_states_;

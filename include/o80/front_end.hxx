@@ -26,6 +26,7 @@ FRONTEND::FrontEnd(std::string segment_id)
       commands_setter_(segment_id, std::string("commands")),
       leader_(nullptr)
 {
+    history_index_ = observation_exchange_.get_history().newest_timeindex(false);
     internal::set_bursting(segment_id, 1);
 }
 
@@ -41,6 +42,12 @@ int FRONTEND::get_nb_actuators() const
     return NB_ACTUATORS;
 }
 
+TEMPLATE_FRONTEND
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::wait_for_next()
+{
+    history_index_+=1;
+    return observation_exchange_.get_history()[history_index_];
+}
 
 TEMPLATE_FRONTEND
 bool FRONTEND::update_history_since(time_series::Index time_index,

@@ -15,7 +15,7 @@ public:
     Burster(std::string segment_id);
     ~Burster();
 
-    void pulse();
+    bool pulse();
 
 public:
     static void clear_memory(std::string segment_id);

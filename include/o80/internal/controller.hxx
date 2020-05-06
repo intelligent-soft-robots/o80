@@ -4,7 +4,9 @@
 namespace o80
 {
 template <class STATE>
-Controller<STATE>::Controller() : current_state_(nullptr)
+Controller<STATE>::Controller()
+    : current_state_(nullptr),
+      reapplied_desired_state_(true)
 {
 }
 
@@ -104,7 +106,7 @@ Command<STATE>* Controller<STATE>::get_current_command(
             // close to
             // current state, resulting in a duration that is below control
             // iteration, therefore
-            // not applicable. Just removing the command from the stack.
+            // not applicable. Just removing the command from the queue.
             // (which should be fine from the user perspective, as target state
             // is almost
             // current state)
@@ -189,6 +191,12 @@ int Controller<STATE>::size() const
 }
 
 template <class STATE>
+bool Controller<STATE>::reapplied_desired_state() const
+{
+    return reapplied_desired_state_;
+}
+    
+template <class STATE>
 const STATE& Controller<STATE>::get_desired_state(
     long int current_iteration,
     const STATE& current_state,
@@ -199,8 +207,10 @@ const STATE& Controller<STATE>::get_desired_state(
     Command<STATE>* command = get_current_command(
         current_iteration, current_state, previously_desired_state, time_now);
 
+    reapplied_desired_state_=false;
     if (command == NULL)
     {
+	reapplied_desired_state_=true;
         return previously_desired_state;
     }
 

@@ -34,13 +34,13 @@ def up_down_motion(id):
                           0,
                           800,
                           iteration+1000,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
         
         robot.add_command(id,
                           1,
                           200,
                           iteration+1000,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
         
         robot.burst(id,1000);                    
 

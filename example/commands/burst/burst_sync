@@ -33,13 +33,13 @@ def up_down_motion(id1,id2):
                           0,
                           800,
                           iteration+2000,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
         
         robot.add_command(id1,
                           1,
                           200,
                           iteration+2000,
-                          robot.Mode.STACK)
+                          robot.Mode.QUEUE)
 
         for i in range(2000):
             robot1_state = robot.burst(id1,1)

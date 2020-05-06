@@ -24,16 +24,16 @@ public:
 public:
     /**
      * Request the client to write a direct command to the shared memory.
-     * Note: commands are stacked in a buffer, and a given number of commands
+     * Note: commands are queueed in a buffer, and a given number of commands
      *       are written to the shared memory everytime the "communicate"
      *       function is called.
      * @param dof : degree of freedom this command refers to
      * @sign Sign::PLUS for agonist PAM, Sign::MINUS for antagonist PAM
      * @target_state
-     * @mode Mode::STACK to add the command on top of the stack
+     * @mode Mode::QUEUE to add the command on top of the queue
      *       of commands for the specific PAM (dof and sign), i.e. executation
      *       once all previously requested commands have been terminated,
-     *       or Mode::OVERWRITE to clear up the stack (including
+     *       or Mode::OVERWRITE to clear up the queue (including
      *       currently running command, which will be interrupted)
      *       and start executation of this command as soon as possible
      * @return the id of the command
@@ -48,7 +48,7 @@ public:
     /**
      * Request the client to write a direct command to the shared memory.
      * The stamp parameter allows to delay execution in the future.
-     * Note: commands are stacked in a buffer, and a given number of commands
+     * Note: commands are queueed in a buffer, and a given number of commands
      *       are written to the shared memory everytime the "communicate"
      *       function is called.
      * @param dof : degree of freedom this command refers to
@@ -60,10 +60,10 @@ public:
      *               is set at "now" the first time this function is called.
      *               If the relative time is negative, or has passed, then the
      *               command is executed immediately.
-     * @mode Mode::STACK to add the command on top of the stack
+     * @mode Mode::QUEUE to add the command on top of the queue
      *       of commands for the specific PAM (dof and sign), i.e. executation
      *       once all previously requested commands have been terminated,
-     *       or Mode::OVERWRITE to clear up the stack (including
+     *       or Mode::OVERWRITE to clear up the queue (including
      *       currently running command, which will be interrupted)
      *       and start executation of this command as soon as possible
      * @return the id of the command
@@ -72,22 +72,22 @@ public:
 
     /**
      * Request the client to write a duration command to the shared memory.
-     * Note: commands are stacked in a buffer, and a given number of commands
+     * Note: commands are queueed in a buffer, and a given number of commands
      *       are written to the shared memory everytime the "communicate"
      *       function is called.
      * @param dof : degree of freedom this command refers to
      * @sign Sign::PLUS for agonist PAM, Sign::MINUS for antagonist PAM
      * @target_state
-     * @param duration. Warning: if the mode used is STACK (see below),
+     * @param duration. Warning: if the mode used is QUEUE (see below),
               then it may be unclear from which current state the
               command will be executed, and if the target state, and the
               current state turn out to be quite different, and the duration
               quite low, this will result in a violent motion.
               You may prefer to use a speed command.
-     * @mode Mode::STACK to add the command on top of the stack
+     * @mode Mode::QUEUE to add the command on top of the queue
      *       of commands for the specific PAM (dof and sign), i.e. executation
      *       once all previously requested commands have been terminated,
-     *       or Mode::OVERWRITE to clear up the stack (including
+     *       or Mode::OVERWRITE to clear up the queue (including
      *       currently running command, which will be interrupted)
      *       and start executation of this command as soon as possible
      * @return the id of the command
@@ -99,17 +99,17 @@ public:
 
     /**
      * Request the client to write a speed command to the shared memory.
-     * Note: commands are stacked in a buffer, and a given number of commands
+     * Note: commands are queueed in a buffer, and a given number of commands
      *       are written to the shared memory everytime the "communicate"
      *       function is called.
      * @param dof : degree of freedom this command refers to
      * @sign Sign::PLUS for agonist PAM, Sign::MINUS for antagonist PAM
      * @target_state
      * @param : speed, in units of state per second
-     * @mode Mode::STACK to add the command on top of the stack
+     * @mode Mode::QUEUE to add the command on top of the queue
      *       of commands for the specific PAM (dof and sign), i.e. executation
      *       once all previously requested commands have been terminated,
-     *       or Mode::OVERWRITE to clear up the stack (including
+     *       or Mode::OVERWRITE to clear up the queue (including
      *       currently running command, which will be interrupted)
      *       and start executation of this command as soon as possible
      * @return the id of the command

@@ -27,7 +27,7 @@ void set_bursting(const std::string &segment_id, int nb_iterations);
  * @brief FrontEnd is the user interface communicating
  * with a BackEnd. It uses an interprocess shared memory
  * under the hood. "communicating" refers to writing to
- * a stack of command, and/or reading latest observations
+ * a queue of command, and/or reading latest observations
  * written by the backend.
  * The front-end encapsulates a command queue, and add_command
  * functions add commands to this queue. Commands are transfered
@@ -78,7 +78,7 @@ public:
 
     HistoryChunk get_history_since(time_series::Index iteration);
     HistoryChunk get_latest(size_t nb_items);
-
+    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> wait_for_next();
 
     
     /**
@@ -189,6 +189,8 @@ public:
 private:
     std::string segment_id_;
 
+    time_series::Index history_index_;
+    
     // in charge of reading observation from the shared memory
     ObservationExchange<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
         observation_exchange_;
