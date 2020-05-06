@@ -75,6 +75,11 @@ bool Burster::pulse()
         if (nb_bursts_ >= 0)
         {
             nb_iterated_ = 1;
+	    if(nb_iterated_ >= nb_bursts_)
+		{
+		    nb_iterated_ = -1;
+		    reset_nb_bursts();
+		}
         }
     }
     else

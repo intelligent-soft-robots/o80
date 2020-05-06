@@ -67,7 +67,7 @@ public:
      * backend and the frontend
      */
     FrontEnd(std::string segment_id);
-
+    
     int get_nb_actuators() const;
     
     time_series::Index get_current_iteration();
@@ -79,7 +79,7 @@ public:
     HistoryChunk get_history_since(time_series::Index iteration);
     HistoryChunk get_latest(size_t nb_items);
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> wait_for_next();
-
+    void reset_next_index();
     
     /**
      * @brief Add an iteration command to the local command queue.

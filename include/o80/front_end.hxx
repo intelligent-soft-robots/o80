@@ -50,6 +50,12 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::wait_for_next()
 }
 
 TEMPLATE_FRONTEND
+void FRONTEND::reset_next_index()
+{
+    history_index_ = observation_exchange_.get_history().newest_timeindex(false)-1;
+}
+
+TEMPLATE_FRONTEND
 bool FRONTEND::update_history_since(time_series::Index time_index,
 				 std::vector<Observation<NB_ACTUATORS,
 				 ROBOT_STATE,

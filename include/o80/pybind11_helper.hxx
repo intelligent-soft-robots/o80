@@ -63,6 +63,7 @@ void create_core_python_bindings(pybind11::module &m,
 		.def("get_history_since",&frontend::get_history_since)
 		.def("get_latest",&frontend::get_latest)
 		.def("wait_for_next",&frontend::wait_for_next)
+		.def("reset_next_index",&frontend::reset_next_index)
 		.def("add_command",
 		     (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
 		     frontend::add_command)
@@ -85,6 +86,7 @@ void create_core_python_bindings(pybind11::module &m,
 		backend;
 	    pybind11::class_<backend>(m, (pybind11_config.prefix+"BackEnd").c_str())
 		.def(pybind11::init<std::string>())
+		.def(pybind11::init<std::string,bool>())
 		.def("pulse",&backend::pulse)
 		.def("pulse",[](backend& bc)
 		     {
