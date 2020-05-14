@@ -4,6 +4,7 @@
 #include "o80/pybind11_helper.hpp"
 #include "o80/type.hpp"
 #include "o80/typedefs.hpp"
+#include "o80/logger.hpp"
 
 // are wrapped here only the non templated class if o80.
 // For bindings of templated classes, see o80/pybind_helper.hpp
@@ -53,4 +54,20 @@ PYBIND11_MODULE(o80, m)
         .value("DIRECT", o80::DIRECT)
         .value("DELAYED", o80::DELAYED)
         .value("ITERATION", o80::ITERATION);
+
+    pybind11::enum_<o80::LogAction>(m, "LogAction")
+      .value("FRONTEND_WAIT_START", o80::FRONTEND_WAIT_START)
+      .value("FRONTEND_WAIT_END", o80::FRONTEND_WAIT_END)
+      .value("FRONTEND_COMMUNICATE", o80::FRONTEND_COMMUNICATE)
+      .value("FRONTEND_READ", o80::FRONTEND_READ)
+      .value("FRONTEND_COMPLETION_WAIT_START", o80::FRONTEND_COMPLETION_WAIT_START)
+      .value("FRONTEND_COMPLETION_WAIT_END", o80::FRONTEND_COMPLETION_WAIT_END)
+      .value("BACKEND_READ", o80::BACKEND_READ)
+      .value("BACKEND_WRITE_REAPPLY", o80::BACKEND_WRITE_REAPPLY)
+      .value("BACKEND_WRITE_NEW", o80::BACKEND_WRITE_NEW);
+
+    pybind11::class_<o80::Logger>(m, "Logger")
+      .def(pybind11::init<int,std::string,bool>())
+      .def("save", &Logger::save);
+    
 }

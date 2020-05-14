@@ -24,11 +24,39 @@ FRONTEND::FrontEnd(std::string segment_id)
 			    QUEUE_SIZE,
 			    false),
       commands_setter_(segment_id, std::string("commands")),
-      leader_(nullptr)
+      leader_(nullptr),
+      logger_(nullptr)
 {
     history_index_ = observation_exchange_.get_history().newest_timeindex(false);
     internal::set_bursting(segment_id, 1);
 }
+
+TEMPLATE_FRONTEND
+FRONTEND::~FrontEnd()
+{
+  if(logger_!=nullptr)
+    {
+      delete logger_;
+    }
+}
+
+TEMPLATE_FRONTEND
+void
+FRONTEND::log(LogAction action)
+{
+  if(logger_!=nullptr)
+    {
+      logger_->log(segment_id_,action);
+    }
+}
+
+TEMPLATE_FRONTEND
+void
+FRONTEND::start_logging(std::string logger_segment_id)
+{
+  logger_ = new Logger(QUEUE_SIZE,logger_segment_id,false);
+}
+
 
 TEMPLATE_FRONTEND
 time_series::Index FRONTEND::get_current_iteration()
@@ -46,7 +74,12 @@ TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::wait_for_next()
 {
     history_index_+=1;
-    return observation_exchange_.get_history()[history_index_];
+    log(LogAction::FRONTEND_WAIT_START);
+    Observation<NB_ACTUATORS,
+		ROBOT_STATE,
+		EXTENDED_STATE> obs =  observation_exchange_.get_history()[history_index_];
+    log(LogAction::FRONTEND_WAIT_END);
+    return obs;
 }
 
 TEMPLATE_FRONTEND
@@ -161,6 +194,7 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse(
 {
     command_ids_.clear();
     bool everything_shared = commands_setter_.communicate();
+    log(LogAction::FRONTEND_COMMUNICATE);
     if (!everything_shared)
     {
         throw std::runtime_error("shared memory for commands exchange full");
@@ -186,6 +220,7 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse()
 {
     command_ids_.clear();
     bool everything_shared = commands_setter_.communicate();
+    log(LogAction::FRONTEND_COMMUNICATE);
     if (!everything_shared)
     {
         throw std::runtime_error("shared memory for commands exchange full");
@@ -201,6 +236,7 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
 {
     command_ids_.clear();
     bool everything_shared = commands_setter_.communicate();
+    log(LogAction::FRONTEND_COMMUNICATE);
     if (!everything_shared)
     {
         throw std::runtime_error("shared memory for commands exchange full");
@@ -227,8 +263,10 @@ TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
 FRONTEND::pulse_and_wait()
 {
+  log(LogAction::FRONTEND_COMPLETION_WAIT_START);
     bool everything_shared = commands_setter_.wait_for_completion(
         command_ids_, o80::Microseconds(10));
+    log(LogAction::FRONTEND_COMPLETION_WAIT_END);
     if (!everything_shared)
     {
         throw std::runtime_error("shared memory for commands exchange full");
@@ -236,6 +274,7 @@ FRONTEND::pulse_and_wait()
     command_ids_.clear();
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
     observation_exchange_.read(observation);
+    log(LogAction::FRONTEND_READ);
     return observation;
 }
 
@@ -244,5 +283,6 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read()
 {
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
     observation_exchange_.read(observation);
+    log(LogAction::FRONTEND_READ);
     return observation;
 }

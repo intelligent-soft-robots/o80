@@ -8,7 +8,7 @@
 #include "internal/commands_setter.hpp"
 #include "internal/observation_exchange.hpp"
 #include "synchronizer/leader.hpp"
-
+#include "logger.hpp"
 
 namespace o80
 
@@ -67,7 +67,11 @@ public:
      * backend and the frontend
      */
     FrontEnd(std::string segment_id);
-    
+
+  ~FrontEnd();
+  
+  void start_logging(std::string logger_segment_id);
+  
     int get_nb_actuators() const;
     
     time_series::Index get_current_iteration();
@@ -187,6 +191,10 @@ public:
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> read();
 
 private:
+
+  void log(LogAction action);
+  
+private:
     std::string segment_id_;
 
     time_series::Index history_index_;
@@ -207,6 +215,9 @@ private:
 
     // in burst mode: used to the send the activating signal to the backend.
     LeaderPtr leader_;
+
+  Logger* logger_;
+  
 };
 
 #include "front_end.hxx"

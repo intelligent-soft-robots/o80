@@ -8,6 +8,7 @@
 #include "o80/internal/observation_exchange.hpp"
 #include "o80/states.hpp"
 #include "o80/frequency_measure.hpp"
+#include "o80/logger.hpp"
 
 namespace o80
 
@@ -78,6 +79,8 @@ public:
         bool iteration_update = true,
         long int current_iteration = -1);
 
+  void start_logging(std::string logger_segment_id);
+  
 
 private:
     // performing on iteration. Called internally by "pulse"
@@ -125,6 +128,9 @@ private:
     // a new commands execution times are shared
     // via the shared memory
     bool new_commands_observations_;
+
+  Logger* logger_;
+  
 };
 
 #include "back_end.hxx"

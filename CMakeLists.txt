@@ -47,7 +47,8 @@ add_library( o80
   src/bool_state.cpp
   src/void_state.cpp
   src/frequency_manager.cpp
-  src/frequency_measure.cpp )
+  src/frequency_measure.cpp
+  src/logger.cpp )
 target_link_libraries(o80 ${catkin_LIBRARIES})
 
 ###################
