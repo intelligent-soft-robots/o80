@@ -12,7 +12,9 @@
 void clear_shared_memory(std::string segment_id)
 {
     shared_memory::clear_shared_memory(segment_id);
-    shared_memory::clear_shared_memory(std::string("completed_") + segment_id);
+    shared_memory::clear_shared_memory(segment_id+std::string("_commands"));
+    shared_memory::clear_shared_memory(segment_id+std::string("_observations"));
+    shared_memory::clear_shared_memory(segment_id+std::string("_completed"));
     shared_memory::clear_shared_memory(segment_id +
                                        std::string("_synchronizer"));
     shared_memory::clear_shared_memory(segment_id +
