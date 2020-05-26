@@ -216,17 +216,19 @@ void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
         throw std::runtime_error("shared memory for commands exchange full");    
     }
   time_series::Index last_index = buffer_commands_.newest_timeindex(false);
-  for(time_series::Index index=buffer_index_; index<=last_index; index++)
-    {
-      Command<ROBOT_STATE> command = buffer_commands_[index];
-      if(store)
-	{
-	  command_ids.insert(command.get_id());
-	}
-      commands_.append(buffer_commands_[index]);
-    }
-  buffer_index_ = last_index;
-
+  if(last_index>buffer_index_)
+      {
+	  for(time_series::Index index=buffer_index_; index<=last_index; index++)
+	      {
+		  Command<ROBOT_STATE> command = buffer_commands_[index];
+		  if(store)
+		      {
+			  command_ids.insert(command.get_id());
+		      }
+		  commands_.append(buffer_commands_[index]);
+	      }
+	  buffer_index_ = last_index+1;
+      }
   // logging
   log(LogAction::FRONTEND_COMMUNICATE);
 

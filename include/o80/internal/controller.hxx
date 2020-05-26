@@ -18,17 +18,23 @@ void Controller<STATE>::reset()
 
     if (command_status.is_active())
     {
-        executed_commands_.push(current_command_.get_id());
+	completed_commands_->append(current_command_.get_id());
         command_status.set_inactive();
     }
 
     while (!queue_.empty())
     {
-        executed_commands_.push(queue_.front().get_id());
+	completed_commands_->append(queue_.front().get_id());
         queue_.pop();
     }
 }
 
+    template <class STATE>
+    void Controller<STATE>::set_completed_commands(CompletedCommandsTimeSeries& completed_commands)
+    {
+	completed_commands_=&completed_commands;
+    }
+    
 template <class STATE>
 void Controller<STATE>::set_command(const Command<STATE>& command)
 {
@@ -42,17 +48,6 @@ void Controller<STATE>::set_command(const Command<STATE>& command)
     }
 
     queue_.push(command);
-}
-
-template <class STATE>
-void Controller<STATE>::get_newly_executed_commands(std::queue<int>& q)
-{
-    std::lock_guard<std::mutex> guard(mutex_);
-    while (!executed_commands_.empty())
-    {
-        q.push(executed_commands_.front());
-        executed_commands_.pop();
-    }
 }
 
 template <class STATE>
@@ -110,7 +105,7 @@ Command<STATE>* Controller<STATE>::get_current_command(
             // (which should be fine from the user perspective, as target state
             // is almost
             // current state)
-            executed_commands_.push(current_command_.get_id());
+	    completed_commands_->append(current_command_.get_id());
             command_status.set_inactive();
             return NULL;
         }
@@ -225,7 +220,7 @@ const STATE& Controller<STATE>::get_desired_state(
     {
         const STATE& state = command->get_target_state();
         command_status.set_direct_done();
-        executed_commands_.push(command->get_id());
+	completed_commands_->append(command->get_id());
         command_status.set_inactive();
         return state;
     }
@@ -281,7 +276,7 @@ const STATE& Controller<STATE>::get_desired_state(
                                 previously_desired_state,
                                 current_command_.get_target_state()))
     {
-        executed_commands_.push(current_command_.get_id());
+	completed_commands_->append(current_command_.get_id());
         command_status.set_inactive();
         get_current_command(current_iteration + 1,
                             current_state,

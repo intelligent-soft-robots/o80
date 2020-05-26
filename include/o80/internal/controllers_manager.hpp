@@ -4,23 +4,25 @@
 #pragma once
 
 #include <memory>
+#include "time_series/multiprocess_time_series.hpp"
 #include "command.hpp"
 #include "controller.hpp"
 #include "o80/states.hpp"
 
 namespace o80
 {
-template <int NB_ACTUATORS, class STATE>
+    template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 class ControllersManager
 {
 private:
     typedef std::array<Controller<STATE>, NB_ACTUATORS> Controllers;
-
+    typedef time_series::MultiprocessTimeSeries<Command<STATE>> CommandsTimeSeries;
+    typedef time_series::MultiprocessTimeSeries<int> CompletedCommandsTimeSeries;
 public:
-    ControllersManager();
+    ControllersManager(std::string segment_id);
 
-    void add_command(const Command<STATE> &command);
-
+    void process_commands();
+	
     STATE get_desired_state(int dof,
                             long int current_iteration,
                             const TimePoint &time_now,
@@ -33,6 +35,10 @@ public:
     bool reapplied_desired_states() const;
     
 private:
+    std::string segment_id_;
+    CommandsTimeSeries commands_;
+    time_series::Index commands_index_;
+    CompletedCommandsTimeSeries completed_commands_;
     Controllers controllers_;
     States<NB_ACTUATORS, STATE> previous_desired_states_;
     std::array<bool, NB_ACTUATORS> initialized_;

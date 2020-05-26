@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <o80/standalone.hpp>
 #include <real_time_tools/thread.hpp>
 

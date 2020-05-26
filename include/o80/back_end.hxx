@@ -9,31 +9,12 @@
 
 #define BACKEND BackEnd<QUEUE_SIZE, NB_ACTUATORS, STATE, EXTENDED_STATE>
 
-void clear_shared_memory(std::string segment_id)
-{
-    shared_memory::clear_shared_memory(segment_id);
-    shared_memory::clear_shared_memory(segment_id+std::string("_commands"));
-    shared_memory::clear_shared_memory(segment_id+std::string("_observations"));
-    shared_memory::clear_shared_memory(segment_id+std::string("_completed"));
-    shared_memory::clear_shared_memory(segment_id +
-                                       std::string("_synchronizer"));
-    shared_memory::clear_shared_memory(segment_id +
-                                       std::string("_synchronizer_follower"));
-    shared_memory::clear_shared_memory(segment_id +
-                                       std::string("_synchronizer_leader"));
-    // mutex cleaned on destruction
-    shared_memory::Mutex m1(segment_id + std::string("_locker"), true);
-    shared_memory::Mutex m2(
-        std::string("completed_") + segment_id + std::string("_locker"), true);
-}
 
 TEMPLATE_BACKEND
 BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
     : segment_id_(segment_id),
-      commands_getter_(segment_id, std::string("commands")),
-      controllers_manager_(),
-      observation_exchange_(segment_id, std::string("observations"),
-			    QUEUE_SIZE,true),
+      observations_(segment_id+"_observations",QUEUE_SIZE,true),
+      controllers_manager_(segment_id),
       desired_states_(),
       iteration_(0),
       observed_frequency_(-1),
@@ -76,20 +57,13 @@ bool BACKEND::iterate(const TimePoint& time_now,
         iteration_ = current_iteration;
     }
 
-    commands_getter_.read_commands_from_memory(commands_);
-
+    controllers_manager_.process_commands();
+    
     if(logger_!=nullptr)
       {
 	logger_->log(segment_id_,LogAction::BACKEND_READ);
       }
     
-    // dispatching commands to controllers
-    while (!commands_.empty())
-    {
-        controllers_manager_.add_command(commands_.front());
-        commands_.pop();
-    }
-
     // reading desired state based on controllers output
     for (int controller_nb = 0; controller_nb < desired_states_.values.size();
          controller_nb++)
@@ -102,12 +76,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
                 current_states.values[controller_nb]);
     }
 
-    // writte completed commands to memory
-    controllers_manager_.get_newly_executed_commands(completed_commands_);
-    commands_getter_.write_completed_commands_to_memory(completed_commands_);
-
     observed_frequency_ = frequency_measure_.tick();
-
     return controllers_manager_.reapplied_desired_states();
 }
 
@@ -141,7 +110,7 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
             time_now.count(),
             iteration_,
             observed_frequency_);
-        observation_exchange_.write(observation);
+	observations_.append(observation);
 	if(logger_!=nullptr)
 	  {
 	    if (reapplied_desired_states)

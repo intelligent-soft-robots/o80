@@ -25,9 +25,13 @@ namespace o80
 template <class STATE>
 class Controller
 {
+private:
+    typedef time_series::MultiprocessTimeSeries<int> CompletedCommandsTimeSeries;
 public:
     Controller();
 
+    void set_completed_commands(CompletedCommandsTimeSeries& completed_commands);
+    
     void set_command(const Command<STATE>& command);
 
     bool stop_current(const STATE& current_state,
@@ -62,13 +66,12 @@ private:
 
 private:
     static std::mutex mutex_;
-
+    CompletedCommandsTimeSeries* completed_commands_;
     std::queue<Command<STATE>> queue_;
     Command<STATE> current_command_;
-    std::queue<int> executed_commands_;
     STATE desired_state_;
     const STATE* current_state_;
-    // memory weather or not the latest called to
+    // memory whether or not the latest called to
     // get_desired_state was based on command execution,
     // or returning the same desired state (i.e. command
     // queue was empty)

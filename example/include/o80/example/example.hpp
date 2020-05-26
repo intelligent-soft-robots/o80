@@ -1,7 +1,9 @@
 #pragma once
 
 #include "o80/standalone.hpp"
+#include "o80/memory_clearing.hpp"
 #include "robot_interfaces/robot_driver.hpp"
+
 
 #define o80_EXAMPLE_SEGMENT "o80_EXAMPLE"
 #define o80_EXAMPLE_QUEUE_SIZE 5000
