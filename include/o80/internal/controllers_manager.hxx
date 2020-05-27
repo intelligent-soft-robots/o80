@@ -36,11 +36,16 @@ bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::reapplied_desired_stat
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 {
-    time_series::Index newest_index = commands_.newest_timeindex();
+  
+    time_series::Index newest_index = commands_.newest_timeindex(false);
     if(newest_index<=commands_index_)
 	{
 	    return;
 	}
+    if(commands_index_==-1)
+      {
+	commands_index_ = commands_.oldest_timeindex(false);
+      }
     for(time_series::Index index=commands_index_;
 	index<=newest_index;index++)
 	{
@@ -108,4 +113,20 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_newly_executed_com
         controller.get_newly_executed_commands(get);
     }
 }
-};
+
+
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+time_series::MultiprocessTimeSeries<Command<STATE>>&
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_commands_time_series(){
+  return commands_;
+}
+
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+time_series::MultiprocessTimeSeries<int>&
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_completed_commands_time_series(){
+  return completed_commands_;
+}
+
+  
+}
+

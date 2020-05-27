@@ -14,7 +14,7 @@ namespace o80
     template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 class ControllersManager
 {
-private:
+public:
     typedef std::array<Controller<STATE>, NB_ACTUATORS> Controllers;
     typedef time_series::MultiprocessTimeSeries<Command<STATE>> CommandsTimeSeries;
     typedef time_series::MultiprocessTimeSeries<int> CompletedCommandsTimeSeries;
@@ -33,7 +33,10 @@ public:
     void get_newly_executed_commands(std::queue<int> &get);
 
     bool reapplied_desired_states() const;
-    
+
+  CommandsTimeSeries& get_commands_time_series();
+  CompletedCommandsTimeSeries& get_completed_commands_time_series();
+  
 private:
     std::string segment_id_;
     CommandsTimeSeries commands_;

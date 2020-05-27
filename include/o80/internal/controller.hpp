@@ -61,6 +61,7 @@ private:
                                         const STATE& current_state,
                                         const STATE& previously_desired_state,
                                         const TimePoint& time_now);
+  void share_completed_command(const Command<STATE>& command);
 
     void reset();
 

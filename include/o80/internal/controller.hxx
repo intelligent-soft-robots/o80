@@ -3,12 +3,20 @@
 
 namespace o80
 {
-template <class STATE>
+
+
+  template <class STATE>
 Controller<STATE>::Controller()
     : current_state_(nullptr),
       reapplied_desired_state_(true)
 {
 }
+
+  template<class STATE>
+void  Controller<STATE>::share_completed_command(const Command<STATE>& command)
+  {
+    completed_commands_->append(command.get_id());
+  }
 
 template <class STATE>
 void Controller<STATE>::reset()
@@ -18,13 +26,13 @@ void Controller<STATE>::reset()
 
     if (command_status.is_active())
     {
-	completed_commands_->append(current_command_.get_id());
+      share_completed_command(current_command_);
         command_status.set_inactive();
     }
 
     while (!queue_.empty())
     {
-	completed_commands_->append(queue_.front().get_id());
+      share_completed_command(queue_.front());
         queue_.pop();
     }
 }
@@ -105,7 +113,7 @@ Command<STATE>* Controller<STATE>::get_current_command(
             // (which should be fine from the user perspective, as target state
             // is almost
             // current state)
-	    completed_commands_->append(current_command_.get_id());
+	  share_completed_command(current_command_);
             command_status.set_inactive();
             return NULL;
         }
@@ -220,7 +228,7 @@ const STATE& Controller<STATE>::get_desired_state(
     {
         const STATE& state = command->get_target_state();
         command_status.set_direct_done();
-	completed_commands_->append(command->get_id());
+	share_completed_command(*command);
         command_status.set_inactive();
         return state;
     }
@@ -276,7 +284,7 @@ const STATE& Controller<STATE>::get_desired_state(
                                 previously_desired_state,
                                 current_command_.get_target_state()))
     {
-	completed_commands_->append(current_command_.get_id());
+      share_completed_command(current_command_);
         command_status.set_inactive();
         get_current_command(current_iteration + 1,
                             current_state,

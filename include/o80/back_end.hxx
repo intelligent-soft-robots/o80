@@ -21,7 +21,7 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
       new_commands_observations_(new_commands_observations),
       logger_(nullptr)
 {
-    frequency_measure_.tick();
+  frequency_measure_.tick();
 }
 
 TEMPLATE_BACKEND
@@ -88,9 +88,11 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     bool iteration_update,
     long int current_iteration)
 {
+
     bool reapplied_desired_states = iterate(time_now, current_states,
 				       iteration_update, current_iteration);
 
+    
     bool print_obs = true;
     if (new_commands_observations_)
 	{

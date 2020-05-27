@@ -21,9 +21,10 @@ FRONTEND::FrontEnd(std::string segment_id)
     : segment_id_(segment_id),
       commands_(segment_id+"_commands",QUEUE_SIZE,false),
       buffer_commands_(QUEUE_SIZE),
-      buffer_index_(0),
+      buffer_index_(-1),
       observations_(segment_id+"_observations",QUEUE_SIZE,false),
       completed_commands_(segment_id+"_completed",QUEUE_SIZE,false),
+      last_completed_command_index_(-1),
       leader_(nullptr),
       logger_(nullptr)
 {
@@ -206,29 +207,53 @@ time_series::Index FRONTEND::last_index_read_by_backend()
 TEMPLATE_FRONTEND
 void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
 {
-  // writing buffered commands into the shared memory
-  time_series::Index oldest = commands_.oldest_timeindex();
-  time_series::Index latest_read = last_index_read_by_backend();
-  time_series::Index nb_slots = latest_read-oldest;
-  time_series::Index nb_new_commands = latest_read - buffer_index_;
-  if(nb_new_commands>nb_slots)
+
+  // checking we do have space in the shared memory for new commands
+  if(!commands_.is_empty())
     {
-        throw std::runtime_error("shared memory for commands exchange full");    
+      if(buffer_index_<0)
+	{
+	  buffer_index_=0;
+	}
+      time_series::Index oldest = commands_.oldest_timeindex(false);
+      time_series::Index latest_read = last_index_read_by_backend();
+      time_series::Index nb_slots = latest_read-oldest;
+      time_series::Index nb_new_commands = latest_read - buffer_index_;
+      if(nb_new_commands>nb_slots)
+	{
+	  throw std::runtime_error("shared memory for commands exchange full");    
+	}
     }
+
+  if(buffer_commands_.is_empty())
+    {
+      return;
+    }
+  
+  // writing the commands into the shared time series
   time_series::Index last_index = buffer_commands_.newest_timeindex(false);
-  if(last_index>buffer_index_)
+
+  if(last_index>=buffer_index_)
       {
-	  for(time_series::Index index=buffer_index_; index<=last_index; index++)
+
+	if (buffer_index_==-1)
+	  {
+	    buffer_index_=buffer_commands_.oldest_timeindex(false);
+	  }
+
+	for(time_series::Index index=buffer_index_; index<=last_index; index++)
+	  {
+	    Command<ROBOT_STATE> command = buffer_commands_[index];
+	    if(store)
 	      {
-		  Command<ROBOT_STATE> command = buffer_commands_[index];
-		  if(store)
-		      {
-			  command_ids.insert(command.get_id());
-		      }
-		  commands_.append(buffer_commands_[index]);
+		command_ids.insert(command.get_id());
 	      }
-	  buffer_index_ = last_index+1;
+	    commands_.append(command);
+	  }
+
+	buffer_index_ = last_index+1;
       }
+
   // logging
   log(LogAction::FRONTEND_COMMUNICATE);
 
@@ -237,15 +262,25 @@ void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
 TEMPLATE_FRONTEND
 void FRONTEND::wait_for_completion(std::set<int>& command_ids)
 {
-  time_series::Index oldest = completed_commands_.oldest_timeindex();
-  if(last_completed_command_index_<oldest)
+  while(completed_commands_.is_empty())
+    {
+      usleep(10);
+    }
+  time_series::Index oldest = completed_commands_.oldest_timeindex(false);
+  if(last_completed_command_index_>=0 &&
+     last_completed_command_index_<oldest)
     {
       throw std::runtime_error("shared memory for completed commands exchange full");    
     }
   time_series::Index latest = completed_commands_.newest_timeindex(false);
+  if(last_completed_command_index_<0)
+    {
+      last_completed_command_index_ = completed_commands_.oldest_timeindex(false);
+    }
+  time_series::Index obs_index;
   while(true)
     {
-
+      obs_index = observations_.newest_timeindex();
       for(time_series::Index index = last_completed_command_index_;
 	  index<=latest;index++)
 	{
@@ -257,6 +292,7 @@ void FRONTEND::wait_for_completion(std::set<int>& command_ids)
 	    }
 	  latest=completed_commands_.newest_timeindex(false);
 	}
+      observations_.wait_for_timeindex(obs_index+1);
     }
 }
 
@@ -273,6 +309,10 @@ TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse()
 {
   share_commands(sent_command_ids_,false);
+  if(observations_.is_empty())
+    {
+      return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
+    }
   return observations_.newest_element();
 }
 
@@ -300,6 +340,10 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
 		    new synchronizer::Leader(segment_id_ + "_synchronizer", true));
     }
   leader_->pulse();
+  if(observations_.is_empty())
+    {
+      return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
+    }
   return observations_.newest_element();
 }
 
@@ -314,6 +358,10 @@ TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read()
 {
   Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
+  if(observations_.is_empty())
+    {
+      return observation;
+    }
   observation = observations_.newest_element();
   log(LogAction::FRONTEND_READ);
   return observation;
