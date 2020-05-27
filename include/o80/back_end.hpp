@@ -9,20 +9,11 @@
 #include "o80/states.hpp"
 #include "o80/frequency_measure.hpp"
 #include "o80/logger.hpp"
+#include "o80/memory_clearing.hpp"
 
 namespace o80
 
 {
-/**
- * @brief delete the related shared memory segment.
- * Creation of new instance of BackEnd pointing
- * to a non cleaned up shared memory segments may hang.
- * Shared memory segments are cleanup upon destruction of
- * BackEnd instances, this function is to be used as backup
- * if a program hosting a BackEnd crashed, and the
- * related destructor failed to be called.
- */
-void clear_shared_memory(std::string segment_id);
 
 /**
  * BackEnd is the entity managing the commands sent

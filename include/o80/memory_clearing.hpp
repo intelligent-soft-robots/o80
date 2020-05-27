@@ -1,6 +1,8 @@
 #pragma once
 
+
 #include "shared_memory/shared_memory.hpp"
+#include "shared_memory/mutex.hpp"
 
 namespace o80
 {

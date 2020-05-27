@@ -1,3 +1,4 @@
+#include "o80/memory_clearing.hpp"
 #include "o80/back_end.hpp"
 #include "o80/bool_state.hpp"
 #include "o80/burster.hpp"
@@ -69,5 +70,15 @@ PYBIND11_MODULE(o80, m)
     pybind11::class_<o80::Logger>(m, "Logger")
       .def(pybind11::init<int,std::string,bool>())
       .def("save", &Logger::save);
+
+    pybind11::class_<o80::FrequencyMeasure>(m, "FrequencyMeasure")
+      .def(pybind11::init<>())
+      .def("tick", &FrequencyMeasure::tick);
+    
+    pybind11::class_<o80::FrequencyManager>(m, "FrequencyManager")
+      .def(pybind11::init<double>())
+      .def("wait", &FrequencyManager::wait);
+
+    
     
 }
