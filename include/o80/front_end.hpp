@@ -9,6 +9,7 @@
 #include "observation.hpp"
 #include "synchronizer/leader.hpp"
 #include "logger.hpp"
+#include "shared_memory/lock.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 #include "time_series/time_series.hpp"
 
@@ -203,7 +204,8 @@ namespace o80
     void log(LogAction action);
     time_series::Index last_index_read_by_backend();
     void share_commands(std::set<int>& command_ids, bool store);
-    void wait_for_completion(std::set<int>& command_ids);
+    void wait_for_completion(std::set<int>& command_ids,
+			     time_series::Index completed_index);
     
   private:
     std::string segment_id_;
@@ -212,6 +214,7 @@ namespace o80
 
     // used to write commands to the shared memory
     CommandsTimeSeries commands_;
+    shared_memory::Mutex commands_mutex_;
     // tracking ids of commands shared by this frontend.
     // used by the "pulse_and_wait" method.
     std::set<int> sent_command_ids_;
@@ -229,7 +232,6 @@ namespace o80
     // used by the method "pulse_and_wait" (i.e. waiting
     // for shared commands to be completed)
     CompletedCommandsTimeSeries completed_commands_;
-    time_series::Index last_completed_command_index_;
 
     // in burst mode: used to the send the activating signal to the backend.
     LeaderPtr leader_;

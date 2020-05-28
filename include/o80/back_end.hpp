@@ -91,7 +91,7 @@ private:
     // id of shared memory segment
     std::string segment_id_;
 
-    ObservationsTimeSeries observations_;
+  ObservationsTimeSeries observations_;
     
     // host controllers (one per actuator), each controller compute
     // the current desired state based on its current command

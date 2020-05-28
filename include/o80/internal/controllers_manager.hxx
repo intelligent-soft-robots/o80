@@ -6,6 +6,7 @@ namespace o80
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::string segment_id)
     :  commands_(segment_id+"_commands",QUEUE_SIZE,true),
+       commands_mutex_(segment_id+std::string("_exchange_mutex"),true),
        commands_index_(-1),
        completed_commands_(segment_id+"_completed",QUEUE_SIZE,true),
        segment_id_(segment_id)
@@ -36,12 +37,19 @@ bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::reapplied_desired_stat
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 {
+  shared_memory::Lock lock(commands_mutex_);
   
+  if(commands_.is_empty())
+    {
+      return;
+    }
+
     time_series::Index newest_index = commands_.newest_timeindex(false);
     if(newest_index<=commands_index_)
 	{
-	    return;
+	  return;
 	}
+
     if(commands_index_==-1)
       {
 	commands_index_ = commands_.oldest_timeindex(false);

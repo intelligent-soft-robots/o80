@@ -20,6 +20,8 @@ namespace o80
 	shared_memory::clear_shared_memory(segment_id +
 					   std::string("_synchronizer_leader"));
 	// mutex cleaned on destruction
+	shared_memory::Mutex commands_mutex_(segment_id+std::string("_exchange_mutex"),
+					     true);
 	shared_memory::Mutex m1(segment_id + std::string("_locker"), true);
 	shared_memory::Mutex m2(
 				std::string("completed_") +

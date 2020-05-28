@@ -58,11 +58,11 @@ bool BACKEND::iterate(const TimePoint& time_now,
     }
 
     controllers_manager_.process_commands();
-    
-    if(logger_!=nullptr)
+
+    /*if(logger_!=nullptr)
       {
 	logger_->log(segment_id_,LogAction::BACKEND_READ);
-      }
+	}*/
     
     // reading desired state based on controllers output
     for (int controller_nb = 0; controller_nb < desired_states_.values.size();
@@ -88,11 +88,9 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     bool iteration_update,
     long int current_iteration)
 {
-
     bool reapplied_desired_states = iterate(time_now, current_states,
 				       iteration_update, current_iteration);
 
-    
     bool print_obs = true;
     if (new_commands_observations_)
 	{
@@ -125,7 +123,6 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
 	      }
 	  }
     }
-
     return desired_states_;
 }
 
