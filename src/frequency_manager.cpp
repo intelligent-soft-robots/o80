@@ -20,7 +20,7 @@ namespace o80
 		req_.tv_nsec=td;
 		nanosleep(&req_,NULL);
 	    }
-	previous_time_ = time_now();
+	previous_time_ = now+time_diff;
     }
 
 

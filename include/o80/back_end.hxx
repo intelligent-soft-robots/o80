@@ -58,11 +58,6 @@ bool BACKEND::iterate(const TimePoint& time_now,
     }
 
     controllers_manager_.process_commands();
-
-    /*if(logger_!=nullptr)
-      {
-	logger_->log(segment_id_,LogAction::BACKEND_READ);
-	}*/
     
     // reading desired state based on controllers output
     for (int controller_nb = 0; controller_nb < desired_states_.values.size();
@@ -77,6 +72,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
     }
 
     observed_frequency_ = frequency_measure_.tick();
+
     return controllers_manager_.reapplied_desired_states();
 }
 

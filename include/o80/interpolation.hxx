@@ -3,15 +3,6 @@
 template <typename T>
 bool finished(const o80::TimePoint &start,
               const o80::TimePoint &now,
-              const long int duration_us)
-{
-    o80::TimePoint finish(start.count() + duration_us);
-    return finish > now;
-}
-
-template <typename T>
-bool finished(const o80::TimePoint &start,
-              const o80::TimePoint &now,
               const T &start_state,
               const T &current_state,
               const T &target_state,
@@ -69,7 +60,7 @@ T intermediate_state(const o80::TimePoint &start,
                      const T &target_state,
                      const o80::Duration_us &duration)
 {
-    long int passed = o80::time_diff(now, start);
+    long int passed = o80::time_diff_us(start, now);
     if (passed > duration.value)
     {
         return target_state;
@@ -78,6 +69,12 @@ T intermediate_state(const o80::TimePoint &start,
         static_cast<double>(passed) / static_cast<double>(duration.value);
     double total_diff = static_cast<double>(target_state - start_state);
     double value = total_diff * ratio;
+    std::cout << "time start " << start.count() << " "
+	      << "now " << now.count() << " "
+	      << "passed " << passed << " "
+	      << "duration " << duration.value << " "
+	      << "ratio " << ratio << " "
+	      << "value " << value << "\n";
     return start_state + static_cast<T>(value);
 }
 

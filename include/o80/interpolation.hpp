@@ -6,10 +6,10 @@
 
 namespace o80
 {
-template <typename T>
+
 bool finished(const o80::TimePoint &start,
               const o80::TimePoint &now,
-              const long int duration_us);
+              long int duration_us);
 
 template <typename T>
 bool finished(const o80::TimePoint &start,

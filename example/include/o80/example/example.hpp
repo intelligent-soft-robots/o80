@@ -1,5 +1,6 @@
 #pragma once
 
+#include "o80/interpolation.hpp"
 #include "o80/standalone.hpp"
 #include "o80/memory_clearing.hpp"
 #include "robot_interfaces/robot_driver.hpp"
@@ -171,10 +172,9 @@ public:
 
     bool finished(const o80::TimePoint &start,
                   const o80::TimePoint &now,
-                  const long int duration_us) const
+                  long int duration_us) const
     {
-        o80::TimePoint finish(start.count() + duration_us);
-        return finish > now;
+	return o80::finished(start,now,duration_us);
     }
 
     bool finished(const o80::TimePoint &start,
@@ -235,13 +235,18 @@ public:
     Joint intermediate_state(const o80::TimePoint &start,
                              const o80::TimePoint &now,
                              const Joint &start_state,
-                             const Joint &current,
+                             const Joint &current_state,
                              const Joint &previously_desired_state,
                              const Joint &target_state,
                              const o80::Duration_us &duration) const
     {
-        throw std::runtime_error("to implement !");
-        return Joint();
+	int desired = o80::intermediate_state(start,
+					      now,
+					      start_state.value,
+					      current_state.value,
+					      target_state.value,
+					      duration);
+	return Joint(desired);
     }
 
     Joint intermediate_state(long int iteration_start,

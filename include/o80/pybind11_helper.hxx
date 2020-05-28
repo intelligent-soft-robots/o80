@@ -68,6 +68,9 @@ void create_core_python_bindings(pybind11::module &m,
 		     (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
 		     frontend::add_command)
 		.def("add_command",
+		     (void (frontend::*)(int, o80_STATE, Duration_us, Mode)) &
+		     frontend::add_command)
+		.def("add_command",
 		     (void (frontend::*)(int, o80_STATE, Mode)) & frontend::add_command)
 		.def("add_command",
 		     (void (frontend::*)(int, o80_STATE, Speed, Mode)) &

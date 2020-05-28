@@ -21,4 +21,6 @@ TimePoint time_now();
  */
 long int time_diff(const TimePoint& before, const TimePoint& after);
 
+    long int time_diff_us(const TimePoint& before, const TimePoint& after);
+
 }

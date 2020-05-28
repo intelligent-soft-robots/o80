@@ -22,7 +22,7 @@ public:
     template <class Archive>
     void serialize(Archive &archive)
     {
-        archive(type, speed, iteration);
+        archive(type, speed, duration, iteration);
     }
 
 public:

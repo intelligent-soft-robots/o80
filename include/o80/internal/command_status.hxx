@@ -164,12 +164,15 @@ bool CommandStatus<STATE>::finished(long int current_iteration,
 
     if (command_type_.type == Type::DURATION)
     {
-        long int time_diff = o80::time_diff(get_start_time(), now);
-        if (time_diff >= command_type_.duration.value)
-        {
-            return true;
-        }
-        return false;
+	bool finished = target.finished(get_start_time(),
+			       now,
+			       starting,
+			       current,
+			       previous_desired,
+			       target,
+			       command_type_.duration.value);
+	std::cout << "ravioli ? " << finished << "\n";
+	return finished;
     }
 
     return true;
