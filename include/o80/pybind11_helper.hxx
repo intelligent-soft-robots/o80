@@ -60,9 +60,8 @@ void create_core_python_bindings(pybind11::module &m,
 		.def(pybind11::init<std::string>())
 		.def("start_logging",&frontend::start_logging)
 		.def("get_nb_actuators",&frontend::get_nb_actuators)
-		.def("get_current_iteration",&frontend::get_current_iteration)
-		.def("get_history_since",&frontend::get_history_since)
-		.def("get_latest",&frontend::get_latest)
+		.def("get_observations_since",&frontend::get_observations_since)
+		.def("get_latest_observations",&frontend::get_latest_observations)
 		.def("wait_for_next",&frontend::wait_for_next)
 		.def("reset_next_index",&frontend::reset_next_index)
 		.def("add_command",

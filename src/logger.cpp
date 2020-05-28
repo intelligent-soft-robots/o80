@@ -55,12 +55,12 @@ namespace o80
     std::size_t l = length();
     time_series::Index start_index = logs_.oldest_timeindex();
     time_series::Index last_index = logs_.newest_timeindex(false);
-    time_series::Timestamp baseline = logs_.timestamp_ms(last_index);
+    time_series::Timestamp baseline = logs_.timestamp_ms(start_index);
     for(long int i=0;i<l;i++)
       {
 	std::tuple<time_series::Timestamp,LogEntry> stamp_entry = get(i,start_index);
 	f << std::get<1>(stamp_entry).segment_id << "\t" << std::get<1>(stamp_entry).action
-	  << "\t" << baseline - std::get<0>(stamp_entry) << "\n";
+	  << "\t" << std::get<0>(stamp_entry)- baseline  << "\n";
       }
     f.close();
     std::cout << "saved ! " << path << " \n";

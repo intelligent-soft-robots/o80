@@ -19,16 +19,17 @@ void set_bursting(const std::string &segment_id, int nb_iterations)
 TEMPLATE_FRONTEND
 FRONTEND::FrontEnd(std::string segment_id)
     : segment_id_(segment_id),
-      observation_exchange_(segment_id,
-			    std::string("observations"),
-			    QUEUE_SIZE,
-			    false),
-      commands_setter_(segment_id, std::string("commands")),
+      commands_(segment_id+"_commands",QUEUE_SIZE,false),
+      commands_mutex_(segment_id+std::string("_exchange_mutex"),false),
+      buffer_commands_(QUEUE_SIZE),
+      buffer_index_(-1),
+      observations_(segment_id+"_observations",QUEUE_SIZE,false),
+      completed_commands_(segment_id+"_completed",QUEUE_SIZE,false),
       leader_(nullptr),
       logger_(nullptr)
 {
-    history_index_ = observation_exchange_.get_history().newest_timeindex(false);
-    internal::set_bursting(segment_id, 1);
+  observations_index_ = observations_.newest_timeindex(false);
+  internal::set_bursting(segment_id, 1);
 }
 
 TEMPLATE_FRONTEND
@@ -59,51 +60,43 @@ FRONTEND::start_logging(std::string logger_segment_id)
 
 
 TEMPLATE_FRONTEND
-time_series::Index FRONTEND::get_current_iteration()
-{
-    return observation_exchange_.get_history().newest_timeindex();
-}
-
-TEMPLATE_FRONTEND
 int FRONTEND::get_nb_actuators() const
 {
     return NB_ACTUATORS;
 }
 
 TEMPLATE_FRONTEND
-Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::wait_for_next()
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
+FRONTEND::wait_for_next()
 {
-    history_index_+=1;
-    log(LogAction::FRONTEND_WAIT_START);
+    observations_index_+=1;
     Observation<NB_ACTUATORS,
 		ROBOT_STATE,
-		EXTENDED_STATE> obs =  observation_exchange_.get_history()[history_index_];
-    log(LogAction::FRONTEND_WAIT_END);
+		EXTENDED_STATE> obs =  observations_[observations_index_];
     return obs;
 }
 
 TEMPLATE_FRONTEND
 void FRONTEND::reset_next_index()
 {
-    history_index_ = observation_exchange_.get_history().newest_timeindex(false)-1;
+    observations_index_ = observations_.newest_timeindex(false);
 }
 
 TEMPLATE_FRONTEND
-bool FRONTEND::update_history_since(time_series::Index time_index,
+bool FRONTEND::observations_since(time_series::Index time_index,
 				 std::vector<Observation<NB_ACTUATORS,
 				 ROBOT_STATE,
 				 EXTENDED_STATE>>& v)
 {
-    History& history = observation_exchange_.get_history();
-    time_series::Index oldest = history.oldest_timeindex();
-    time_series::Index newest = history.newest_timeindex();
+    time_series::Index oldest = observations_.oldest_timeindex();
+    time_series::Index newest = observations_.newest_timeindex();
     if (time_index > newest || time_index<oldest)
 	{
 	    return false;
 	}
     for(time_series::Index index=time_index; index<=newest; index++)
 	{
-	    v.push_back(history[index]);
+	    v.push_back(observations_[index]);
 	}
     return true;
 }
@@ -112,25 +105,24 @@ TEMPLATE_FRONTEND
 std::vector<Observation<NB_ACTUATORS,
 			ROBOT_STATE,
 			EXTENDED_STATE>>
-FRONTEND::get_history_since(time_series::Index time_index)
+FRONTEND::get_observations_since(time_series::Index time_index)
 {
     std::vector<Observation<NB_ACTUATORS,
 			    ROBOT_STATE,
 			    EXTENDED_STATE>> v;
-    update_history_since(time_index,v);
+    observations_since(time_index,v);
     return v;
 }
 
 TEMPLATE_FRONTEND
-bool FRONTEND::update_latest(size_t nb_items,
+bool FRONTEND::update_latest_observations(size_t nb_items,
 			     std::vector<Observation<NB_ACTUATORS,
 			     ROBOT_STATE,
 			     EXTENDED_STATE>>& v)
 {
     bool r=true;
-    History& history = observation_exchange_.get_history();
-    time_series::Index oldest = history.oldest_timeindex();
-    time_series::Index newest = history.newest_timeindex();
+    time_series::Index oldest = observations_.oldest_timeindex();
+    time_series::Index newest = observations_.newest_timeindex();
     time_series::Index target = newest-nb_items+1;
     if (target<oldest)
 	{
@@ -139,7 +131,7 @@ bool FRONTEND::update_latest(size_t nb_items,
 	}
     for(time_series::Index index=target; index<=newest; index++)
 	{
-	    v.push_back(history[index]);
+	    v.push_back(observations_[index]);
 	}
     return r;
 }
@@ -148,12 +140,12 @@ TEMPLATE_FRONTEND
 std::vector<Observation<NB_ACTUATORS,
 			ROBOT_STATE,
 			EXTENDED_STATE>>
-FRONTEND::get_latest(size_t nb_items)
+FRONTEND::get_latest_observations(size_t nb_items)
 {
     std::vector<Observation<NB_ACTUATORS,
 			    ROBOT_STATE,
 			    EXTENDED_STATE>> v;
-    update_latest(nb_items,v);
+    update_latest_observations(nb_items,v);
     return v;
 			    
 }
@@ -164,9 +156,9 @@ void FRONTEND::add_command(int nb_actuator,
                            Iteration target_iteration,
                            Mode mode)
 {
-    int command_id = commands_setter_.add_command(
-        nb_actuator, target_state, target_iteration, mode);
-    command_ids_.insert(command_id);
+  Command<ROBOT_STATE> command(target_state,target_iteration,
+			       nb_actuator,mode);
+  buffer_commands_.append(command);
 }
 
 TEMPLATE_FRONTEND
@@ -175,82 +167,166 @@ void FRONTEND::add_command(int nb_actuator,
                            Speed speed,
                            Mode mode)
 {
-    int command_id =
-        commands_setter_.add_command(nb_actuator, target_state, speed, mode);
-    command_ids_.insert(command_id);
+  Command<ROBOT_STATE> command(target_state,speed,
+			       nb_actuator,mode);
+  buffer_commands_.append(command);
+}
+
+TEMPLATE_FRONTEND
+void FRONTEND::add_command(int nb_actuator,
+                           ROBOT_STATE target_state,
+                           Duration_us duration,
+                           Mode mode)
+{
+  Command<ROBOT_STATE> command(target_state,duration,
+			       nb_actuator,mode);
+  buffer_commands_.append(command);
 }
 
 TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator, ROBOT_STATE target_state, Mode mode)
 {
-    int command_id =
-        commands_setter_.add_command(nb_actuator, target_state, mode);
-    command_ids_.insert(command_id);
+  Command<ROBOT_STATE> command(target_state,
+			       nb_actuator,mode);
+  buffer_commands_.append(command);
+}
+
+TEMPLATE_FRONTEND
+time_series::Index FRONTEND::last_index_read_by_backend()
+{
+  time_series::Index index;
+  shared_memory::get<time_series::Index>(segment_id_,
+					 "command_read",
+					 index);
+  return index;
+					 
+}
+
+TEMPLATE_FRONTEND
+void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
+{
+
+  // checking we do have space in the shared memory for new commands
+  if(!commands_.is_empty())
+    {
+      if(buffer_index_<0)
+	{
+	  buffer_index_=0;
+	}
+      time_series::Index oldest = commands_.oldest_timeindex(false);
+      time_series::Index latest_read = last_index_read_by_backend();
+      time_series::Index nb_slots = latest_read-oldest;
+      time_series::Index nb_new_commands = latest_read - buffer_index_;
+      if(nb_new_commands>nb_slots)
+	{
+	  throw std::runtime_error("shared memory for commands exchange full");    
+	}
+    }
+
+  if(buffer_commands_.is_empty())
+    {
+      return;
+    }
+  
+  // writing the commands into the shared time series
+  time_series::Index last_index = buffer_commands_.newest_timeindex(false);
+
+  if(last_index>=buffer_index_)
+      {
+
+	if (buffer_index_==-1)
+	  {
+	    buffer_index_=buffer_commands_.oldest_timeindex(false);
+	  }
+
+	shared_memory::Lock lock(commands_mutex_);
+	
+	for(time_series::Index index=buffer_index_; index<=last_index; index++)
+	  {
+	    Command<ROBOT_STATE> command = buffer_commands_[index];
+	    if(store)
+	      {
+		command_ids.insert(command.get_id());
+	      }
+	    commands_.append(command);
+	  }
+
+	buffer_index_ = last_index+1;
+      }
+
+}
+
+TEMPLATE_FRONTEND
+void FRONTEND::wait_for_completion(std::set<int>& command_ids,
+				   time_series::Index completed_index)
+{
+  completed_index++;
+  while(true)
+    {
+      time_series::Index command_id = completed_commands_[completed_index];
+      command_ids.erase(command_id);
+      if (command_ids.empty())
+	{
+	  return;
+	}
+      completed_index++;
+    }
 }
 
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse(
     Iteration iteration)
 {
-    command_ids_.clear();
-    bool everything_shared = commands_setter_.communicate();
-    log(LogAction::FRONTEND_COMMUNICATE);
-    if (!everything_shared)
-    {
-        throw std::runtime_error("shared memory for commands exchange full");
-    }
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
-    while (true)
-    {
-        observation_exchange_.read(observation);
-        long int current_iteration = observation.get_iteration();
-        if (current_iteration < iteration.value)
-        {
-            usleep(5);
-        }
-        else
-        {
-            return observation;
-        }
-    }
+  share_commands(sent_command_ids_,false);
+  observations_.wait_for_timeindex(iteration.value);
+  return observations_[iteration.value];
 }
 
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse()
 {
-    command_ids_.clear();
-    bool everything_shared = commands_setter_.communicate();
-    log(LogAction::FRONTEND_COMMUNICATE);
-    if (!everything_shared)
+  share_commands(sent_command_ids_,false);
+  if(observations_.is_empty())
     {
-        throw std::runtime_error("shared memory for commands exchange full");
+      return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
     }
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
-    observation_exchange_.read(observation);
-    return observation;
+  return observations_.newest_element();
 }
+
+
+TEMPLATE_FRONTEND
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
+FRONTEND::pulse_and_wait()
+{
+  sent_command_ids_.clear();
+  int completed_index=-1;
+  if(!completed_commands_.is_empty())
+    {
+      completed_index = completed_commands_.newest_timeindex();
+    }
+  share_commands(sent_command_ids_,true);
+  wait_for_completion(sent_command_ids_,completed_index);
+  return observations_.newest_element();
+}
+
 
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
     int nb_iterations)
 {
-    command_ids_.clear();
-    bool everything_shared = commands_setter_.communicate();
-    log(LogAction::FRONTEND_COMMUNICATE);
-    if (!everything_shared)
+  share_commands(sent_command_ids_,false);
+  internal::set_bursting(segment_id_, nb_iterations);
+  if (leader_ == nullptr)
     {
-        throw std::runtime_error("shared memory for commands exchange full");
+      leader_.reset(
+		    new synchronizer::Leader(segment_id_ + "_synchronizer", true));
     }
-    internal::set_bursting(segment_id_, nb_iterations);
-    if (leader_ == nullptr)
+  leader_->pulse();
+  if(observations_.is_empty())
     {
-        leader_.reset(
-            new synchronizer::Leader(segment_id_ + "_synchronizer", true));
+      return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
     }
-    leader_->pulse();
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
-    observation_exchange_.read(observation);
-    return observation;
+  return observations_.newest_element();
 }
 
 TEMPLATE_FRONTEND
@@ -259,30 +335,15 @@ void FRONTEND::final_burst()
     leader_->stop_sync();
 }
 
-TEMPLATE_FRONTEND
-Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
-FRONTEND::pulse_and_wait()
-{
-  log(LogAction::FRONTEND_COMPLETION_WAIT_START);
-    bool everything_shared = commands_setter_.wait_for_completion(
-        command_ids_, o80::Microseconds(10));
-    log(LogAction::FRONTEND_COMPLETION_WAIT_END);
-    if (!everything_shared)
-    {
-        throw std::runtime_error("shared memory for commands exchange full");
-    }
-    command_ids_.clear();
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
-    observation_exchange_.read(observation);
-    log(LogAction::FRONTEND_READ);
-    return observation;
-}
 
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read()
 {
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
-    observation_exchange_.read(observation);
-    log(LogAction::FRONTEND_READ);
-    return observation;
+  Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
+  if(observations_.is_empty())
+    {
+      return observation;
+    }
+  observation = observations_.newest_element();
+  return observation;
 }

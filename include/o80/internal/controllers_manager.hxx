@@ -3,17 +3,26 @@
 
 namespace o80
 {
-template <int NB_ACTUATORS, class STATE>
-ControllersManager<NB_ACTUATORS, STATE>::ControllersManager()
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::string segment_id)
+    :  commands_(segment_id+"_commands",QUEUE_SIZE,true),
+       commands_mutex_(segment_id+std::string("_exchange_mutex"),true),
+       commands_index_(-1),
+       completed_commands_(segment_id+"_completed",QUEUE_SIZE,true),
+       segment_id_(segment_id)
 {
     for (int i = 0; i < NB_ACTUATORS; i++)
     {
         initialized_[i] = false;
+	controllers_[i].set_completed_commands(completed_commands_);
     }
+    shared_memory::set<time_series::Index>(segment_id_,
+					   "command_read",
+					   commands_index_);
 }
 
-template <int NB_ACTUATORS, class STATE>
-bool ControllersManager<NB_ACTUATORS, STATE>::reapplied_desired_states() const
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::reapplied_desired_states() const
 {
     for (int dof = 0; dof < NB_ACTUATORS; dof++)
 	{
@@ -25,20 +34,47 @@ bool ControllersManager<NB_ACTUATORS, STATE>::reapplied_desired_states() const
     return true;
 }
 
-template <int NB_ACTUATORS, class STATE>
-void ControllersManager<NB_ACTUATORS, STATE>::add_command(
-    const Command<STATE>& command)
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 {
-    int dof = command.get_dof();
-    if (dof < 0 || dof >= controllers_.size())
+  shared_memory::Lock lock(commands_mutex_);
+  
+  if(commands_.is_empty())
     {
-        throw std::runtime_error("command with incorrect dof index");
+      return;
     }
-    controllers_[dof].set_command(command);
+
+    time_series::Index newest_index = commands_.newest_timeindex(false);
+    if(newest_index<=commands_index_)
+	{
+	  return;
+	}
+
+    if(commands_index_==-1)
+      {
+	commands_index_ = commands_.oldest_timeindex(false);
+      }
+    for(time_series::Index index=commands_index_;
+	index<=newest_index;index++)
+	{
+	    Command<STATE> command = commands_[index];
+	    int dof = command.get_dof();
+	    if (dof < 0 || dof >= controllers_.size())
+		{
+		    throw std::runtime_error("command with incorrect dof index");
+		}
+	    controllers_[dof].set_command(command);
+	}
+    commands_index_=newest_index;
+    shared_memory::set<time_series::Index>(segment_id_,
+					   "command_read",
+					   commands_index_);
 }
 
-template <int NB_ACTUATORS, class STATE>
-STATE ControllersManager<NB_ACTUATORS, STATE>::get_desired_state(
+
+    
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+STATE ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_desired_state(
     int dof,
     long int current_iteration,
     const TimePoint& time_now,
@@ -65,8 +101,8 @@ STATE ControllersManager<NB_ACTUATORS, STATE>::get_desired_state(
     return desired;
 }
 
-template <int NB_ACTUATORS, class STATE>
-int ControllersManager<NB_ACTUATORS, STATE>::get_current_command_id(
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+int ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_current_command_id(
     int dof) const
 {
     if (dof < 0 || dof >= controllers_.size())
@@ -76,8 +112,8 @@ int ControllersManager<NB_ACTUATORS, STATE>::get_current_command_id(
     return controllers_[dof].get_current_command_id();
 }
 
-template <int NB_ACTUATORS, class STATE>
-void ControllersManager<NB_ACTUATORS, STATE>::get_newly_executed_commands(
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_newly_executed_commands(
     std::queue<int>& get)
 {
     for (Controller<STATE>& controller : controllers_)
@@ -85,4 +121,20 @@ void ControllersManager<NB_ACTUATORS, STATE>::get_newly_executed_commands(
         controller.get_newly_executed_commands(get);
     }
 }
-};
+
+
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+time_series::MultiprocessTimeSeries<Command<STATE>>&
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_commands_time_series(){
+  return commands_;
+}
+
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+time_series::MultiprocessTimeSeries<int>&
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_completed_commands_time_series(){
+  return completed_commands_;
+}
+
+  
+}
+

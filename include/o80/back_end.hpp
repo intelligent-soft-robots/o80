@@ -3,26 +3,17 @@
 
 #pragma once
 
-#include "o80/internal/commands_getter.hpp"
+#include "time_series/multiprocess_time_series.hpp"
 #include "o80/internal/controllers_manager.hpp"
-#include "o80/internal/observation_exchange.hpp"
+#include "o80/observation.hpp"
 #include "o80/states.hpp"
 #include "o80/frequency_measure.hpp"
 #include "o80/logger.hpp"
+#include "o80/memory_clearing.hpp"
 
 namespace o80
 
 {
-/**
- * @brief delete the related shared memory segment.
- * Creation of new instance of BackEnd pointing
- * to a non cleaned up shared memory segments may hang.
- * Shared memory segments are cleanup upon destruction of
- * BackEnd instances, this function is to be used as backup
- * if a program hosting a BackEnd crashed, and the
- * related destructor failed to be called.
- */
-void clear_shared_memory(std::string segment_id);
 
 /**
  * BackEnd is the entity managing the commands sent
@@ -45,6 +36,13 @@ void clear_shared_memory(std::string segment_id);
 template <int QUEUE_SIZE, int NB_ACTUATORS, class STATE, class EXTENDED_STATE>
 class BackEnd
 {
+
+public:
+
+    typedef time_series::MultiprocessTimeSeries<Observation<NB_ACTUATORS,
+							    STATE,
+							    EXTENDED_STATE>> ObservationsTimeSeries;
+
 public:
     /**
      * @param segment_id should be the same for the
@@ -93,28 +91,15 @@ private:
     // id of shared memory segment
     std::string segment_id_;
 
-    // used to read the commands from the shared memory
-    CommandsGetter<QUEUE_SIZE, STATE> commands_getter_;
-
+  ObservationsTimeSeries observations_;
+    
     // host controllers (one per actuator), each controller compute
     // the current desired state based on its current command
-    ControllersManager<NB_ACTUATORS, STATE> controllers_manager_;
-
-    // used to write Observation in the shared memory
-    ObservationExchange<NB_ACTUATORS, STATE, EXTENDED_STATE>
-        observation_exchange_;
+    ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE> controllers_manager_;
 
     // Desired states as computed by the controllers. Reference to this instance
     // is returned by "pulse" functions
     States<NB_ACTUATORS, STATE> desired_states_;
-
-    // queue of commands. New commands are added by commands_getter,
-    // and commands are poped by controllers_manager
-    std::queue<Command<STATE>> commands_;
-
-    // queue of completed command ids, written in the shared memory
-    // commands ids are added by controllers_manager
-    std::queue<int> completed_commands_;
 
     // incremented at each call of iterate
     long int iteration_;

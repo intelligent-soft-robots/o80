@@ -1,3 +1,4 @@
+#include "o80/memory_clearing.hpp"
 #include "o80/back_end.hpp"
 #include "o80/frequency_measure.hpp"
 #include "o80/frequency_manager.hpp"
@@ -77,8 +78,7 @@ PYBIND11_MODULE(o80, m)
       .def("tick", &FrequencyMeasure::tick);
 
     pybind11::class_<o80::FrequencyManager>(m, "FrequencyManager")
-	.def(pybind11::init<double>())
+      .def(pybind11::init<double>())
       .def("wait", &FrequencyManager::wait);
-    
-    
+
 }

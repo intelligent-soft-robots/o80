@@ -9,9 +9,6 @@
 #include "o80/burster.hpp"
 #include "o80/example/example.hpp"
 #include "o80/front_end.hpp"
-#include "o80/internal/commands_getter.hpp"
-#include "o80/internal/commands_setter.hpp"
-#include "o80/internal/observation_exchange.hpp"
 #include "o80/observation.hpp"
 #include "o80/type.hpp"
 
@@ -36,132 +33,6 @@ class o80_tests : public ::testing::Test
         clear_memory();
     }
 };
-
-// checking that observations are correctly
-// written and read in/from the shared memory
-TEST_F(o80_tests, observation_exchange)
-{
-    clear_memory();
-
-    States<2, o80_example::Joint> desired;
-    States<2, o80_example::Joint> observed;
-
-    long int stamp = 100;
-    long int iteration = 1000;
-    double frequency = 2000;
-
-    for (int a = 0; a < 2; a++)
-    {
-        desired.values[a] = o80_example::Joint(2);
-        observed.values[a] = o80_example::Joint(1);
-    }
-
-    ObservationExchange<2, o80_example::Joint, o80::VoidExtendedState>
-        exchange(o80_EXAMPLE_SEGMENT, std::string("oe_test"));
-
-    Observation<2, o80_example::Joint, o80::VoidExtendedState> observation_in(
-        observed, desired, stamp, iteration, frequency);
-    exchange.write(observation_in);
-
-    Observation<2, o80_example::Joint, o80::VoidExtendedState> observation_out;
-    exchange.read(observation_out);
-
-    ASSERT_EQ(observation_in.get_iteration(), observation_out.get_iteration());
-
-    for (int a = 0; a < 2; a++)
-    {
-        int in = observation_in.get_observed_states().values[a].get();
-        int out = observation_out.get_observed_states().values[a].get();
-        ASSERT_EQ(in, out);
-    }
-
-    for (int a = 0; a < 2; a++)
-    {
-        int in = observation_in.get_desired_states().values[a].get();
-        int out = observation_out.get_desired_states().values[a].get();
-        ASSERT_EQ(in, out);
-    }
-}
-
-// check commands getting in the memory
-// are correctly restored from the shared memory
-TEST_F(o80_tests, commands_exchange)
-{
-    clear_memory();
-
-    CommandsGetter<o80_EXAMPLE_QUEUE_SIZE, o80_example::Joint> getter(
-        o80_EXAMPLE_SEGMENT, std::string("cs_test"));
-    CommandsSetter<o80_EXAMPLE_QUEUE_SIZE, o80_example::Joint> setter(
-        o80_EXAMPLE_SEGMENT, std::string("cs_test"));
-
-    for (int a = 0; a < 2; a++)
-    {
-        setter.add_command(a, o80_example::Joint(a + 1), Mode::QUEUE);
-    }
-
-    setter.communicate();
-
-    std::queue<Command<o80_example::Joint>> commands;
-    getter.read_commands_from_memory(commands);
-
-    ASSERT_EQ(commands.empty(), false);
-
-    bool found[2] = {false, false};
-    int nb_found = 0;
-    while (!commands.empty())
-    {
-        nb_found++;
-        const Command<o80_example::Joint>& command = commands.front();
-        int dof = command.get_dof();
-        ASSERT_EQ(dof < 0, false);
-        ASSERT_EQ(dof > 1, false);
-        const o80_example::Joint& state = command.get_target_state();
-        ASSERT_EQ(state.get(), dof + 1);
-        found[dof] = true;
-        commands.pop();
-    }
-    ASSERT_EQ(nb_found, 2);
-    for (int i = 0; i < 2; i++)
-    {
-        ASSERT_EQ(found[i], true);
-    }
-}
-
-// check return false on too many commands
-TEST_F(o80_tests, too_many_commands)
-{
-    clear_memory();
-
-    CommandsGetter<o80_EXAMPLE_QUEUE_SIZE, o80_example::Joint> getter(
-        o80_EXAMPLE_SEGMENT, std::string("cs_test"));
-    CommandsSetter<o80_EXAMPLE_QUEUE_SIZE, o80_example::Joint> setter(
-        o80_EXAMPLE_SEGMENT, std::string("cs_test"));
-
-    for (int i = 0; i < o80_EXAMPLE_QUEUE_SIZE; i++)
-    {
-        setter.add_command(0, o80_example::Joint(0), Mode::QUEUE);
-    }
-
-    bool everything_shared = setter.communicate();
-
-    ASSERT_EQ(everything_shared, false);
-
-    for (int i = 0; i < o80_EXAMPLE_QUEUE_SIZE; i++)
-    {
-        everything_shared = setter.communicate();
-        ASSERT_EQ(everything_shared, false);
-    }
-
-    std::queue<Command<o80_example::Joint>> commands;
-    for (int i = 0; i < o80_EXAMPLE_QUEUE_SIZE; i++)
-    {
-        getter.read_commands_from_memory(commands);
-        setter.communicate();
-    }
-
-    everything_shared = setter.communicate();
-    ASSERT_EQ(everything_shared, true);
-}
 
 // check return false on too many commands
 TEST_F(o80_tests, command_status)
@@ -316,7 +187,16 @@ TEST_F(o80_tests, speed_command_status)
 
 TEST_F(o80_tests, controllers_manager)
 {
-    ControllersManager<2, o80_example::Joint> manager;
+    std::string segment_id("ut_controllers_manager");
+    o80::clear_shared_memory(segment_id);
+
+    typedef ControllersManager<2, o80_EXAMPLE_QUEUE_SIZE,
+			       o80_example::Joint> CM;
+    
+    CM manager(segment_id);
+    CM::CommandsTimeSeries& commands = manager.get_commands_time_series();
+    CM::CompletedCommandsTimeSeries& completed_commands
+      = manager.get_completed_commands_time_series();
 
     // initializing both joints to 0
 
@@ -347,12 +227,14 @@ TEST_F(o80_tests, controllers_manager)
         o80_example::Joint(500), 1, Mode::OVERWRITE);
 
     // sending commands to the manager
+    commands.append(c00);
+    commands.append(c01);
+    commands.append(c10);
+    commands.append(c11);
 
-    manager.add_command(c00);
-    manager.add_command(c01);
-    manager.add_command(c10);
-    manager.add_command(c11);
-
+    // processing the commands
+    manager.process_commands();
+    
     // saving the ids of all commands
 
     std::array<int, 4> ids = {
@@ -422,28 +304,23 @@ TEST_F(o80_tests, controllers_manager)
 
     // checking the manager stored the ids of executed commands
 
-    std::queue<int> executed_commands;
-    manager.get_newly_executed_commands(executed_commands);
-    std::set<int> executed;
-    while (!executed_commands.empty())
-    {
-        executed.insert(executed_commands.front());
-        executed_commands.pop();
-    }
-
-    ASSERT_EQ(executed.size(), 4);
+    std::set<int> executed_commands;
+    time_series::Index oldest = completed_commands.oldest_timeindex();
+    time_series::Index newest = completed_commands.newest_timeindex();
+    for (time_series::Index index=oldest;index<=newest;
+	 index++)
+      {
+	executed_commands.insert(completed_commands[index]);
+      }
+    
+    ASSERT_EQ(executed_commands.size(), 4);
 
     for (int id : ids)
     {
-        auto f = executed.find(id);
-        ASSERT_TRUE(f != executed.end());
+        auto f = executed_commands.find(id);
+        ASSERT_TRUE(f != executed_commands.end());
     }
 
-    // checking the queue was purged
-
-    std::queue<int> executed_commands2;
-    manager.get_newly_executed_commands(executed_commands2);
-    ASSERT_EQ(executed_commands.size(), 0);
 }
 
 TEST_F(o80_tests, front_and_backends_basic)
@@ -542,15 +419,15 @@ TEST_F(o80_tests, front_and_backends_reapply)
     FrontEnd<1000, 2, o80_example::Joint, o80::VoidExtendedState> frontend(
         "f_a_bends_utests");
 
-    Observation<2, o80_example::Joint, o80::VoidExtendedState> observation = frontend.pulse();
-    long int iteration = observation.get_iteration();
+    long int iteration = -1;
     
     frontend.add_command(0,o80_example::Joint(1),Mode::QUEUE);
     frontend.pulse();
 
     States<2, o80_example::Joint> states;
     backend.pulse(TimePoint(0), states, o80::VoidExtendedState());
-    observation = frontend.pulse();
+    Observation<2, o80_example::Joint, o80::VoidExtendedState> observation
+      = frontend.pulse();
     long int iteration2 = observation.get_iteration();
 
     ASSERT_NE(iteration,iteration2);
@@ -642,8 +519,8 @@ TEST_F(o80_tests, frontend_wait)
 
     // false would mean did not wait
     long int duration = time_diff(start, end);
-
     ASSERT_GT(duration, 1000);
+    
     ASSERT_EQ(j0.value, 200);
     ASSERT_EQ(j1.value, 300);
 }
@@ -714,40 +591,41 @@ static void* frontend_wait_low_freq_fn(void*)
 
 TEST_F(o80_tests, frontend_wait_for_next)
 {
-    RUNNING = true;
-    clear_shared_memory("frontend_wait_utests");
-    real_time_tools::RealTimeThread thread;
-    thread.create_realtime_thread(frontend_wait_low_freq_fn);
-    usleep(5000);
+  RUNNING = true;
+  clear_shared_memory("frontend_wait_utests");
+  real_time_tools::RealTimeThread thread;
+  thread.create_realtime_thread(frontend_wait_low_freq_fn);
+  usleep(5000);
 
-    for(int a=0;a<3;a++)
+  for(int a=0;a<3;a++)
+    {
+
+      FrontEnd<o80_EXAMPLE_QUEUE_SIZE,
+	       o80_EXAMPLE_NB_DOFS,
+	       o80_example::Joint,
+	       o80::VoidExtendedState>
+	frontend("frontend_wait_utests");
+	  
+      frontend.add_command(
+			   0, o80_example::Joint(100), Iteration(100), Mode::QUEUE);
+      frontend.pulse();
+	  
+      int iteration = -1;
+      for(int i=0;i<20;i++)
 	{
-	    FrontEnd<o80_EXAMPLE_QUEUE_SIZE,
-		     o80_EXAMPLE_NB_DOFS,
-		     o80_example::Joint,
-		     o80::VoidExtendedState>
-		frontend("frontend_wait_utests");
-
-	    frontend.add_command(
-				 0, o80_example::Joint(100), Iteration(100), Mode::QUEUE);
-	    frontend.pulse();
-
-	    int iteration = -1;
-	    for(int i=0;i<20;i++)
-		{
-		    Observation<2, o80_example::Joint, o80::VoidExtendedState> observation =
-			frontend.wait_for_next();
-		    int iter = observation.get_iteration();
-		    if(iteration>0)
-			{
-			    ASSERT_EQ(iter,iteration+1);
-			}
-		    iteration=iter;
-		}
+	  Observation<2, o80_example::Joint, o80::VoidExtendedState> observation =
+	    frontend.wait_for_next();
+	  int iter = observation.get_iteration();
+	  if(iteration>0)
+	    {
+	      ASSERT_EQ(iter,iteration+1);
+	    }
+	  iteration=iter;
 	}
+    }
 
-    RUNNING = false;
-    thread.join();
+  RUNNING = false;
+  thread.join();
 }
 
 
@@ -838,6 +716,7 @@ TEST_F(o80_tests, burster)
 
     RUNNING = false;
     thread.join();
+    
 }
 
 static void* bursting_standalone_fn(void*)
@@ -945,15 +824,15 @@ TEST_F(o80_tests, history)
 	}
     frontend.burst(120);
 
-    time_series::Index newest = frontend.get_current_iteration();
-    ASSERT_EQ(newest,119);
+    long int newest = frontend.read().get_iteration();
+    ASSERT_EQ(newest,120);
 
     typedef Observation<o80_EXAMPLE_NB_DOFS,
 			o80_example::Joint,
 			o80::VoidExtendedState> OBS;
 
-    std::vector<OBS> history1 = frontend.get_history_since(90);
-    std::vector<OBS> history2 = frontend.get_latest(30);
+    std::vector<OBS> history1 = frontend.get_observations_since(90);
+    std::vector<OBS> history2 = frontend.get_latest_observations(30);
     ASSERT_EQ(history1.size(),30);
     ASSERT_EQ(history2.size(),30);
 
