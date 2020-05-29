@@ -45,7 +45,7 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
     }
 
     time_series::Index newest_index = commands_.newest_timeindex(false);
-    if(newest_index<=commands_index_)
+    if(newest_index<commands_index_)
 	{
 	  return;
 	}
@@ -64,8 +64,10 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 		    throw std::runtime_error("command with incorrect dof index");
 		}
 	    controllers_[dof].set_command(command);
+	    std::cout << "backend | " << index <<" | ";
+	    command.print();
 	}
-    commands_index_=newest_index;
+    commands_index_=newest_index+1;
     shared_memory::set<time_series::Index>(segment_id_,
 					   "command_read",
 					   commands_index_);

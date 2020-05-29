@@ -43,9 +43,18 @@ PYBIND11_MODULE(o80, m)
     pybind11::class_<o80::Direct>(m, "Direct").def(pybind11::init<>());
 
     pybind11::class_<o80::Duration_us>(m, "Duration_us")
-        .def(pybind11::init<long int>());
+        .def(pybind11::init<long int>())
+      .def("seconds",o80::Duration_us::seconds)
+    .def("milliseconds",o80::Duration_us::milliseconds)
+    .def("microseconds",o80::Duration_us::microseconds)
+    .def("nanoseconds",o80::Duration_us::nanoseconds);
 
-    pybind11::class_<o80::Speed>(m, "Speed").def(pybind11::init<double>());
+    pybind11::class_<o80::Speed>(m, "Speed")
+      .def(pybind11::init<double>())
+      .def("per_second",o80::Speed::per_second)
+      .def("per_millisecond",o80::Speed::per_millisecond)
+      .def("per_microsecond",o80::Speed::per_microsecond)
+      .def("per_nanosecond",o80::Speed::per_nanosecond);
 
     pybind11::enum_<o80::Mode>(m, "Mode")
         .value("QUEUE", o80::QUEUE)

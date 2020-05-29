@@ -8,13 +8,12 @@ bool finished(const o80::TimePoint &start,
               const T &target_state,
               const o80::Speed &speed)
 {
-    T value_diff = abs(target_state - start_state);
-    double duration_sec = static_cast<double>(value_diff) /
-                          static_cast<double>(fabs(speed.value));
-    long int duration = static_cast<long int>(duration_sec * 1E6);
-    long int expected_end_int = start.count() + duration;
-    o80::TimePoint expected_end(expected_end_int);
-    if (now > expected_end)
+  double value_diff = fabs(static_cast<double>(target_state) -
+			   static_cast<double>(start_state));
+  double duration_us = value_diff / speed.value;
+  long int expected_end
+      = std::chrono::duration_cast<Microseconds>(start).count() + duration_us;
+    if (now.count() > expected_end)
     {
         return true;
     }
@@ -30,7 +29,7 @@ T intermediate_state(const o80::TimePoint &start,
                      const o80::Speed &speed)
 {
     double time_diff =
-        static_cast<double>((now - start).count()) / 1E6;  // seconds
+      static_cast<double>(time_diff_us(start,now)) / 1E6;  // seconds
     double value_diff = static_cast<double>(target_state - start_state);
     double desired;
     if (value_diff > 0)
@@ -69,12 +68,6 @@ T intermediate_state(const o80::TimePoint &start,
         static_cast<double>(passed) / static_cast<double>(duration.value);
     double total_diff = static_cast<double>(target_state - start_state);
     double value = total_diff * ratio;
-    std::cout << "time start " << start.count() << " "
-	      << "now " << now.count() << " "
-	      << "passed " << passed << " "
-	      << "duration " << duration.value << " "
-	      << "ratio " << ratio << " "
-	      << "value " << value << "\n";
     return start_state + static_cast<T>(value);
 }
 

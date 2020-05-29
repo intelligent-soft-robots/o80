@@ -119,6 +119,7 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
 	      }
 	  }
     }
+
     return desired_states_;
 }
 

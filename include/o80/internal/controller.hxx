@@ -15,6 +15,8 @@ Controller<STATE>::Controller()
   template<class STATE>
 void  Controller<STATE>::share_completed_command(const Command<STATE>& command)
   {
+    std::cout << "backend completed ";
+    command.print();
     completed_commands_->append(command.get_id());
   }
 

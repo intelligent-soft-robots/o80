@@ -5,6 +5,8 @@
 
 namespace o80
 {
+    typedef std::chrono::seconds Seconds;
+  typedef std::chrono::milliseconds Milliseconds;
 typedef std::chrono::microseconds Microseconds;
 typedef std::chrono::nanoseconds Nanoseconds;
 typedef std::chrono::nanoseconds TimePoint;

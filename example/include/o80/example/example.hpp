@@ -48,7 +48,7 @@ public:
         return std::to_string(values[0]) + " " + std::to_string(values[1]);
     }
 
-    int values[2];
+    double values[2];
 };
 
 // Read from the robot by Driver
@@ -61,14 +61,14 @@ public:
         if (endl) std::cout << std::endl;
     }
 
-    int values[2];
+    double values[2];
 };
 
 // Communicate with the robot.
 class Driver : public robot_interfaces::RobotDriver<Action, Observation>
 {
 public:
-    Driver(int min, int max) : min_(min), max_(max)
+    Driver(double min, double max) : min_(min), max_(max)
     {
     }
 
@@ -122,9 +122,9 @@ public:
     }
 
 private:
-    int values_[2];
-    int min_;
-    int max_;
+    double values_[2];
+    double min_;
+    double max_;
 };
 
 /*
@@ -142,7 +142,7 @@ private:
 class Joint
 {
 public:
-    Joint(int value_) : value(value_)
+    Joint(double value_) : value(value_)
     {
     }
 
@@ -150,7 +150,7 @@ public:
     {
     }
 
-    static Joint eval(int value)
+    static Joint eval(double value)
     {
         return Joint(value);
     }
@@ -160,21 +160,14 @@ public:
         return std::to_string(value);
     }
 
-    int get() const
+    double get() const
     {
         return value;
     }
 
-    void set(int v)
+    void set(double v)
     {
         value = v;
-    }
-
-    bool finished(const o80::TimePoint &start,
-                  const o80::TimePoint &now,
-                  long int duration_us) const
-    {
-	return o80::finished(start,now,duration_us);
     }
 
     bool finished(const o80::TimePoint &start,
@@ -185,51 +178,27 @@ public:
                   const Joint &target_state,
                   const o80::Speed &speed) const
     {
-        long int start_value = start_state.value;
-        long int end_value = target_state.value;
-        long int value_diff = abs(end_value - start_value);
-        double duration_sec = static_cast<double>(value_diff) /
-                              static_cast<double>(fabs(speed.value));
-        long int duration = static_cast<long int>(duration_sec * 1E6);
-        long int expected_end_int = start.count() + duration;
-        o80::TimePoint expected_end(expected_end_int);
-        if (now > expected_end)
-        {
-            return true;
-        }
-        return false;
+      return o80::finished(start,now,
+			   start_state.value,
+			   current_state.value,
+			   target_state.value,
+			   speed);
     }
 
     Joint intermediate_state(const o80::TimePoint &start,
                              const o80::TimePoint &now,
                              const Joint &start_state,
-                             const Joint &current,
+                             const Joint &current_state,
                              const Joint &previous_desired_state,
                              const Joint &target_state,
                              const o80::Speed &speed) const
     {
-        double time_diff =
-            static_cast<double>((now - start).count()) / 1E6;  // seconds
-        long int start_value = start_state.value;
-        long int end_value = target_state.value;
-        long int value_diff = end_value - start_value;
-        double desired;
-        if (value_diff > 0)
-        {
-            desired =
-                start_value + static_cast<double>(speed.value) * time_diff;
-            if (desired > end_value)
-            {
-                return end_value;
-            }
-            return Joint(static_cast<int>(desired + 0.5));
-        }
-        desired = start_value - static_cast<double>(speed.value) * time_diff;
-        if (desired < end_value)
-        {
-            return end_value;
-        }
-        return Joint(static_cast<int>(desired + 0.5));
+      double desired = o80::intermediate_state(start,
+					       now,
+					       start_state.value,
+					       current_state.value,
+					       target_state.value,
+					       speed);
     }
 
     Joint intermediate_state(const o80::TimePoint &start,
@@ -240,7 +209,7 @@ public:
                              const Joint &target_state,
                              const o80::Duration_us &duration) const
     {
-	int desired = o80::intermediate_state(start,
+	double desired = o80::intermediate_state(start,
 					      now,
 					      start_state.value,
 					      current_state.value,
@@ -257,20 +226,14 @@ public:
                              const Joint &target_state,
                              const o80::Iteration &iteration) const
     {
-        if (iteration_now >= iteration.value)
-        {
-            return Joint(target_state.value);
-        }
-        int total_state = target_state.value - start_state.value;
-        int total_iteration = iteration.value - iteration_start;
-        int diff_iteration = iteration_now - iteration_start;
-        double ratio = static_cast<double>(diff_iteration) /
-                       static_cast<double>(total_iteration);
-        double diff_state = ratio * static_cast<double>(total_state);
-        double desired_state =
-            diff_state + static_cast<double>(start_state.value);
-        int desired = static_cast<int>(desired_state + 0.5);
-        return Joint(desired);
+      double desired = o80::intermediate_state(iteration_start,
+					    iteration_now,
+					    start_state.value,
+					    current_state.value,
+					    target_state.value,
+					    iteration);
+	return Joint(desired);
+
     }
 
     template <class Archive>
@@ -279,7 +242,7 @@ public:
         archive(value);
     }
 
-    int value;
+    double value;
 
 private:
     friend shared_memory::private_serialization;

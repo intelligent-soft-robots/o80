@@ -7,6 +7,7 @@
 #include "command_type.hpp"
 #include "o80/mode.hpp"
 #include "o80/type.hpp"
+#include "o80/typedefs.hpp"
 
 namespace o80
 {
