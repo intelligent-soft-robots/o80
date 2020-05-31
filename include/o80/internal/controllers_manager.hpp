@@ -4,7 +4,6 @@
 #pragma once
 
 #include <memory>
-#include "shared_memory/lock.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 #include "command.hpp"
 #include "controller.hpp"
@@ -41,7 +40,7 @@ public:
 private:
     std::string segment_id_;
     CommandsTimeSeries commands_;
-  shared_memory::Mutex commands_mutex_;
+    long int pulse_nb_;
     time_series::Index commands_index_;
     CompletedCommandsTimeSeries completed_commands_;
     Controllers controllers_;

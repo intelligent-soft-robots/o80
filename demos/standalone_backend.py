@@ -13,6 +13,8 @@ WINDOW = (800,1200)
 
 def run():
 
+    o80.clear_shared_memory(SEGMENT_ID)
+    
     running = True
     def _stop(signum,frame):
         running = False 

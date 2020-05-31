@@ -6,8 +6,8 @@ namespace o80
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::string segment_id)
     :  commands_(segment_id+"_commands",QUEUE_SIZE,true),
-       commands_mutex_(segment_id+std::string("_exchange_mutex"),true),
        commands_index_(-1),
+       pulse_nb_(0),
        completed_commands_(segment_id+"_completed",QUEUE_SIZE,true),
        segment_id_(segment_id)
 {
@@ -16,6 +16,9 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::str
         initialized_[i] = false;
 	controllers_[i].set_completed_commands(completed_commands_);
     }
+    shared_memory::set<long int>(segment_id_,
+				 "pulse_nb",
+				 pulse_nb_);
     shared_memory::set<time_series::Index>(segment_id_,
 					   "command_read",
 					   commands_index_);
@@ -37,8 +40,6 @@ bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::reapplied_desired_stat
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 {
-  shared_memory::Lock lock(commands_mutex_);
-  
   if(commands_.is_empty())
     {
       return;
@@ -54,6 +55,16 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
       {
 	commands_index_ = commands_.oldest_timeindex(false);
       }
+
+    // checking if the frontend is done with its current command batch
+    long int current_pulse_nb;
+    shared_memory::get<long int>(segment_id_,"pulse_nb",current_pulse_nb);
+    if (current_pulse_nb==pulse_nb_)
+	{
+	    return;
+	}
+    pulse_nb_ = current_pulse_nb;
+    
     for(time_series::Index index=commands_index_;
 	index<=newest_index;index++)
 	{
@@ -64,8 +75,6 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 		    throw std::runtime_error("command with incorrect dof index");
 		}
 	    controllers_[dof].set_command(command);
-	    std::cout << "backend | " << index <<" | ";
-	    command.print();
 	}
     commands_index_=newest_index+1;
     shared_memory::set<time_series::Index>(segment_id_,

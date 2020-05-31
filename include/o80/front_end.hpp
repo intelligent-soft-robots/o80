@@ -5,13 +5,14 @@
 
 #include <memory>
 #include <vector>
-#include "internal/command.hpp"
-#include "observation.hpp"
 #include "synchronizer/leader.hpp"
-#include "logger.hpp"
-#include "shared_memory/lock.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 #include "time_series/time_series.hpp"
+#include "shared_memory/shared_memory.hpp"
+#include "internal/command.hpp"
+#include "observation.hpp"
+
+#include "logger.hpp"
 
 namespace o80
 
@@ -202,6 +203,7 @@ namespace o80
   private:
 
     void log(LogAction action);
+      void size_check();
     time_series::Index last_index_read_by_backend();
     void share_commands(std::set<int>& command_ids, bool store);
     void wait_for_completion(std::set<int>& command_ids,
@@ -214,11 +216,15 @@ namespace o80
 
     // used to write commands to the shared memory
     CommandsTimeSeries commands_;
-    shared_memory::Mutex commands_mutex_;
     // tracking ids of commands shared by this frontend.
     // used by the "pulse_and_wait" method.
     std::set<int> sent_command_ids_;
-    
+
+      // used to sync frontend and backend
+      // (making sure all command "pulsed" at the same time
+      // are read by the backend at the same iteration)
+      long int pulse_nb_;
+      
     // used to buffer commands before writing them
     // to the shared memory
     BufferCommandsTimeSeries buffer_commands_;

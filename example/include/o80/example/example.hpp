@@ -7,7 +7,7 @@
 
 
 #define o80_EXAMPLE_SEGMENT "o80_EXAMPLE"
-#define o80_EXAMPLE_QUEUE_SIZE 5000
+#define o80_EXAMPLE_QUEUE_SIZE 40000
 #define o80_EXAMPLE_NB_DOFS 2
 
 namespace o80_example

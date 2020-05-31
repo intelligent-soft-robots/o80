@@ -20,16 +20,17 @@ TEMPLATE_FRONTEND
 FRONTEND::FrontEnd(std::string segment_id)
     : segment_id_(segment_id),
       commands_(segment_id+"_commands",QUEUE_SIZE,false),
-      commands_mutex_(segment_id+std::string("_exchange_mutex"),false),
       buffer_commands_(QUEUE_SIZE),
-      buffer_index_(-1),
+      buffer_index_(0),
       observations_(segment_id+"_observations",QUEUE_SIZE,false),
       completed_commands_(segment_id+"_completed",QUEUE_SIZE,false),
       leader_(nullptr),
       logger_(nullptr)
 {
-  observations_index_ = observations_.newest_timeindex(false);
-  internal::set_bursting(segment_id, 1);
+    shared_memory::get<long int>(segment_id_,"pulse_nb",
+				 pulse_nb_);
+    observations_index_ = observations_.newest_timeindex(false);
+    internal::set_bursting(segment_id, 1);
 }
 
 TEMPLATE_FRONTEND
@@ -203,56 +204,69 @@ time_series::Index FRONTEND::last_index_read_by_backend()
 }
 
 TEMPLATE_FRONTEND
+void FRONTEND::size_check()
+{
+    std::size_t nb_new_commands =
+	buffer_commands_.newest_timeindex(false)-buffer_index_;
+    if(nb_new_commands>buffer_commands_.max_length())
+	{
+	    throw std::runtime_error("shared memory commands buffer too large");    
+	}
+    if(nb_new_commands>commands_.max_length())
+	{
+	    throw std::runtime_error("shared memory commands exchange full");    
+	}
+    if(commands_.is_empty())
+	{
+	    return;
+	}
+    time_series::Index latest_read = last_index_read_by_backend();
+    std::size_t nb_not_read_yet = commands_.newest_timeindex(false)-latest_read;
+    std::size_t nb_free_slots = commands_.max_length()-nb_not_read_yet;
+    if(nb_new_commands>nb_free_slots)
+	{
+	    throw std::runtime_error("shared memory commands exchange full");    
+	}
+}
+
+
+TEMPLATE_FRONTEND
 void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
 {
-
-  // checking we do have space in the shared memory for new commands
-  if(!commands_.is_empty())
-    {
-      if(buffer_index_<0)
+    
+    // no commands
+    if (buffer_commands_.is_empty())
 	{
-	  buffer_index_=0;
+	    return;
 	}
-      time_series::Index oldest = commands_.oldest_timeindex(false);
-      time_series::Index latest_read = last_index_read_by_backend();
-      time_series::Index nb_slots = latest_read-oldest;
-      time_series::Index nb_new_commands = latest_read - buffer_index_;
-      if(nb_new_commands>nb_slots)
+
+    // checking there is no time series overflow
+    // (and throwing error if there is)
+    size_check();
+
+    // if there is not new commands, exit
+    time_series::Index last_index = buffer_commands_.newest_timeindex(false);
+    if(last_index<buffer_index_)
 	{
-	  throw std::runtime_error("shared memory for commands exchange full");    
+	    return;
 	}
-    }
 
-  if(buffer_commands_.is_empty())
-    {
-      return;
-    }
-  
-  // writing the commands into the shared time series
-  time_series::Index last_index = buffer_commands_.newest_timeindex(false);
-
-  if(last_index>=buffer_index_)
-      {
-
-	if (buffer_index_==-1)
-	  {
-	    buffer_index_=buffer_commands_.oldest_timeindex(false);
-	  }
-
-	shared_memory::Lock lock(commands_mutex_);
-	
-	for(time_series::Index index=buffer_index_; index<=last_index; index++)
-	  {
+    // sharing new commands
+    for(time_series::Index index=buffer_index_; index<=last_index; index++)
+	{
 	    Command<ROBOT_STATE> command = buffer_commands_[index];
 	    if(store)
-	      {
-		command_ids.insert(command.get_id());
-	      }
+		{
+		    command_ids.insert(command.get_id());
+		}
 	    commands_.append(command);
-	  }
+	}
 
-	buffer_index_ = last_index+1;
-      }
+    // sync with backend
+    pulse_nb_++;
+    shared_memory::set<long int>(segment_id_,"pulse_nb",pulse_nb_);
+				
+    buffer_index_ = last_index+1;
 
 }
 
