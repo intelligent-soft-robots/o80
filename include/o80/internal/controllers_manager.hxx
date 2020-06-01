@@ -9,7 +9,8 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::str
        commands_index_(-1),
        pulse_id_(0),
        completed_commands_(segment_id+"_completed",QUEUE_SIZE,true),
-       segment_id_(segment_id)
+       segment_id_(segment_id),
+       relative_iteration_(-1)
 {
     for (int i = 0; i < NB_ACTUATORS; i++)
     {
@@ -38,7 +39,10 @@ bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::reapplied_desired_stat
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
-void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
+void
+ControllersManager<NB_ACTUATORS,
+		   QUEUE_SIZE,
+		   STATE>::process_commands(long int current_iteration)
 {
   if(commands_.is_empty())
     {
@@ -72,6 +76,21 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
 	    if(command.get_pulse_id()!=pulse_id_)
 	      {
 		break;
+	      }
+	    CommandType& command_type = command.get_command_type();
+	    if(command_type.type==Type::ITERATION)
+	      {
+		if (command_type.iteration.do_reset)
+		  {
+		    relative_iteration_ = current_iteration;
+		  }
+		if(command_type.iteration.relative)
+		  {
+		    command_type.iteration.value += relative_iteration_;
+		    std::cout << "controllers manager " << current_iteration << " " << command_type.iteration.value << "\n\t";
+		    command.print();
+		      
+		  }
 	      }
 	    int dof = command.get_dof();
 	    if (dof < 0 || dof >= controllers_.size())

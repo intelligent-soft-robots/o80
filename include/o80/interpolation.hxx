@@ -33,12 +33,10 @@ T intermediate_state(const o80::TimePoint &start,
       static_cast<double>(time_diff_us(start,now));
     double value_diff = static_cast<double>(target_state - start_state);
     double desired;
-    std::cout << time_diff << " " << value_diff << " ";
     if (value_diff > 0)
     {
         desired = static_cast<double>(start_state) +
                   static_cast<double>(speed.value) * time_diff;
-	std::cout << desired << "\n";
         if (desired > target_state)
         {
             return target_state;
@@ -47,7 +45,6 @@ T intermediate_state(const o80::TimePoint &start,
     }
     desired = static_cast<double>(start_state) -
               static_cast<double>(speed.value) * time_diff;
-    std::cout << desired << "\n";
     if (desired < target_state)
     {
         return target_state;

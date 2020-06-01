@@ -57,7 +57,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
         iteration_ = current_iteration;
     }
 
-    controllers_manager_.process_commands();
+    controllers_manager_.process_commands(iteration_);
     
     // reading desired state based on controllers output
     for (int controller_nb = 0; controller_nb < desired_states_.values.size();

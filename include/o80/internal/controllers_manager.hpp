@@ -21,7 +21,7 @@ public:
 public:
     ControllersManager(std::string segment_id);
 
-    void process_commands();
+    void process_commands(long int current_iteration);
 	
     STATE get_desired_state(int dof,
                             long int current_iteration,
@@ -46,6 +46,7 @@ private:
     Controllers controllers_;
     States<NB_ACTUATORS, STATE> previous_desired_states_;
     std::array<bool, NB_ACTUATORS> initialized_;
+  long int relative_iteration_;
 };
 }
 

@@ -217,7 +217,7 @@ CommandStatus<STATE>& Command<STATE>::get_mutable_command_status()
 }
 
 template <class STATE>
-const CommandType& Command<STATE>::get_command_type()
+CommandType& Command<STATE>::get_command_type()
 {
     return command_type_;
 }

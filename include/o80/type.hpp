@@ -104,40 +104,36 @@ class Direct
     }
 };
 
-class Delayed
-{
-public:
-    Delayed() : stamp(-1)
-    {
-    }
-    Delayed(long int value) : stamp(value)
-    {
-    }
-    Delayed(const TimePoint &time_stamp) : stamp(time_stamp.count())
-    {
-    }
-    template <class Archive>
-    void serialize(Archive &archive)
-    {
-        archive(stamp);
-    }
-    long int stamp;
-};
 
 class Iteration
 {
 public:
     Iteration()
+      : value(-1),relative(false),do_reset(false)
     {
     }
-    Iteration(long int _value) : value(_value)
+  Iteration(long int _value) : value(_value),relative(false),do_reset(false)
     {
     }
+  Iteration(bool _relative) : value(-1),relative(_relative),do_reset(false)
+    {
+    }
+  Iteration(long int _value, bool _relative) : value(_value),relative(relative),do_reset(false)
+    {
+    }
+  void reset()
+  {
+    do_reset = true;
+  }
     template <class Archive>
     void serialize(Archive &archive)
     {
-        archive(value);
+      archive(do_reset,relative,value);
     }
     long int value;
+  bool relative;
+  bool do_reset;
 };
+
+
 }

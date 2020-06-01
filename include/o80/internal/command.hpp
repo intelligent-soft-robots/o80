@@ -52,7 +52,7 @@ public:
     const STATE& get_target_state() const;
     int get_dof() const;
     Mode get_mode() const;
-    const CommandType& get_command_type();
+    CommandType& get_command_type();
   long int get_pulse_id() const;
     void print() const;
 

@@ -38,7 +38,10 @@ PYBIND11_MODULE(o80, m)
         .def("to_string", &BoolState::to_string);
 
     pybind11::class_<o80::Iteration>(m, "Iteration")
-        .def(pybind11::init<long int>());
+      .def(pybind11::init<long int>())
+      .def(pybind11::init<long int,bool>())
+      .def("reset",&Iteration::reset);
+      
 
     pybind11::class_<o80::Direct>(m, "Direct").def(pybind11::init<>());
 
