@@ -27,8 +27,9 @@ FRONTEND::FrontEnd(std::string segment_id)
       leader_(nullptr),
       logger_(nullptr)
 {
-    shared_memory::get<long int>(segment_id_,"pulse_nb",
-				 pulse_nb_);
+    shared_memory::get<long int>(segment_id_,"pulse_id",
+				 pulse_id_);
+    pulse_id_++;
     observations_index_ = observations_.newest_timeindex(false);
     internal::set_bursting(segment_id, 1);
 }
@@ -157,7 +158,7 @@ void FRONTEND::add_command(int nb_actuator,
                            Iteration target_iteration,
                            Mode mode)
 {
-  Command<ROBOT_STATE> command(target_state,target_iteration,
+  Command<ROBOT_STATE> command(pulse_id_,target_state,target_iteration,
 			       nb_actuator,mode);
   buffer_commands_.append(command);
 }
@@ -168,7 +169,7 @@ void FRONTEND::add_command(int nb_actuator,
                            Speed speed,
                            Mode mode)
 {
-  Command<ROBOT_STATE> command(target_state,speed,
+  Command<ROBOT_STATE> command(pulse_id_,target_state,speed,
 			       nb_actuator,mode);
   buffer_commands_.append(command);
 }
@@ -179,7 +180,7 @@ void FRONTEND::add_command(int nb_actuator,
                            Duration_us duration,
                            Mode mode)
 {
-  Command<ROBOT_STATE> command(target_state,duration,
+  Command<ROBOT_STATE> command(pulse_id_,target_state,duration,
 			       nb_actuator,mode);
   buffer_commands_.append(command);
 }
@@ -187,7 +188,7 @@ void FRONTEND::add_command(int nb_actuator,
 TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator, ROBOT_STATE target_state, Mode mode)
 {
-  Command<ROBOT_STATE> command(target_state,
+  Command<ROBOT_STATE> command(pulse_id_,target_state,
 			       nb_actuator,mode);
   buffer_commands_.append(command);
 }
@@ -263,9 +264,9 @@ void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
 	}
 
     // sync with backend
-    pulse_nb_++;
-    shared_memory::set<long int>(segment_id_,"pulse_nb",pulse_nb_);
-				
+    shared_memory::set<long int>(segment_id_,"pulse_id",pulse_id_);
+    pulse_id_++;
+    
     buffer_index_ = last_index+1;
 
 }

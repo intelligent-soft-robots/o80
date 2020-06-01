@@ -223,7 +223,7 @@ namespace o80
       // used to sync frontend and backend
       // (making sure all command "pulsed" at the same time
       // are read by the backend at the same iteration)
-      long int pulse_nb_;
+      long int pulse_id_;
       
     // used to buffer commands before writing them
     // to the shared memory

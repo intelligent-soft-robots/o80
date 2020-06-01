@@ -7,7 +7,7 @@ template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::string segment_id)
     :  commands_(segment_id+"_commands",QUEUE_SIZE,true),
        commands_index_(-1),
-       pulse_nb_(0),
+       pulse_id_(0),
        completed_commands_(segment_id+"_completed",QUEUE_SIZE,true),
        segment_id_(segment_id)
 {
@@ -17,8 +17,8 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::str
 	controllers_[i].set_completed_commands(completed_commands_);
     }
     shared_memory::set<long int>(segment_id_,
-				 "pulse_nb",
-				 pulse_nb_);
+				 "pulse_id",
+				 pulse_id_);
     shared_memory::set<time_series::Index>(segment_id_,
 					   "command_read",
 					   commands_index_);
@@ -57,18 +57,22 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands()
       }
 
     // checking if the frontend is done with its current command batch
-    long int current_pulse_nb;
-    shared_memory::get<long int>(segment_id_,"pulse_nb",current_pulse_nb);
-    if (current_pulse_nb==pulse_nb_)
+    long int current_pulse_id;
+    shared_memory::get<long int>(segment_id_,"pulse_id",current_pulse_id);
+    if (current_pulse_id==pulse_id_)
 	{
 	    return;
 	}
-    pulse_nb_ = current_pulse_nb;
+    pulse_id_ = current_pulse_id;
     
     for(time_series::Index index=commands_index_;
 	index<=newest_index;index++)
 	{
 	    Command<STATE> command = commands_[index];
+	    if(command.get_pulse_id()!=pulse_id_)
+	      {
+		break;
+	      }
 	    int dof = command.get_dof();
 	    if (dof < 0 || dof >= controllers_.size())
 		{

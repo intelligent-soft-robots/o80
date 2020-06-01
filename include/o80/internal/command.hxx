@@ -16,12 +16,13 @@ int Command<STATE>::get_next_id()
 
 template <class STATE>
 Command<STATE>::Command()
-    : target_state_(),
-      id_(-1),
-      dof_(-1),
-      mode_(Mode::OVERWRITE),
-      command_status_(),
-      command_type_()
+  : pulse_id_(-1),
+    target_state_(),
+    id_(-1),
+    dof_(-1),
+    mode_(Mode::OVERWRITE),
+    command_status_(),
+    command_type_()
 {
 }
 
@@ -30,6 +31,7 @@ void Command<STATE>::copy(const Command<STATE>& from, bool full)
 {
     if (full)
     {
+      pulse_id_ = from.pulse_id_;
         target_state_ = from.target_state_;
         command_status_ = from.command_status_;
     }
@@ -71,12 +73,14 @@ Command<STATE>& Command<STATE>::operator=(Command<STATE>&& other) noexcept
 }
 
 template <class STATE>
-Command<STATE>::Command(STATE target_state,
+Command<STATE>::Command(long int pulse_id,
+			STATE target_state,
                         Duration_us duration,
                         int dof,
                         Mode mode)
 
-    : target_state_(target_state),
+  : pulse_id_(pulse_id),
+    target_state_(target_state),
       dof_(dof),
       mode_(mode),
       command_status_(),
@@ -86,9 +90,11 @@ Command<STATE>::Command(STATE target_state,
 }
 
 template <class STATE>
-Command<STATE>::Command(STATE target_state, Speed speed, int dof, Mode mode)
+Command<STATE>::Command(long int pulse_id,
+			STATE target_state, Speed speed, int dof, Mode mode)
 
-    : target_state_(target_state),
+    : pulse_id_(pulse_id),
+      target_state_(target_state),
       dof_(dof),
       mode_(mode),
       command_status_(),
@@ -98,11 +104,13 @@ Command<STATE>::Command(STATE target_state, Speed speed, int dof, Mode mode)
 }
 
 template <class STATE>
-Command<STATE>::Command(STATE target_state,
+Command<STATE>::Command(long int pulse_id,
+			STATE target_state,
                         Iteration iteration,
                         int dof,
                         Mode mode)
-    : target_state_(target_state),
+  : pulse_id_(pulse_id),
+    target_state_(target_state),
       dof_(dof),
       mode_(mode),
       command_status_(),
@@ -112,8 +120,10 @@ Command<STATE>::Command(STATE target_state,
 }
 
 template <class STATE>
-Command<STATE>::Command(STATE target_state, int dof, Mode mode)
-    : target_state_(target_state),
+Command<STATE>::Command(long int pulse_id,
+			STATE target_state, int dof, Mode mode)
+    : pulse_id_(pulse_id),
+      target_state_(target_state),
       dof_(dof),
       mode_(mode),
       command_status_(),
@@ -212,6 +222,14 @@ const CommandType& Command<STATE>::get_command_type()
     return command_type_;
 }
 
+  template <class STATE>
+  long int Command<STATE>::get_pulse_id() const
+{
+  return pulse_id_;
+}
+
+
+  
 template <class STATE>
 std::mutex Command<STATE>::mutex;
 }

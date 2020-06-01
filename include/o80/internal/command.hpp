@@ -31,25 +31,29 @@ public:
 
     // speed command, i.e. reaching the desired state
     // at given "unit of state" per second
-    Command(STATE target_state, Speed speed, int dof, Mode mode);
+  Command(long int pulse_id,
+	  STATE target_state, Speed speed, int dof, Mode mode);
 
     // duration command, i.e. reaching desired state at time now+duration
-    Command(STATE target_state, Duration_us duration_us, int dof, Mode mode);
+  Command(long int pulse_id,
+	  STATE target_state, Duration_us duration_us, int dof, Mode mode);
 
     // Iteration command, i.e. reaching desired state at
     // specified o80 backend iteration
-    Command(STATE target_state, Iteration iteration, int dof, Mode mode);
+  Command(long int pulse_id,
+	  STATE target_state, Iteration iteration, int dof, Mode mode);
 
     // Direct command, i.e. desired state becomes
     // target state immediately
-    Command(STATE target_state, int dof, Mode mode);
+  Command(long int pulse_id,
+	  STATE target_state, int dof, Mode mode);
 
     int get_id() const;
     const STATE& get_target_state() const;
     int get_dof() const;
     Mode get_mode() const;
     const CommandType& get_command_type();
-
+  long int get_pulse_id() const;
     void print() const;
 
 private:
@@ -70,7 +74,7 @@ public:
         // note: the command_status_, which is used for
         // monitoring of the execution of the command by a controller,
         // is excluded
-        archive(target_state_, id_, mode_, dof_, command_type_);
+      archive(pulse_id_,target_state_, id_, mode_, dof_, command_type_);
     }
 
 private:
@@ -78,7 +82,8 @@ private:
     // a command into a string (used internally by exchange_manager)
     friend shared_memory::private_serialization;
 
-    STATE target_state_;
+  long int pulse_id_;
+  STATE target_state_;
     int id_;
     Mode mode_;
     int dof_;
@@ -104,7 +109,7 @@ private:
     static int id;
 
     CommandStatus<STATE> command_status_;
-
+  
 public:
     const CommandStatus<STATE>& get_command_status() const;
     CommandStatus<STATE>& get_mutable_command_status();

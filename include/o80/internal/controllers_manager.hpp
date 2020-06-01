@@ -40,7 +40,7 @@ public:
 private:
     std::string segment_id_;
     CommandsTimeSeries commands_;
-    long int pulse_nb_;
+    long int pulse_id_;
     time_series::Index commands_index_;
     CompletedCommandsTimeSeries completed_commands_;
     Controllers controllers_;
