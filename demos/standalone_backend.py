@@ -26,7 +26,7 @@ def run():
                                  BURSTING_MODE,
                                  DRIVER_MIN,
                                  DRIVER_MAX)
-
+    
     o80_plotting.start(o80_example,SEGMENT_ID,
                        500,(DRIVER_MIN,DRIVER_MAX),WINDOW,FREQUENCY)
 

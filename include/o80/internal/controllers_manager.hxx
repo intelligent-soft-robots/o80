@@ -67,13 +67,11 @@ ControllersManager<NB_ACTUATORS,
 	{
 	    return;
 	}
-    pulse_id_ = current_pulse_id;
-    
     for(time_series::Index index=commands_index_;
 	index<=newest_index;index++)
 	{
 	    Command<STATE> command = commands_[index];
-	    if(command.get_pulse_id()!=pulse_id_)
+	    if(command.get_pulse_id()>current_pulse_id)
 	      {
 		break;
 	      }
@@ -87,7 +85,6 @@ ControllersManager<NB_ACTUATORS,
 		if(command_type.iteration.relative)
 		  {
 		    command_type.iteration.value += relative_iteration_;
-		    std::cout << "controllers manager " << current_iteration << " " << command_type.iteration.value << "\n\t";
 		    command.print();
 		      
 		  }
@@ -97,8 +94,11 @@ ControllersManager<NB_ACTUATORS,
 		{
 		    throw std::runtime_error("command with incorrect dof index");
 		}
+	    std::cout << "controllers manager " << dof << " | ";
+	    command.print();
 	    controllers_[dof].set_command(command);
 	}
+    pulse_id_ = current_pulse_id;
     commands_index_=newest_index+1;
     shared_memory::set<time_series::Index>(segment_id_,
 					   "command_read",

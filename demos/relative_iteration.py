@@ -14,10 +14,15 @@ class TrajectoryPoint:
         self.value2 = value2
 
 
-trajectory = [ TrajectoryPoint(500,50,50),
-               TrajectoryPoint(1000,60,40),
-               TrajectoryPoint(1500,40,60),
-               TrajectoryPoint(2000,0,0) ]
+trajectory = [ TrajectoryPoint(2000,50,50),
+               TrajectoryPoint(2500,60,40),
+               TrajectoryPoint(3000,40,60),
+               TrajectoryPoint(3500,60,40),
+               TrajectoryPoint(4000,40,60),
+               TrajectoryPoint(4500,60,40),
+               TrajectoryPoint(5000,40,60),
+               TrajectoryPoint(5500,60,40),
+               TrajectoryPoint(6000,0,0) ]
 
 state = o80_example.State()
 relative = True

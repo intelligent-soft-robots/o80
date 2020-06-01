@@ -15,7 +15,6 @@ enum Type
     DURATION,
     SPEED,
     DIRECT,
-    DELAYED,
     ITERATION
 };
 
@@ -115,12 +114,15 @@ public:
   Iteration(long int _value) : value(_value),relative(false),do_reset(false)
     {
     }
-  Iteration(bool _relative) : value(-1),relative(_relative),do_reset(false)
+  Iteration(long int _value, bool _relative) : value(_value),relative(_relative),do_reset(false)
     {
     }
-  Iteration(long int _value, bool _relative) : value(_value),relative(relative),do_reset(false)
-    {
-    }
+    Iteration(long int _value,
+	      bool _relative,
+	      bool _do_reset)
+	: value(_value),
+	  relative(_relative),
+	  do_reset(_do_reset){}
   void reset()
   {
     do_reset = true;

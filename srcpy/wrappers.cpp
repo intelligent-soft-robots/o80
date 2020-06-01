@@ -67,7 +67,6 @@ PYBIND11_MODULE(o80, m)
         .value("DURATION", o80::DURATION)
         .value("SPEED", o80::SPEED)
         .value("DIRECT", o80::DIRECT)
-        .value("DELAYED", o80::DELAYED)
         .value("ITERATION", o80::ITERATION);
 
     pybind11::enum_<o80::LogAction>(m, "LogAction")
