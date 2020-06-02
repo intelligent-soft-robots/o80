@@ -15,10 +15,10 @@ class TrajectoryPoint:
 
 
 # sending a trajectory to first joint
-trajectory = [ TrajectoryPoint(5000,100,0),
+trajectory = [ TrajectoryPoint(1000,100,0),
                TrajectoryPoint(500,0,50),
                TrajectoryPoint(500,100,0),
-               TrajectoryPoint(5000,0,0) ]
+               TrajectoryPoint(1000,0,0) ]
 state = o80_example.State()
 for tp in trajectory:
     state.set(tp.value1)
@@ -30,11 +30,10 @@ frontend.pulse()
 # having the second joint mirroring
 # the value of half the first
 time_start = time.time()
-while time.time()-time_start < 11:
+while time.time()-time_start < 3:
     obs = frontend.read()
     value = obs.get_desired_states().get(0).get()/2.0
     state.set(value)
-    print(value)
     frontend.add_command(1,state,
                          o80.Mode.OVERWRITE)
     frontend.pulse()

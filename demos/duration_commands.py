@@ -14,9 +14,9 @@ class TrajectoryPoint:
         self.value2 = value2
 
 
-trajectory = [ TrajectoryPoint(2000,100,0),
-               TrajectoryPoint(500,0,50),
-               TrajectoryPoint(500,100,0),
+trajectory = [ TrajectoryPoint(2000,50,100),
+               TrajectoryPoint(500,0,0),
+               TrajectoryPoint(500,100,50),
                TrajectoryPoint(2000,0,0) ]
 
 state = o80_example.State()
@@ -30,8 +30,6 @@ for tp in trajectory:
                          o80.Duration_us.milliseconds(tp.duration),
                          o80.Mode.QUEUE)
 
-starting_iteration = frontend.read().get_iteration()
-    
 frontend.pulse_and_wait()
 
 

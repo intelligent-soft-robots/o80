@@ -12,16 +12,16 @@ frontend = o80_example.FrontEnd(SEGMENT_ID)
 state = o80_example.State()
 state.set(50)
 frontend.add_command(0,state,
-                     o80.Duration_us.seconds(3),
+                     o80.Duration_us.seconds(1),
                      o80.Mode.OVERWRITE)
 frontend.add_command(1,state,
-                     o80.Duration_us.seconds(3),
+                     o80.Duration_us.seconds(1),
                      o80.Mode.OVERWRITE)
 
 value=0
-increment = 0.001
+increment = 0.003
 amplitude = 30
-for _ in range(15000):
+for _ in range(5000):
     value += increment
     v0 = +amplitude*math.sin(value)+50
     v1 = -amplitude*math.sin(value)+50
@@ -34,10 +34,10 @@ for _ in range(15000):
 
 state.set(0)
 frontend.add_command(0,state,
-                     o80.Duration_us.seconds(3),
+                     o80.Duration_us.seconds(1),
                      o80.Mode.QUEUE)
 frontend.add_command(1,state,
-                     o80.Duration_us.seconds(3),
+                     o80.Duration_us.seconds(1),
                      o80.Mode.QUEUE)
 frontend.pulse_and_wait()
 

@@ -260,8 +260,6 @@ void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
 		{
 		    command_ids.insert(command.get_id());
 		}
-	    std::cout << "frontend | ";
-	    command.print();
 	    commands_.append(command);
 	}
 

@@ -94,8 +94,6 @@ ControllersManager<NB_ACTUATORS,
 		{
 		    throw std::runtime_error("command with incorrect dof index");
 		}
-	    std::cout << "controllers manager " << dof << " | ";
-	    command.print();
 	    controllers_[dof].set_command(command);
 	}
     pulse_id_ = current_pulse_id;
