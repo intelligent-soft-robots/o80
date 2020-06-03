@@ -72,6 +72,12 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
 FRONTEND::wait_for_next()
 {
     observations_index_+=1;
+    time_series::Index newest = observations_.newest_timeindex(false);
+    while(newest<observations_index_)
+	{
+	    usleep(10);
+	    newest = observations_.newest_timeindex(false);
+	}
     Observation<NB_ACTUATORS,
 		ROBOT_STATE,
 		EXTENDED_STATE> obs =  observations_[observations_index_];
