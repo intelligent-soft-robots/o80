@@ -207,8 +207,8 @@ time_series::Index FRONTEND::last_index_read_by_backend()
 TEMPLATE_FRONTEND
 void FRONTEND::size_check()
 {
-    std::size_t nb_new_commands =
-	buffer_commands_.newest_timeindex(false)-buffer_index_;
+  time_series::Index nb_new_commands =
+	buffer_commands_.newest_timeindex(false)-buffer_index_+1;
     if(nb_new_commands>buffer_commands_.max_length())
 	{
 	    throw std::runtime_error("shared memory commands buffer too large");    
@@ -234,7 +234,7 @@ void FRONTEND::size_check()
 TEMPLATE_FRONTEND
 void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
 {
-    
+
     // no commands
     if (buffer_commands_.is_empty())
 	{
@@ -269,6 +269,7 @@ void FRONTEND::share_commands(std::set<int>& command_ids, bool store)
     
     buffer_index_ = last_index+1;
 
+    
 }
 
 TEMPLATE_FRONTEND
