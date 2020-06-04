@@ -18,7 +18,7 @@ DEFINE_OS()
 
 catkin_package(
  LIBRARIES  o80
- INCLUDE_DIRS include example/include
+ INCLUDE_DIRS include 
  CATKIN_DEPENDS
  shared_memory
  real_time_tools
@@ -35,9 +35,6 @@ include_directories(include
 ################
 # Main Library #
 ################
-
-# Note : this is mostly a header library,
-#        so o80 library does not contain much
 
 add_library( o80
   src/time_stamp.cpp
@@ -63,30 +60,6 @@ set_target_properties(o80_py PROPERTIES
   OUTPUT_NAME o80
   )
 install(TARGETS o80_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
-
-#######################
-# Example executables #
-#######################
-
-add_executable( drivers_demo
-  example/src/drivers_demo.cpp)
-target_link_libraries(drivers_demo o80 ${catkin_LIBRARIES})
-
-#add_executable( example_standalone
-#  example/src/main.cpp)
-#target_link_libraries(example_standalone o80)
-#add_executable( example_mirror
-#  example/src/mirror.cpp)
-#target_link_libraries(example_mirror o80)
-
-###################################
-# Python bindings for the example #
-###################################
-
-pybind11_add_module(o80_example example/srcpy/wrappers.cpp)
-target_link_libraries(o80_example PRIVATE o80 ${catkin_LIBRARIES})
-install(TARGETS o80_example DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
-
 
 ##############
 # Unit tests #
