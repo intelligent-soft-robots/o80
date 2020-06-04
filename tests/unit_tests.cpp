@@ -146,45 +146,6 @@ TEST_F(o80_tests, iteration_command_status)
     ASSERT_EQ(ended, true);
 }
 
-TEST_F(o80_tests, speed_command_status)
-{
-    CommandStatus<o80_example::Joint> status;
-
-    o80_example::Joint starting_state(200);
-    o80_example::Joint target_state(100);
-    int starting_iteration = 1000;
-    TimePoint start_time(10000);
-    double speed = -1000.0;  // 0.1 seconds from 200 to 100
-    TimePoint expected_end_time(110000);
-
-    status.set_initial_conditions(starting_iteration,
-                                  starting_state,
-                                  target_state,
-                                  start_time,
-                                  CommandType(Speed(speed)));
-
-    TimePoint now(100000);
-    o80_example::Joint current_state(150);
-    int current_iteration = 20000;
-
-    bool ended = status.finished(current_iteration,
-                                 now,
-                                 starting_state,
-                                 current_state,
-                                 current_state,
-                                 target_state);
-    ASSERT_EQ(ended, false);
-
-    TimePoint end(110001);
-    ended = status.finished(current_iteration,
-                            end,
-                            starting_state,
-                            current_state,
-                            current_state,
-                            target_state);
-    ASSERT_EQ(ended, true);
-}
-
 TEST_F(o80_tests, controllers_manager)
 {
     std::string segment_id("ut_controllers_manager");
@@ -210,9 +171,9 @@ TEST_F(o80_tests, controllers_manager)
     // goes to 100 in 10 iterations then to
     // 200 also in 10 iterations
 
-    Command<o80_example::Joint> c00(
+    Command<o80_example::Joint> c00(1,
         o80_example::Joint(100), Iteration(100), 0, Mode::QUEUE);
-    Command<o80_example::Joint> c01(
+    Command<o80_example::Joint> c01(1,
         o80_example::Joint(200), Iteration(200), 0, Mode::QUEUE);
 
     // commands for dof1
@@ -221,9 +182,9 @@ TEST_F(o80_tests, controllers_manager)
     // Only the second command is executed,
     // i.e. direct command of 500
 
-    Command<o80_example::Joint> c10(
+    Command<o80_example::Joint> c10(1,
         o80_example::Joint(100), Iteration(100), 1, Mode::QUEUE);
-    Command<o80_example::Joint> c11(
+    Command<o80_example::Joint> c11(1,
         o80_example::Joint(500), 1, Mode::OVERWRITE);
 
     // sending commands to the manager
@@ -231,9 +192,11 @@ TEST_F(o80_tests, controllers_manager)
     commands.append(c01);
     commands.append(c10);
     commands.append(c11);
+    shared_memory::set<long int>(segment_id,"pulse_id",1);
 
+    
     // processing the commands
-    manager.process_commands();
+    manager.process_commands(0);
     
     // saving the ids of all commands
 
@@ -530,9 +493,8 @@ TEST_F(o80_tests, robot_interfaces_destructions)
     typedef o80_example::Action RiAction;
     typedef o80_example::Driver RiDriver;
     typedef std::shared_ptr<RiDriver> RiDriverPtr;
-    typedef robot_interfaces::RobotData<o80_example::Action,
-                                        o80_example::Observation,
-					robot_interfaces::Status>
+    typedef robot_interfaces::SingleProcessRobotData<o80_example::Action,
+                                        o80_example::Observation>
         RiData;
     typedef std::shared_ptr<RiData> RiDataPtr;
     typedef robot_interfaces::RobotBackend<o80_example::Action,
@@ -550,9 +512,8 @@ TEST_F(o80_tests, robot_interfaces_destructions)
 
     RiFrontend frontend(data_ptr);
 
-    RiBackend* backend = new RiBackend(driver_ptr, data_ptr,
-				       std::numeric_limits<double>::infinity(),
-				       std::numeric_limits<double>::infinity());
+    RiBackend* backend = new RiBackend(driver_ptr, data_ptr,false);
+    
     // backend->initialize();
 
     RiAction action;
