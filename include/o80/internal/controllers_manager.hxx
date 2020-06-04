@@ -4,107 +4,101 @@
 namespace o80
 {
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
-ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(std::string segment_id)
-    :  commands_(segment_id+"_commands",QUEUE_SIZE,true),
-       commands_index_(-1),
-       pulse_id_(0),
-       completed_commands_(segment_id+"_completed",QUEUE_SIZE,true),
-       segment_id_(segment_id),
-       relative_iteration_(-1)
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
+    std::string segment_id)
+    : commands_(segment_id + "_commands", QUEUE_SIZE, true),
+      commands_index_(-1),
+      pulse_id_(0),
+      completed_commands_(segment_id + "_completed", QUEUE_SIZE, true),
+      segment_id_(segment_id),
+      relative_iteration_(-1)
 {
     for (int i = 0; i < NB_ACTUATORS; i++)
     {
         initialized_[i] = false;
-	controllers_[i].set_completed_commands(completed_commands_);
+        controllers_[i].set_completed_commands(completed_commands_);
     }
-    shared_memory::set<long int>(segment_id_,
-				 "pulse_id",
-				 pulse_id_);
-    shared_memory::set<time_series::Index>(segment_id_,
-					   "command_read",
-					   commands_index_);
+    shared_memory::set<long int>(segment_id_, "pulse_id", pulse_id_);
+    shared_memory::set<time_series::Index>(
+        segment_id_, "command_read", commands_index_);
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
-bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::reapplied_desired_states() const
+bool ControllersManager<NB_ACTUATORS,
+                        QUEUE_SIZE,
+                        STATE>::reapplied_desired_states() const
 {
     for (int dof = 0; dof < NB_ACTUATORS; dof++)
-	{
-	    if (!controllers_[dof].reapplied_desired_state())
-		{
-		    return false;
-		}
-	}
+    {
+        if (!controllers_[dof].reapplied_desired_state())
+        {
+            return false;
+        }
+    }
     return true;
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
-void
-ControllersManager<NB_ACTUATORS,
-		   QUEUE_SIZE,
-		   STATE>::process_commands(long int current_iteration)
+void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
+    long int current_iteration)
 {
-  if(commands_.is_empty())
+    if (commands_.is_empty())
     {
-      return;
+        return;
     }
 
     time_series::Index newest_index = commands_.newest_timeindex(false);
-    if(newest_index<commands_index_)
-	{
-	  return;
-	}
+    if (newest_index < commands_index_)
+    {
+        return;
+    }
 
-    if(commands_index_==-1)
-      {
-	commands_index_ = commands_.oldest_timeindex(false);
-      }
+    if (commands_index_ == -1)
+    {
+        commands_index_ = commands_.oldest_timeindex(false);
+    }
 
     // checking if the frontend is done with its current command batch
     long int current_pulse_id;
-    shared_memory::get<long int>(segment_id_,"pulse_id",current_pulse_id);
-    if (current_pulse_id==pulse_id_)
-	{
-	    return;
-	}
-    for(time_series::Index index=commands_index_;
-	index<=newest_index;index++)
-	{
-	    Command<STATE> command = commands_[index];
-	    if(command.get_pulse_id()>current_pulse_id)
-	      {
-		break;
-	      }
-	    CommandType& command_type = command.get_command_type();
-	    if(command_type.type==Type::ITERATION)
-	      {
-		if (command_type.iteration.do_reset)
-		  {
-		    relative_iteration_ = current_iteration;
-		  }
-		if(command_type.iteration.relative)
-		  {
-		    command_type.iteration.value += relative_iteration_;
-		    command.print();
-		      
-		  }
-	      }
-	    int dof = command.get_dof();
-	    if (dof < 0 || dof >= controllers_.size())
-		{
-		    throw std::runtime_error("command with incorrect dof index");
-		}
-	    controllers_[dof].set_command(command);
-	}
+    shared_memory::get<long int>(segment_id_, "pulse_id", current_pulse_id);
+    if (current_pulse_id == pulse_id_)
+    {
+        return;
+    }
+    for (time_series::Index index = commands_index_; index <= newest_index;
+         index++)
+    {
+        Command<STATE> command = commands_[index];
+        if (command.get_pulse_id() > current_pulse_id)
+        {
+            break;
+        }
+        CommandType& command_type = command.get_command_type();
+        if (command_type.type == Type::ITERATION)
+        {
+            if (command_type.iteration.do_reset)
+            {
+                relative_iteration_ = current_iteration;
+            }
+            if (command_type.iteration.relative)
+            {
+                command_type.iteration.value += relative_iteration_;
+                command.print();
+            }
+        }
+        int dof = command.get_dof();
+        if (dof < 0 || dof >= controllers_.size())
+        {
+            throw std::runtime_error("command with incorrect dof index");
+        }
+        controllers_[dof].set_command(command);
+    }
     pulse_id_ = current_pulse_id;
-    commands_index_=newest_index+1;
-    shared_memory::set<time_series::Index>(segment_id_,
-					   "command_read",
-					   commands_index_);
+    commands_index_ = newest_index + 1;
+    shared_memory::set<time_series::Index>(
+        segment_id_, "command_read", commands_index_);
 }
 
-
-    
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 STATE ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_desired_state(
     int dof,
@@ -145,8 +139,8 @@ int ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_current_command_id(
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
-void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_newly_executed_commands(
-    std::queue<int>& get)
+void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::
+    get_newly_executed_commands(std::queue<int>& get)
 {
     for (Controller<STATE>& controller : controllers_)
     {
@@ -154,19 +148,19 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_newly_executed_com
     }
 }
 
-
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 time_series::MultiprocessTimeSeries<Command<STATE>>&
-ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_commands_time_series(){
-  return commands_;
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_commands_time_series()
+{
+    return commands_;
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 time_series::MultiprocessTimeSeries<int>&
-ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_completed_commands_time_series(){
-  return completed_commands_;
+ControllersManager<NB_ACTUATORS,
+                   QUEUE_SIZE,
+                   STATE>::get_completed_commands_time_series()
+{
+    return completed_commands_;
 }
-
-  
 }
-

@@ -7,8 +7,7 @@ int main()
     typedef o80_example::Driver Driver;
 
     typedef robot_interfaces::RobotBackend<Action, Observation> Backend;
-    typedef robot_interfaces::SingleProcessRobotData<Action,
-                                        Observation> Data;
+    typedef robot_interfaces::SingleProcessRobotData<Action, Observation> Data;
     typedef robot_interfaces::RobotFrontend<Action, Observation> Frontend;
 
     // max time allowed for the robot to apply an action.
@@ -26,8 +25,8 @@ int main()
 
         Backend backend(driver_ptr,
                         data_ptr,
-			max_action_duration_s,
-			max_inter_action_duration_s);
+                        max_action_duration_s,
+                        max_inter_action_duration_s);
         backend.initialize();
 
         Frontend frontend(data_ptr);
@@ -54,6 +53,6 @@ int main()
             observation.print(true);
         }
 
-	std::cout << "\n\ndone !\n\n";
+        std::cout << "\n\ndone !\n\n";
     }
 }

@@ -12,7 +12,6 @@
 namespace o80
 
 {
-
 /**
  * @brief Encapsulate the current robot state, the desired robot state
  * and an optional extended state. It also encapsulate
@@ -118,7 +117,7 @@ public:
     double get_frequency() const;
 
     long int get_time_stamp() const;
-    
+
     /**
      * @brief returns a string description of the observation
      */

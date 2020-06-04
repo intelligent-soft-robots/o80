@@ -6,7 +6,6 @@
 
 namespace o80
 {
-
 bool finished(const o80::TimePoint &start,
               const o80::TimePoint &now,
               long int duration_us);

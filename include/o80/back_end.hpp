@@ -3,18 +3,17 @@
 
 #pragma once
 
-#include "time_series/multiprocess_time_series.hpp"
-#include "o80/internal/controllers_manager.hpp"
-#include "o80/observation.hpp"
-#include "o80/states.hpp"
 #include "o80/frequency_measure.hpp"
+#include "o80/internal/controllers_manager.hpp"
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
+#include "o80/observation.hpp"
+#include "o80/states.hpp"
+#include "time_series/multiprocess_time_series.hpp"
 
 namespace o80
 
 {
-
 /**
  * BackEnd is the entity managing the commands sent
  * by a FrontEnd. BackEnd manages a queue of commands
@@ -36,19 +35,17 @@ namespace o80
 template <int QUEUE_SIZE, int NB_ACTUATORS, class STATE, class EXTENDED_STATE>
 class BackEnd
 {
-
 public:
-
-    typedef time_series::MultiprocessTimeSeries<Observation<NB_ACTUATORS,
-							    STATE,
-							    EXTENDED_STATE>> ObservationsTimeSeries;
+    typedef time_series::MultiprocessTimeSeries<
+        Observation<NB_ACTUATORS, STATE, EXTENDED_STATE>>
+        ObservationsTimeSeries;
 
 public:
     /**
      * @param segment_id should be the same for the
      * backend and the frontend
      */
-    BackEnd(std::string segment_id, bool new_commands_observations=false);
+    BackEnd(std::string segment_id, bool new_commands_observations = false);
 
     /**
      * @brief delete the shared memory segment
@@ -77,8 +74,7 @@ public:
         bool iteration_update = true,
         long int current_iteration = -1);
 
-  void start_logging(std::string logger_segment_id);
-  
+    void start_logging(std::string logger_segment_id);
 
 private:
     // performing on iteration. Called internally by "pulse"
@@ -91,8 +87,8 @@ private:
     // id of shared memory segment
     std::string segment_id_;
 
-  ObservationsTimeSeries observations_;
-    
+    ObservationsTimeSeries observations_;
+
     // host controllers (one per actuator), each controller compute
     // the current desired state based on its current command
     ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE> controllers_manager_;
@@ -114,8 +110,7 @@ private:
     // via the shared memory
     bool new_commands_observations_;
 
-  Logger* logger_;
-  
+    Logger* logger_;
 };
 
 #include "back_end.hxx"

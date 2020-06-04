@@ -5,19 +5,13 @@
 
 namespace o80
 {
+class FrequencyMeasure
+{
+public:
+    FrequencyMeasure();
+    double tick();
 
-    class FrequencyMeasure
-    {
-
-    public:
-
-	FrequencyMeasure();
-	double tick();
-	
-    private:
-
-	TimePoint previous_time_;
-
-    };
-
+private:
+    TimePoint previous_time_;
+};
 }

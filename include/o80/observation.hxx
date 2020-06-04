@@ -177,7 +177,6 @@ long int OBSERVATION::get_time_stamp() const
     return stamp_;
 }
 
-
 TEMPLATE_OBSERVATION
 std::string OBSERVATION::to_string() const
 {

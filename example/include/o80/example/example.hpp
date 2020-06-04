@@ -1,10 +1,9 @@
 #pragma once
 
 #include "o80/interpolation.hpp"
-#include "o80/standalone.hpp"
 #include "o80/memory_clearing.hpp"
+#include "o80/standalone.hpp"
 #include "robot_interfaces/robot_driver.hpp"
-
 
 #define o80_EXAMPLE_SEGMENT "o80_EXAMPLE"
 #define o80_EXAMPLE_QUEUE_SIZE 40000
@@ -178,11 +177,12 @@ public:
                   const Joint &target_state,
                   const o80::Speed &speed) const
     {
-      return o80::finished(start,now,
-			   start_state.value,
-			   current_state.value,
-			   target_state.value,
-			   speed);
+        return o80::finished(start,
+                             now,
+                             start_state.value,
+                             current_state.value,
+                             target_state.value,
+                             speed);
     }
 
     Joint intermediate_state(const o80::TimePoint &start,
@@ -193,12 +193,12 @@ public:
                              const Joint &target_state,
                              const o80::Speed &speed) const
     {
-      double desired = o80::intermediate_state(start,
-					       now,
-					       start_state.value,
-					       current_state.value,
-					       target_state.value,
-					       speed);
+        double desired = o80::intermediate_state(start,
+                                                 now,
+                                                 start_state.value,
+                                                 current_state.value,
+                                                 target_state.value,
+                                                 speed);
     }
 
     Joint intermediate_state(const o80::TimePoint &start,
@@ -209,13 +209,13 @@ public:
                              const Joint &target_state,
                              const o80::Duration_us &duration) const
     {
-	double desired = o80::intermediate_state(start,
-					      now,
-					      start_state.value,
-					      current_state.value,
-					      target_state.value,
-					      duration);
-	return Joint(desired);
+        double desired = o80::intermediate_state(start,
+                                                 now,
+                                                 start_state.value,
+                                                 current_state.value,
+                                                 target_state.value,
+                                                 duration);
+        return Joint(desired);
     }
 
     Joint intermediate_state(long int iteration_start,
@@ -226,14 +226,13 @@ public:
                              const Joint &target_state,
                              const o80::Iteration &iteration) const
     {
-      double desired = o80::intermediate_state(iteration_start,
-					    iteration_now,
-					    start_state.value,
-					    current_state.value,
-					    target_state.value,
-					    iteration);
-	return Joint(desired);
-
+        double desired = o80::intermediate_state(iteration_start,
+                                                 iteration_now,
+                                                 start_state.value,
+                                                 current_state.value,
+                                                 target_state.value,
+                                                 iteration);
+        return Joint(desired);
     }
 
     template <class Archive>
@@ -277,9 +276,8 @@ public:
                           Action,
                           Observation,
                           Joint,
-                          o80::VoidExtendedState>(driver_ptr,
-                                                   frequency,
-                                                   segment_id)
+                          o80::VoidExtendedState>(
+              driver_ptr, frequency, segment_id)
     {
     }
 
@@ -305,12 +303,10 @@ public:
     }
 
     void enrich_extended_state(o80::VoidExtendedState &extended_state,
-		 const Observation &observation)
-    {}
-    
+                               const Observation &observation)
+    {
+    }
 };
-
-    
 
 std::string get_segment_id(int id)
 {

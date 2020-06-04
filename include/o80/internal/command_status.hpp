@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include "shared_memory/shared_memory.hpp"
 #include "command_type.hpp"
 #include "o80/mode.hpp"
 #include "o80/type.hpp"
 #include "o80/typedefs.hpp"
+#include "shared_memory/shared_memory.hpp"
 
 namespace o80
 {

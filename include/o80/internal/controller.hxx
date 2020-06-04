@@ -3,20 +3,17 @@
 
 namespace o80
 {
-
-
-  template <class STATE>
+template <class STATE>
 Controller<STATE>::Controller()
-    : current_state_(nullptr),
-      reapplied_desired_state_(true)
+    : current_state_(nullptr), reapplied_desired_state_(true)
 {
 }
 
-  template<class STATE>
-void  Controller<STATE>::share_completed_command(const Command<STATE>& command)
-  {
+template <class STATE>
+void Controller<STATE>::share_completed_command(const Command<STATE>& command)
+{
     completed_commands_->append(command.get_id());
-  }
+}
 
 template <class STATE>
 void Controller<STATE>::reset()
@@ -26,23 +23,24 @@ void Controller<STATE>::reset()
 
     if (command_status.is_active())
     {
-      share_completed_command(current_command_);
+        share_completed_command(current_command_);
         command_status.set_inactive();
     }
 
     while (!queue_.empty())
     {
-      share_completed_command(queue_.front());
+        share_completed_command(queue_.front());
         queue_.pop();
     }
 }
 
-    template <class STATE>
-    void Controller<STATE>::set_completed_commands(CompletedCommandsTimeSeries& completed_commands)
-    {
-	completed_commands_=&completed_commands;
-    }
-    
+template <class STATE>
+void Controller<STATE>::set_completed_commands(
+    CompletedCommandsTimeSeries& completed_commands)
+{
+    completed_commands_ = &completed_commands;
+}
+
 template <class STATE>
 void Controller<STATE>::set_command(const Command<STATE>& command)
 {
@@ -113,7 +111,7 @@ Command<STATE>* Controller<STATE>::get_current_command(
             // (which should be fine from the user perspective, as target state
             // is almost
             // current state)
-	  share_completed_command(current_command_);
+            share_completed_command(current_command_);
             command_status.set_inactive();
             return NULL;
         }
@@ -198,7 +196,7 @@ bool Controller<STATE>::reapplied_desired_state() const
 {
     return reapplied_desired_state_;
 }
-    
+
 template <class STATE>
 const STATE& Controller<STATE>::get_desired_state(
     long int current_iteration,
@@ -210,10 +208,10 @@ const STATE& Controller<STATE>::get_desired_state(
     Command<STATE>* command = get_current_command(
         current_iteration, current_state, previously_desired_state, time_now);
 
-    reapplied_desired_state_=false;
+    reapplied_desired_state_ = false;
     if (command == NULL)
     {
-	reapplied_desired_state_=true;
+        reapplied_desired_state_ = true;
         return previously_desired_state;
     }
 
@@ -228,7 +226,7 @@ const STATE& Controller<STATE>::get_desired_state(
     {
         const STATE& state = command->get_target_state();
         command_status.set_direct_done();
-	share_completed_command(*command);
+        share_completed_command(*command);
         command_status.set_inactive();
         return state;
     }
@@ -284,7 +282,7 @@ const STATE& Controller<STATE>::get_desired_state(
                                 previously_desired_state,
                                 current_command_.get_target_state()))
     {
-      share_completed_command(current_command_);
+        share_completed_command(current_command_);
         command_status.set_inactive();
         get_current_command(current_iteration + 1,
                             current_state,

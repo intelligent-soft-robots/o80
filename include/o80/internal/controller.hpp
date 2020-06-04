@@ -26,12 +26,15 @@ template <class STATE>
 class Controller
 {
 private:
-    typedef time_series::MultiprocessTimeSeries<int> CompletedCommandsTimeSeries;
+    typedef time_series::MultiprocessTimeSeries<int>
+        CompletedCommandsTimeSeries;
+
 public:
     Controller();
 
-    void set_completed_commands(CompletedCommandsTimeSeries& completed_commands);
-    
+    void set_completed_commands(
+        CompletedCommandsTimeSeries& completed_commands);
+
     void set_command(const Command<STATE>& command);
 
     bool stop_current(const STATE& current_state,
@@ -52,7 +55,7 @@ public:
     void get_newly_executed_commands(std::queue<int>& q);
 
     bool reapplied_desired_state() const;
-    
+
 private:
     // control iteration is used to remove invalid commands, i.e. commands
     // that would require to change pressure in a duration smaller than one
@@ -61,7 +64,7 @@ private:
                                         const STATE& current_state,
                                         const STATE& previously_desired_state,
                                         const TimePoint& time_now);
-  void share_completed_command(const Command<STATE>& command);
+    void share_completed_command(const Command<STATE>& command);
 
     void reset();
 

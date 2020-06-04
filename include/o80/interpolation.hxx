@@ -8,13 +8,12 @@ bool finished(const o80::TimePoint &start,
               const T &target_state,
               const o80::Speed &speed)
 {
-    
-  double value_diff = fabs(static_cast<double>(target_state) -
-			   static_cast<double>(start_state));
-  double duration_us = value_diff / speed.value;
-  long int expected_end
-      = std::chrono::duration_cast<Microseconds>(start).count() + duration_us;
-  if (std::chrono::duration_cast<Microseconds>(now).count() > expected_end)
+    double value_diff = fabs(static_cast<double>(target_state) -
+                             static_cast<double>(start_state));
+    double duration_us = value_diff / speed.value;
+    long int expected_end =
+        std::chrono::duration_cast<Microseconds>(start).count() + duration_us;
+    if (std::chrono::duration_cast<Microseconds>(now).count() > expected_end)
     {
         return true;
     }
@@ -29,8 +28,7 @@ T intermediate_state(const o80::TimePoint &start,
                      const T &target_state,
                      const o80::Speed &speed)
 {
-    double time_diff =
-      static_cast<double>(time_diff_us(start,now));
+    double time_diff = static_cast<double>(time_diff_us(start, now));
     double value_diff = static_cast<double>(target_state - start_state);
     double desired;
     if (value_diff > 0)

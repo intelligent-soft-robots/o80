@@ -16,7 +16,7 @@ public:
     CommandType(Duration_us duration);
     CommandType(Iteration iteration);
     CommandType();
-  
+
     // bool direct_passed() const;
 
     template <class Archive>

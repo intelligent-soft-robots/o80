@@ -34,7 +34,7 @@ STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
                        double frequency,
                        std::string segment_id)
     : frequency_(frequency),
-      period_(static_cast<long int>((1.0 / frequency) * 1E6 +0.5)),
+      period_(static_cast<long int>((1.0 / frequency) * 1E6 + 0.5)),
       frequency_manager_(frequency_),
       now_(time_now()),
       burster_(nullptr),
@@ -59,10 +59,9 @@ void STANDALONE::start()
 {
     if (ri_backend_ptr_ == nullptr)
     {
-      bool realtime_mode = false;
-        ri_backend_ptr_ = new RiBackend(ri_driver_ptr_,
-                                        ri_data_ptr_,
-					realtime_mode);
+        bool realtime_mode = false;
+        ri_backend_ptr_ =
+            new RiBackend(ri_driver_ptr_, ri_data_ptr_, realtime_mode);
 
         ri_backend_ptr_->initialize();
         RI_ACTION action;
@@ -74,7 +73,7 @@ void STANDALONE::start()
     {
         throw std::runtime_error("a standalone should not be started twice");
     }
-    //spinner_.set_frequency(frequency_);
+    // spinner_.set_frequency(frequency_);
 }
 
 TEMPLATE_STANDALONE
@@ -158,7 +157,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
         // not in bursting, running at desired frequency
         if (!bursting)
         {
-	    frequency_manager_.wait();
+            frequency_manager_.wait();
             now_ = time_now();
         }
 
@@ -202,31 +201,24 @@ void start_action_timed_standalone(std::string segment_id,
     }
 
     o80::clear_shared_memory(segment_id);
-    
+
     typedef internal::StandaloneRunner<RobotDriver, o80Standalone> SR;
     typedef std::shared_ptr<SR> SRPtr;
 
-    SRPtr runner(new SR(segment_id,
-                        frequency,
-                        bursting,
-                        std::forward<Args>(args)...));
+    SRPtr runner(
+        new SR(segment_id, frequency, bursting, std::forward<Args>(args)...));
     runner->start();
     internal::add_standalone(segment_id, runner);
 }
 
-template <class RobotDriver, class o80Standalone,typename... Args>
+template <class RobotDriver, class o80Standalone, typename... Args>
 void start_standalone(std::string segment_id,
                       double frequency,
                       bool bursting,
                       Args&&... args)
 {
-    start_action_timed_standalone<RobotDriver,
-				  o80Standalone,
-				  Args...>(
-        segment_id,
-        frequency,
-        bursting,
-        std::forward<Args>(args)...);
+    start_action_timed_standalone<RobotDriver, o80Standalone, Args...>(
+        segment_id, frequency, bursting, std::forward<Args>(args)...);
 }
 
 bool standalone_is_running(std::string segment_id)

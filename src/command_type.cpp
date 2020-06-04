@@ -7,9 +7,8 @@ CommandType::CommandType(Speed _speed) : type(Type::SPEED), speed(_speed.value)
 }
 
 CommandType::CommandType(Iteration _iteration)
-    : type(Type::ITERATION), iteration(_iteration.value,
-				       _iteration.relative,
-				       _iteration.do_reset)
+    : type(Type::ITERATION),
+      iteration(_iteration.value, _iteration.relative, _iteration.do_reset)
 {
 }
 

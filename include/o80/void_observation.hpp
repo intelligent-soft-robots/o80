@@ -2,12 +2,11 @@
 
 namespace o80
 {
-
-    class VoidObservation
+class VoidObservation
+{
+    template <class Archive>
+    void serialize(Archive& archive)
     {
-	template <class Archive>
-	void serialize(Archive& archive)
-	{}
-    };
-
+    }
+};
 }
