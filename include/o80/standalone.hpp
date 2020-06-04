@@ -79,9 +79,9 @@ public:
     typedef o80_EXTENDED_STATE o80ExtendedState;
 
 private:
-    typedef robot_interfaces::RobotData<RI_ACTION,
-					RI_OBSERVATION,
-					robot_interfaces::Status>
+    typedef robot_interfaces::SingleProcessRobotData<RI_ACTION,
+						     RI_OBSERVATION>
+
         RiData;
     typedef std::shared_ptr<RiData> RiDataPtr;
     typedef robot_interfaces::RobotBackend<RI_ACTION, RI_OBSERVATION> RiBackend;

@@ -59,15 +59,14 @@ void STANDALONE::start()
 {
     if (ri_backend_ptr_ == nullptr)
     {
+      bool realtime_mode = false;
         ri_backend_ptr_ = new RiBackend(ri_driver_ptr_,
                                         ri_data_ptr_,
-					std::numeric_limits<double>::infinity(),
-					std::numeric_limits<double>::infinity());
-        ri_backend_ptr_->initialize();
+					realtime_mode);
 
+        ri_backend_ptr_->initialize();
         RI_ACTION action;
         ri_frontend_.append_desired_action(action);
-
         std::cout
             << "WARNING: o80 standalone start: setting random first action !\n";
     }
@@ -203,7 +202,7 @@ void start_action_timed_standalone(std::string segment_id,
     }
 
     o80::clear_shared_memory(segment_id);
-
+    
     typedef internal::StandaloneRunner<RobotDriver, o80Standalone> SR;
     typedef std::shared_ptr<SR> SRPtr;
 

@@ -2,7 +2,6 @@ import math
 import time
 import o80
 import o80_example
-import o80_plotting
 
 SEGMENT_ID = "o80_example"
 

@@ -7,9 +7,8 @@ int main()
     typedef o80_example::Driver Driver;
 
     typedef robot_interfaces::RobotBackend<Action, Observation> Backend;
-    typedef robot_interfaces::RobotData<Action,
-                                        Observation,
-					robot_interfaces::Status> Data;
+    typedef robot_interfaces::SingleProcessRobotData<Action,
+                                        Observation> Data;
     typedef robot_interfaces::RobotFrontend<Action, Observation> Frontend;
 
     // max time allowed for the robot to apply an action.

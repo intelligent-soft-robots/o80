@@ -36,12 +36,14 @@ def _get_plot(frontend):
 def run():
 
     o80.clear_shared_memory(SEGMENT_ID)
-    
+
+    print("1")
     o80_example.start_standalone(SEGMENT_ID,
                                  FREQUENCY,
                                  BURSTING_MODE,
                                  DRIVER_MIN,
                                  DRIVER_MAX)
+    print("2")
     
     frontend = o80_example.FrontEnd(SEGMENT_ID)
 
