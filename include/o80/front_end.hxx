@@ -24,8 +24,7 @@ FRONTEND::FrontEnd(std::string segment_id)
       buffer_index_(0),
       observations_(segment_id + "_observations", QUEUE_SIZE, false),
       completed_commands_(segment_id + "_completed", QUEUE_SIZE, false),
-      leader_(nullptr),
-      logger_(nullptr)
+      leader_(nullptr)
 {
     shared_memory::get<long int>(segment_id_, "pulse_id", pulse_id_);
     pulse_id_++;
@@ -36,25 +35,6 @@ FRONTEND::FrontEnd(std::string segment_id)
 TEMPLATE_FRONTEND
 FRONTEND::~FrontEnd()
 {
-    if (logger_ != nullptr)
-    {
-        delete logger_;
-    }
-}
-
-TEMPLATE_FRONTEND
-void FRONTEND::log(LogAction action)
-{
-    if (logger_ != nullptr)
-    {
-        logger_->log(segment_id_, action);
-    }
-}
-
-TEMPLATE_FRONTEND
-void FRONTEND::start_logging(std::string logger_segment_id)
-{
-    logger_ = new Logger(QUEUE_SIZE, logger_segment_id, false);
 }
 
 TEMPLATE_FRONTEND
@@ -332,31 +312,30 @@ void FRONTEND::final_burst()
 }
 
 TEMPLATE_FRONTEND
-Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read(long int iteration)
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read(
+    long int iteration)
 {
-
-  // no observation yet, throwing error
-  if (observations_.is_empty())
+    // no observation yet, throwing error
+    if (observations_.is_empty())
     {
-      return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
+        return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
     }
 
-  // current observation
-  if(iteration<0)
+    // current observation
+    if (iteration < 0)
     {
-      return observations_.newest_element();
+        return observations_.newest_element();
     }
 
-  // past observations
-  time_series::Index oldest = observations_.oldest_timeindex();
-  if (iteration<oldest)
+    // past observations
+    time_series::Index oldest = observations_.oldest_timeindex();
+    if (iteration < oldest)
     {
-      std::string error = "o80 frontend read: can not return iteration ";
-      error += std::to_string(iteration);
-      error += "(oldest iteration available: "+std::to_string(oldest)+")";
-      throw std::range_error(error);
+        std::string error = "o80 frontend read: can not return iteration ";
+        error += std::to_string(iteration);
+        error += "(oldest iteration available: " + std::to_string(oldest) + ")";
+        throw std::range_error(error);
     }
 
-  return observations_[iteration];
-  
+    return observations_[iteration];
 }

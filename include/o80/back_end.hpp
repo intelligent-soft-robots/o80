@@ -14,24 +14,23 @@
 namespace o80
 
 {
-  /*!  The backend computes the desired state for each 
-   *   actuator, based on the time series of commands filled up
-   *   by a frontend. The backend writes information to the time series
-   *   of observations. 
-   *   @tparam QUEUE_SIZE number of commands that can be hosted
-   *           in the command queue at any point of time. Exceptions will be
-   *           thrown if more commands are queued.
-   *   @tparam NB_ACTUATORS number of actuators of the robot
-   *   @tparam STATE class encapsulating the state of an
-   *           actuator of the robot
-   *   @tparam EXTENDED_STATE class encapsulating
-   *           supplementary arbitrary information */
+/*!  The backend computes the desired state for each
+ *   actuator, based on the time series of commands filled up
+ *   by a frontend. The backend writes information to the time series
+ *   of observations.
+ *   @tparam QUEUE_SIZE number of commands that can be hosted
+ *           in the command queue at any point of time. Exceptions will be
+ *           thrown if more commands are queued.
+ *   @tparam NB_ACTUATORS number of actuators of the robot
+ *   @tparam STATE class encapsulating the state of an
+ *           actuator of the robot
+ *   @tparam EXTENDED_STATE class encapsulating
+ *           supplementary arbitrary information */
 template <int QUEUE_SIZE, int NB_ACTUATORS, class STATE, class EXTENDED_STATE>
 class BackEnd
 {
 public:
-
-  /*! Multiprocess time series hosting observations*/ 
+    /*! Multiprocess time series hosting observations*/
     typedef time_series::MultiprocessTimeSeries<
         Observation<NB_ACTUATORS, STATE, EXTENDED_STATE>>
         ObservationsTimeSeries;
@@ -42,7 +41,7 @@ public:
      *        backend and the frontend
      * @param new_commands_observations (default false).
      *        If true, information will be writen in the observation
-     *        only when the desired state of any actuator changed 
+     *        only when the desired state of any actuator changed
      *        (when false: an observation is writen for each iteration)
      */
     BackEnd(std::string segment_id, bool new_commands_observations = false);
@@ -57,9 +56,10 @@ public:
      * @param time_now : current time stamp in nanoseconds
      * @param current_states : current state for each actuator
      * @param extended_state : arbitrary information to be added to the
-     *                         Observation that will be writen to the 
+     *                         Observation that will be writen to the
      *                         observations time series.
-     * @return : the desired states for each actuator, based on the current queue
+     * @return : the desired states for each actuator, based on the current
+     * queue
      *           of commands
      */
     const States<NB_ACTUATORS, STATE>& pulse(
@@ -69,8 +69,8 @@ public:
         bool iteration_update = true,
         long int current_iteration = -1);
 
-    //TODO: revive
-    //void start_logging(std::string logger_segment_id);
+    // TODO: revive
+    // void start_logging(std::string logger_segment_id);
 
 private:
     // performing on iteration. Called internally by "pulse"
@@ -80,7 +80,6 @@ private:
                  long int current_iteration = -1);
 
 private:
-  
     // id of shared memory segments
     std::string segment_id_;
 
@@ -111,7 +110,7 @@ private:
     bool new_commands_observations_;
 
     // TODO: revive
-    //Logger* logger_;
+    // Logger* logger_;
 };
 
 #include "back_end.hxx"

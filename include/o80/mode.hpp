@@ -3,7 +3,7 @@
 namespace o80
 {
 /**
- * @brief : possible mode for a command.
+ * @brief Possible mode for a command.
  * queue : will run after all previous commands
  * (corresponding to the same actuator) finished
  * overwrite : will stop and cancel all previous commands and run immediately
