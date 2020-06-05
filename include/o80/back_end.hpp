@@ -14,28 +14,24 @@
 namespace o80
 
 {
-/**
- * BackEnd is the entity managing the commands sent
- * by a FrontEnd. BackEnd manages a queue of commands
- * (one queue per actuator)BackEnd reads from the shared memory
- * new commands, and at each call to "iterate" uses this queue
- * to compute for each actuator the next desired state to set to the robot.
- * At each iteration, the backend communicates with the shared memory:
- * 1) reads new commands (written by the front end), 2) read current state
- * from the robot and write it; and 3) write the id of completed commands.
- * @tparam QUEUE_SIZE number of commands that can be hosted
- * in the command queue at any point of time. Exceptions will be
- * thrown if more commands are queued.
- * @tparam NB_ACTUATORS number of actuators of the robot
- * @tparam STATE class encapsulating the state of an
- * actuator of the robot
- * @tparam EXTENDED_STATE (optional) class encapsulating
- * supplementary arbitrary information
- */
+  /*!  The backend computes the desired state for each 
+   *   actuator, based on the time series of commands filled up
+   *   by a frontend. The backend writes information to the time series
+   *   of observations. 
+   *   @tparam QUEUE_SIZE number of commands that can be hosted
+   *           in the command queue at any point of time. Exceptions will be
+   *           thrown if more commands are queued.
+   *   @tparam NB_ACTUATORS number of actuators of the robot
+   *   @tparam STATE class encapsulating the state of an
+   *           actuator of the robot
+   *   @tparam EXTENDED_STATE class encapsulating
+   *           supplementary arbitrary information */
 template <int QUEUE_SIZE, int NB_ACTUATORS, class STATE, class EXTENDED_STATE>
 class BackEnd
 {
 public:
+
+  /*! Multiprocess time series hosting observations*/ 
     typedef time_series::MultiprocessTimeSeries<
         Observation<NB_ACTUATORS, STATE, EXTENDED_STATE>>
         ObservationsTimeSeries;
@@ -43,29 +39,28 @@ public:
 public:
     /**
      * @param segment_id should be the same for the
-     * backend and the frontend
+     *        backend and the frontend
+     * @param new_commands_observations (default false).
+     *        If true, information will be writen in the observation
+     *        only when the desired state of any actuator changed 
+     *        (when false: an observation is writen for each iteration)
      */
     BackEnd(std::string segment_id, bool new_commands_observations = false);
 
     /**
-     * @brief delete the shared memory segment
-     * Note that running front end based on the same
-     * segment_id will not be able to connect to
-     * new instances of BackEnd reusing this segment id.
-     * Once a Backend has been destroyed, related FrontEnd
-     * should also be terminated.
+     * @brief delete the shared memory segments
      */
     ~BackEnd();
 
     /**
      * The backend iterates once.
-     * @param time_now : current time stamp in microseconds
+     * @param time_now : current time stamp in nanoseconds
      * @param current_states : current state for each actuator
      * @param extended_state : arbitrary information to be added to the
-     * Observation
-     * that will be written in the shared memory during the iteration
-     * @return the desired states for each actuator, based on the current queue
-     * of commands
+     *                         Observation that will be writen to the 
+     *                         observations time series.
+     * @return : the desired states for each actuator, based on the current queue
+     *           of commands
      */
     const States<NB_ACTUATORS, STATE>& pulse(
         const TimePoint& time_now,
@@ -74,7 +69,8 @@ public:
         bool iteration_update = true,
         long int current_iteration = -1);
 
-    void start_logging(std::string logger_segment_id);
+    //TODO: revive
+    //void start_logging(std::string logger_segment_id);
 
 private:
     // performing on iteration. Called internally by "pulse"
@@ -84,13 +80,17 @@ private:
                  long int current_iteration = -1);
 
 private:
-    // id of shared memory segment
+  
+    // id of shared memory segments
     std::string segment_id_;
 
+    // multiprocess time series, the backend write in it,
+    // the frontends read from it
     ObservationsTimeSeries observations_;
 
     // host controllers (one per actuator), each controller compute
-    // the current desired state based on its current command
+    // the current desired state based commands read from a commands
+    // multiprocess time series.
     ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE> controllers_manager_;
 
     // Desired states as computed by the controllers. Reference to this instance
@@ -110,7 +110,8 @@ private:
     // via the shared memory
     bool new_commands_observations_;
 
-    Logger* logger_;
+    // TODO: revive
+    //Logger* logger_;
 };
 
 #include "back_end.hxx"

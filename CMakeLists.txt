@@ -61,6 +61,13 @@ set_target_properties(o80_py PROPERTIES
   )
 install(TARGETS o80_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
 
+
+#################
+# Documentation #
+#################
+
+build_sphinx_documentation()
+
 ##############
 # Unit tests #
 ##############

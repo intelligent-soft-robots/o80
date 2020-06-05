@@ -24,27 +24,19 @@ namespace internal
 void set_bursting(const std::string& segment_id, int nb_iterations);
 }
 
+/*! in bursting mode, used to send activation signal to 
+    the standalone / backend */  
 typedef std::shared_ptr<synchronizer::Leader> LeaderPtr;
 
-/**
- * @brief FrontEnd is the user interface communicating
- * with a BackEnd. It uses an interprocess shared memory
- * under the hood. "communicating" refers to writing to
- * a queue of command, and/or reading latest observations
- * written by the backend.
- * The front-end encapsulates a command queue, and add_command
- * functions add commands to this queue. Commands are transfered
- * from this local queue to the shared memory queue only when
- * specific function, such as "pulse" and "pulse_and_wait"
- * are called.
- * @tparam QUEUE_SIZE number of commands that can be hosted
- * in the command queue at any point of time. Exceptions will be
- * thrown if more commands are queued.
+/*! A frontend sends commands to a related backend and
+ *  read observations writen by this same backend.
+ * @tparam QUEUE_SIZE size of the commands and observations 
+           time series
  * @tparam NB_ACTUATORS number of actuators of the robot
  * @tparam ROBOT_STATE class encapsulating the state of an
- * actuator of the robot
- * @tparam EXTENDED_STATE (optional) class encapsulating
- * supplementary arbitrary information
+ *                     actuator of the robot
+ * @tparam EXTENDED_STATE class encapsulating
+ *                        supplementary arbitrary information
  */
 template <int QUEUE_SIZE,
           int NB_ACTUATORS,
@@ -53,148 +45,140 @@ template <int QUEUE_SIZE,
 class FrontEnd
 {
 public:
+
+  /*! multiprocess time series hosting commands shared with the backend*/
     typedef time_series::MultiprocessTimeSeries<Command<ROBOT_STATE>>
         CommandsTimeSeries;
+  /*! time series buffering commands before their transfer
+      to the commands time series*/
     typedef time_series::TimeSeries<Command<ROBOT_STATE>>
         BufferCommandsTimeSeries;
+  /*! multiprocess times series hosting the commands id that have been
+      processed by the backend*/
     typedef time_series::MultiprocessTimeSeries<int>
         CompletedCommandsTimeSeries;
+  /*! multprocess time series hosting the observations writen by the backend*/
     typedef time_series::MultiprocessTimeSeries<
         Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>>
         ObservationsTimeSeries;
+  /*! vector of observations*/
     typedef std::vector<Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>>
         Observations;
 
 public:
     /**
      * @param segment_id should be the same for the
-     * backend and the frontend
+     *        backend and the frontend
      */
     FrontEnd(std::string segment_id);
 
     ~FrontEnd();
 
-    void start_logging(std::string logger_segment_id);
+  // TODO: to revive
+  //void start_logging(std::string logger_segment_id);
 
-    int get_nb_actuators() const;
+  /*!returns the number of actuators*/
+  int get_nb_actuators() const;
 
+  /*! Read from the shared memory all the observations 
+      starting from the specified iteration until the newest
+      iteration and update the observations vector with them. 
+   *  @param[in] iteration: iteration number of the backend
+   *  @param[out] push_back_to: vector of observations to be updated. 
+   */
     bool observations_since(time_series::Index iteration,
                             Observations& push_back_to);
+
+  /*! Read from the shared memory 
+      the latest nb_items observations 
+      update the observations vector with them. 
+   *  @param[in] iteration: iteration number of the backend
+   *  @param[out] push_back_to: vector of observations to be updated. 
+   */
     bool update_latest_observations(size_t nb_items,
                                     Observations& push_back_to);
+
+  /*! Returns a vector of observations containing all observations
+   *  starting from the specified iteration until the latest iteration
+   *  @param iteration: iteration number 
+   */
     Observations get_observations_since(time_series::Index iteration);
+
+  /*! Returns a vector of observations containing the nb_items
+   *  latest  observations.
+   *  @param iteration: number of observations to read 
+   */
     Observations get_latest_observations(size_t nb_items);
+
+  /*! waiting for the next observation to be writen by the backend, then
+   *  returning it. During the first call to this method, the current
+   *  iteration is initialized as reference iteration, then the reference 
+   *  iteration will be increase by one at each call*/  
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> wait_for_next();
+
+  /*! reset the reference iteration used by the "wait_for_next" method
+   *  to the current iteration number*/
     void reset_next_index();
 
-    /**
-     * @brief Add an iteration command to the local command queue.
-     * "iteration" means this command aims at the robot to reach
-     * at the specified target state when performing the target
-     * iteration, performing interpolation from the state the actuator
-     * is in when the command starts execution.
-     * @param nb_actuators : the actuator targeted by this command
-     * @param target_state : the target state corresponding to this command
-     * @param iteration : the controller of the back-end will interpolate
-     * between
-     * its current starting state to the target state between its current
-     * starting
-     * iteration and this target iteration.
-     * @param Mode : if OVERWRITE, wipe the content of the local and shared
-     * memory
-     * queue before adding this command to the queue.
-     */
-    void add_command(int nb_actuators,
+
+  /*! add a command to the buffer commands time series.*/
+    void add_command(int nb_actuator,
                      ROBOT_STATE target_state,
                      Iteration target_iteration,
                      Mode mode);
 
-    void add_command(int nb_actuators,
+    /*! add a command to the buffer commands time series.*/
+    void add_command(int nb_actuator,
                      ROBOT_STATE target_state,
                      Duration_us duration,
                      Mode mode);
-
-    /**
-     * @brief Add a direct command to the local command queue. "Direct"
-     * means that this command will be executed during
-     * a single iteration, and target state will become the desired state
-     * of the specified actuator upon execution
-     * of the command.
-     * @param nb_actuators : the actuator targeted by this command
-     * @param target_state : the target state corresponding to this command
-     * @param Mode : if OVERWRITE, wipe the content of the local and shared
-     * memory
-     * queue before adding this command to the queue.
-     */
+  
+    /*! add a command to the buffer commands time series.*/
     void add_command(int nb_actuators, ROBOT_STATE target_state, Mode mode);
 
-    /**
-     * @brief Add a speed command to the local command queue.
-     * "speed" means this command aims at the actuator to reach
-     * at the specified target state at the specified speed, performing
-     * interpolation
-     * from the state the actuator
-     * is in when the command starts execution. The units of "speed" depends
-     * on the interpolation function implemented by ROBOT_STATE.
-     * @param nb_actuators : the actuator targeted by this command
-     * @param target_state : the target state corresponding to this command
-     * @param iteration : the controller of the back-end will interpolate
-     * between
-     * its current starting state to the target state between its current
-     * starting
-     * iteration and this target iteration.
-     * @param Mode : if OVERWRITE, wipe the content of the local and shared
-     * memory
-     * queue before adding this command to the queue.
-     */
+      /*! add a command to the buffer commands time series.*/
     void add_command(int nb_actuator,
                      ROBOT_STATE target_state,
                      Speed speed,
                      Mode mode);
 
-    /**
-     * @brief Assumes the Backend is encapsulated in a
-     * Standalone that has been started in burst mode, i.e.
-     * it does iterate only when receiveing a signal from the front end.
-     * This method is for sending such signal, which will trigger the backend
-     * to run for nb_iterations iteration as fast as it can.
-     * The frontend write the local queue of commands to the shared memory
-     * queue of commands before sending the signal.
-     * @param nb_iterations : the number of iteration the backend should perform
-     */
+  /*! request the related backend or standalone to perform nb_iterations
+      in a row, as fast as possible. Assumes the related backend or standalone
+      is running in bursting mode*/
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> burst(
         int nb_iterations);
 
+  /*! Will trigger the related standalone to run one more iteration then 
+      exit. Assumes the standalone runs in bursting mode.
+   */
     void final_burst();
 
-    /**
-     * @brief write the local queue of commands to the shared memory queue, then
-     * wait until the backend reaches the specified iteration. The read the
-     * corresponding
-     * observation from the shared memory and returns it.
-     */
+  /*! write all buffered commands to the multiprocess time series commands
+   *  (i.e. the related backend will read and execute them), then wait until
+   *  the backend reaches the specified iteration, before returning the 
+   *  observation related to this iteration.
+   */
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> pulse(
         Iteration iteration);
 
-    /**
-     * @brief write the local queue of commands to the shared memory queue, then
-     * reads the latest
-     * observation from the shared memory and returns it.
-     */
+  /*! write all buffered commands to the multiprocess time series commands
+   *  (i.e. the related backend will read and execute them), then return
+   * the latest observation/
+   */
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> pulse();
 
-    /**
-     * @brief write the local queue of commands to the shared memory queue, then
-     * waits for all these commands to be terminated. Then read the lastest
-     * observation
-     * from the shared memory and returns it.
-     */
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> pulse_and_wait();
 
-    /**
-     * @brief read the latest observation from the shared memory and returns
-     * it.
-     */
+  /*! write all buffered commands to the multiprocess time series commands
+   *  (i.e. the related backend will read and execute them), then return
+   * the latest observation/
+   */
+  Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> pulse_and_wait();
+
+  /*! write all buffered commands to the multiprocess time series commands
+   *  (i.e. the related backend will read and execute them), then wait for the 
+   *  backend to finish executation of all commands, then return the latest
+   *  observation.
+   */
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> read(long int iteration=-1);
 
 private:

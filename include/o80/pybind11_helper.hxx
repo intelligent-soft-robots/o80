@@ -62,7 +62,6 @@ void create_core_python_bindings(pybind11::module& m,
         pybind11::class_<frontend>(
             m, (pybind11_config.prefix + "FrontEnd").c_str())
             .def(pybind11::init<std::string>())
-            .def("start_logging", &frontend::start_logging)
             .def("get_nb_actuators", &frontend::get_nb_actuators)
             .def("get_observations_since", &frontend::get_observations_since)
             .def("get_latest_observations", &frontend::get_latest_observations)
@@ -101,7 +100,6 @@ void create_core_python_bindings(pybind11::module& m,
                                   (pybind11_config.prefix + "BackEnd").c_str())
             .def(pybind11::init<std::string>())
             .def(pybind11::init<std::string, bool>())
-            .def("start_logging", &backend::start_logging)
             .def("pulse", &backend::pulse)
             .def("pulse",
                  [](backend& bc) {
