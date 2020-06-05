@@ -65,8 +65,8 @@ install(TARGETS o80_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
 # Unit tests #
 ##############
 
-catkin_add_gtest(o80_unit_tests
-  tests/main.cpp
-  tests/unit_tests.cpp)
-target_link_libraries(o80_unit_tests o80 ${catkin_libraries})
+#
+# unit tests are in the o80_example
+# packages
+#
 
