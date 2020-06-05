@@ -332,13 +332,31 @@ void FRONTEND::final_burst()
 }
 
 TEMPLATE_FRONTEND
-Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read()
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read(long int iteration)
 {
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> observation;
-    if (observations_.is_empty())
+
+  // no observation yet, throwing error
+  if (observations_.is_empty())
     {
-        return observation;
+      return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
     }
-    observation = observations_.newest_element();
-    return observation;
+
+  // current observation
+  if(iteration<0)
+    {
+      return observations_.newest_element();
+    }
+
+  // past observations
+  time_series::Index oldest = observations_.oldest_timeindex();
+  if (iteration<oldest)
+    {
+      std::string error = "o80 frontend read: can not return iteration ";
+      error += std::to_string(iteration);
+      error += "(oldest iteration available: "+std::to_string(oldest)+")";
+      throw std::range_error(error);
+    }
+
+  return observations_[iteration];
+  
 }

@@ -195,7 +195,7 @@ public:
      * @brief read the latest observation from the shared memory and returns
      * it.
      */
-    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> read();
+    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> read(long int iteration=-1);
 
 private:
     void log(LogAction action);

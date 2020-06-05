@@ -84,6 +84,10 @@ void create_core_python_bindings(pybind11::module& m,
             .def("final_burst", &frontend::final_burst)
             .def("pulse_and_wait", &frontend::pulse_and_wait)
             .def("read", &frontend::read)
+            .def("latest",
+                 [](frontend& fe) {
+		   return fe.read(-1);
+                 })
             .def("pulse",
                  (observation (frontend::*)(Iteration)) & frontend::pulse)
             .def("pulse", (observation (frontend::*)()) & frontend::pulse);
