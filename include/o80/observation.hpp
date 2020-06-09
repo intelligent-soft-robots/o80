@@ -6,24 +6,23 @@
 #include <sstream>
 #include "shared_memory/serializer.hpp"
 #include "states.hpp"
-#include "typedefs.hpp"
+#include "time.hpp"
 #include "void_extended_state.hpp"
 
 namespace o80
 
 {
 /**
- * @brief Encapsulate the current robot state, the desired robot state
- * and an optional extended state. It also encapsulate
- * the current iteration, frequency and time stamp.
- * An instance of Observation is immutable.
- * Observations are created and written in the share memory
- * by instances of BackEnd at each iteration,
- * and read from the shared memory by instances of FrontEnd.
- * @tparam NB_ACTUATORS the number of actuators of the robot
- * @tparam ROBOT_STATE the class used to encapsulate robot states
- * @tparam EXTENDED_STATE arbitrary class used to encapsulate arbitrary
- * information
+ * ! Encapsulate the current robot state, the desired robot state
+ *   and an optional extended state. It also encapsulate
+ *   the current iteration, frequency and time stamp.
+ *   Observations are created and written in the share memory
+ *   by instances of BackEnd at each iteration,
+ *   and read from the shared memory by instances of FrontEnd.
+ *   @tparam NB_ACTUATORS the number of actuators of the robot
+ *   @tparam ROBOT_STATE the class used to encapsulate robot states
+ *   @tparam EXTENDED_STATE arbitrary class used to encapsulate arbitrary
+ *           information
  */
 template <int NB_ACTUATORS, class ROBOT_STATE, class EXTENDED_STATE>
 class Observation
@@ -31,11 +30,17 @@ class Observation
 public:
     Observation();
 
+  /*! copy the control iteration, sensor iteration and observed frequency 
+   *   from this to from. If full, also copies observed_states, desired_states,
+   *   extended_states and time stamp. 
+  */
     void copy(
         const Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>& from,
         bool full);
+
     Observation(
         const Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>& other);
+
     Observation(Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>&&
                     other) noexcept;
 
@@ -46,6 +51,7 @@ public:
         Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>&&
             other) noexcept;
 
+  /* ! iteration is used to define both control and sensor iteration */
     Observation(States<NB_ACTUATORS, ROBOT_STATE> observed_state,
                 States<NB_ACTUATORS, ROBOT_STATE> desired_state,
                 long int stamp,

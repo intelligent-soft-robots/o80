@@ -4,7 +4,7 @@
 #pragma once
 
 #include "o80/mode.hpp"
-#include "o80/type.hpp"
+#include "o80/command_types.hpp"
 #include "time_stamp.hpp"
 
 namespace o80

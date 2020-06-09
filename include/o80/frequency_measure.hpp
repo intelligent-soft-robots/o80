@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include "o80/typedefs.hpp"
+#include "o80/time.hpp"
 
 namespace o80
 {

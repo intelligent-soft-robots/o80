@@ -6,8 +6,8 @@
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/pybind11_helper.hpp"
-#include "o80/type.hpp"
-#include "o80/typedefs.hpp"
+#include "o80/command_types.hpp"
+#include "o80/time.hpp"
 
 // are wrapped here only the non templated class if o80.
 // For bindings of templated classes, see o80/pybind_helper.hpp

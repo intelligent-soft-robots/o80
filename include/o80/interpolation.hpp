@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include "o80/type.hpp"
-#include "o80/typedefs.hpp"
+#include "o80/command_types.hpp"
+#include "o80/time.hpp"
 
 namespace o80
 {

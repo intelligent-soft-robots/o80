@@ -38,7 +38,7 @@ include_directories(include
 
 add_library( o80
   src/time_stamp.cpp
-  src/typedefs.cpp
+  src/time.cpp
   src/command_type.cpp
   src/burster.cpp
   src/bool_state.cpp

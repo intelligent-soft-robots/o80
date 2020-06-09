@@ -5,8 +5,8 @@
 
 #include "command_type.hpp"
 #include "o80/mode.hpp"
-#include "o80/type.hpp"
-#include "o80/typedefs.hpp"
+#include "o80/command_types.hpp"
+#include "o80/time.hpp"
 #include "shared_memory/shared_memory.hpp"
 
 namespace o80
