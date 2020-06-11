@@ -32,9 +32,7 @@ namespace o80
 class Pybind11Config
 {
 public:
-    Pybind11Config() : prefix("")
-    {
-    }
+  Pybind11Config(bool all_false=false);
     bool states = true;
     bool state = true;
     bool observation = true;

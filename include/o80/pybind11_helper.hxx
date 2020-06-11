@@ -1,6 +1,22 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Author : Vincent Berenz
 
+
+Pybind11Config::Pybind11Config(bool all_false)
+  : prefix("")
+{
+  if (all_false)
+    {
+      states = false;
+      state = false;
+      observation = false;
+      extended_state = false;
+      frontend = false;
+      backend = false;
+    }
+}
+
+
 template <int QUEUE_SIZE,
           int NB_ACTUATORS,
           class o80_STATE,
@@ -149,7 +165,7 @@ template <int QUEUE_SIZE,
           class o80_EXTENDED_STATE,
           typename... DriverArgs>
 void _create_python_bindings(pybind11::module& m,
-                             Pybind11Config pybind11_config)
+                             Pybind11Config config)
 {
     // checking classes derives from the correct base classes
 
@@ -175,10 +191,10 @@ void _create_python_bindings(pybind11::module& m,
     create_core_python_bindings<QUEUE_SIZE,
                                 NB_ACTUATORS,
                                 o80_STATE,
-                                o80_EXTENDED_STATE>(m, pybind11_config);
+                                o80_EXTENDED_STATE>(m, config);
     // adding robot driver and standalone
 
-    m.def("start_standalone",
+    m.def((config.prefix+std::string("start_standalone")).c_str(),
           [](std::string segment_id,
              double frequency,
              bool bursting,
@@ -187,15 +203,17 @@ void _create_python_bindings(pybind11::module& m,
                   segment_id, frequency, bursting, (driver_args)...);
           });
 
-    m.def("stop_standalone", &stop_standalone);
+    m.def("stop_standalone",
+	  &stop_standalone);
 
-    m.def("standalone_is_running", &standalone_is_running);
+    m.def("standalone_is_running",
+	  &standalone_is_running);
 
     m.def("please_stop", &please_stop);
 }
 
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
-void create_python_bindings(pybind11::module& m, Pybind11Config pybind11_config)
+void create_python_bindings(pybind11::module& m, Pybind11Config config)
 {
     _create_python_bindings<RobotStandalone::queue_size,
                             RobotStandalone::nb_actuators,
@@ -205,7 +223,7 @@ void create_python_bindings(pybind11::module& m, Pybind11Config pybind11_config)
                             RobotDriver,
                             RobotStandalone,
                             typename RobotStandalone::o80ExtendedState,
-                            DriverArgs...>(m, pybind11_config);
+                            DriverArgs...>(m, config);
 }
 
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
