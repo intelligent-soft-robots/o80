@@ -44,14 +44,14 @@ public:
     static void turn_off(std::string segment_id);
 
 private:
-    int get_nb_bursts() const;
+    long int get_nb_bursts() const;
     void reset_nb_bursts();
     bool should_run() const;
 
 private:
     std::string segment_id_;
-    int nb_bursts_;
-    int nb_iterated_;
+    long int nb_bursts_;
+    long int nb_iterated_;
     bool running_;
 
     std::shared_ptr<synchronizer::Follower> follower_;

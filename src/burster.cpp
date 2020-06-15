@@ -34,9 +34,9 @@ void Burster::turn_off(std::string segment_id)
     shared_memory::set<bool>(segment_id, "should_burst", false);
 }
 
-int Burster::get_nb_bursts() const
+long int Burster::get_nb_bursts() const
 {
-    int v;
+    long int v;
     shared_memory::get(segment_id_, "bursting", v);
     return v;
 }

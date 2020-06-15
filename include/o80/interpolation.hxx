@@ -80,8 +80,6 @@ T intermediate_state(long int iteration_start,
 {
     if (iteration_now >= iteration.value)
     {
-      std::cout << "(interpolation) end " << iteration_now << " "
-		<< iteration.value << "\n\n";
         return target_state;
     }
     T total_state = target_state - start_state;
@@ -92,11 +90,5 @@ T intermediate_state(long int iteration_start,
     double diff_state = ratio * static_cast<double>(total_state);
     double desired_state = diff_state + static_cast<double>(start_state);
     T ds = static_cast<T>(desired_state);
-    std::cout << "(interpolation) iter start " << iteration_start << "\t"
-	      << "iter now " << iteration_now << "\n"
-	      << "state | start: " << start_state << " current: " << current_state
-	      << " " << "target:" << target_state << "\n"
-	      << "Iteration: " << iteration.value << "\n"
-	      << "desired state: " << desired_state << " " << ds << "\n\n";
     return ds;
 }

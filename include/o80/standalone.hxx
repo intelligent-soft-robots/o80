@@ -21,7 +21,6 @@ static long int get_bursting(const std::string& segment_id)
 {
     long int r;
     shared_memory::get<long int>(segment_id, "bursting", r);
-    r=r-1;
     return r;
 }
 

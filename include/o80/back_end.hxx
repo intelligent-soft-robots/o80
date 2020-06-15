@@ -34,6 +34,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
                       bool iteration_update,
                       long int current_iteration)
 {
+
     if (!iteration_update)
     {
         iteration_ = current_iteration;
@@ -54,11 +55,6 @@ bool BACKEND::iterate(const TimePoint& time_now,
     }
 
     observed_frequency_ = frequency_measure_.tick();
-
-    if (iteration_update)
-    {
-        iteration_++;
-    }
     
     return controllers_manager_.reapplied_desired_states();
 }
@@ -94,6 +90,11 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
             iteration_,
             observed_frequency_);
         observations_.append(observation);
+    }
+
+    if (iteration_update)
+    {
+        iteration_++;
     }
 
     return desired_states_;
