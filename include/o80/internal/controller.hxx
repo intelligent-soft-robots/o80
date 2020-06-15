@@ -215,6 +215,10 @@ const STATE& Controller<STATE>::get_desired_state(
         return previously_desired_state;
     }
 
+    std::cout << "controller: current command:";
+    command->print();
+    std::cout << "\n";
+    
     CommandStatus<STATE>& command_status =
         command->get_mutable_command_status();
     const Type& type = command_status.get_type();

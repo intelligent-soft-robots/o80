@@ -12,7 +12,7 @@ namespace internal
 {
 void set_bursting(const std::string& segment_id, int nb_iterations)
 {
-    shared_memory::set<int>(segment_id, "bursting", nb_iterations);
+    shared_memory::set<long int>(segment_id, "bursting", nb_iterations+1);
 }
 }
 

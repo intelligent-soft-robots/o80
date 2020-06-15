@@ -40,19 +40,18 @@ PYBIND11_MODULE(o80, m)
     pybind11::class_<o80::Iteration>(m, "Iteration")
         .def(pybind11::init<long int>())
         .def(pybind11::init<long int, bool>())
+      .def(pybind11::init<long int, bool, bool>())
         .def("reset", &Iteration::reset);
 
     pybind11::class_<o80::Direct>(m, "Direct").def(pybind11::init<>());
 
     pybind11::class_<o80::Duration_us>(m, "Duration_us")
-        .def(pybind11::init<long int>())
         .def("seconds", o80::Duration_us::seconds)
         .def("milliseconds", o80::Duration_us::milliseconds)
         .def("microseconds", o80::Duration_us::microseconds)
         .def("nanoseconds", o80::Duration_us::nanoseconds);
 
     pybind11::class_<o80::Speed>(m, "Speed")
-        .def(pybind11::init<double>())
         .def("per_second", o80::Speed::per_second)
         .def("per_millisecond", o80::Speed::per_millisecond)
         .def("per_microsecond", o80::Speed::per_microsecond)

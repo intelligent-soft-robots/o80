@@ -17,10 +17,11 @@
                o80_STATE,      \
                o80_EXTENDED_STATE>
 
-static int get_bursting(const std::string& segment_id)
+static long int get_bursting(const std::string& segment_id)
 {
-    int r;
-    shared_memory::get<int>(segment_id, "bursting", r);
+    long int r;
+    shared_memory::get<long int>(segment_id, "bursting", r);
+    r=r-1;
     return r;
 }
 
@@ -73,7 +74,6 @@ void STANDALONE::start()
     {
         throw std::runtime_error("a standalone should not be started twice");
     }
-    // spinner_.set_frequency(frequency_);
 }
 
 TEMPLATE_STANDALONE
@@ -127,12 +127,13 @@ bool STANDALONE::iterate(const TimePoint& time_now,
 TEMPLATE_STANDALONE
 bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
 {
+  
     if (bursting && burster_ == nullptr)
     {
         burster_ = std::make_shared<Burster>(segment_id_);
     }
 
-    int nb_iterations = 1;
+    long int nb_iterations = 1;
     if (bursting)
     {
         nb_iterations = get_bursting(segment_id_);
@@ -173,7 +174,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
     // wait for client/python to ask to go again
     if (bursting && should_not_stop)
     {
-        burster_->pulse();
+      burster_->pulse();
     }
 
     return should_not_stop;

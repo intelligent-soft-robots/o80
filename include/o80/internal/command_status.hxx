@@ -132,6 +132,8 @@ bool CommandStatus<STATE>::finished(long int current_iteration,
     {
         if (current_iteration > command_type_.iteration.value)
         {
+	  std::cout << "command status : FINISHED:" << current_iteration
+		    << " " << command_type_.iteration.value << "\n";
             return true;
         }
         return false;
