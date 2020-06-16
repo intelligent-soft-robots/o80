@@ -70,8 +70,6 @@ void create_core_python_bindings(pybind11::module &m);
 
 template <int QUEUE_SIZE,
           int NB_ACTUATORS,
-          class RI_ACTION,
-          class RI_OBSERVATION,
           class o80_STATE,
           class RobotDriver,
           class RobotStandalone,

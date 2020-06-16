@@ -157,8 +157,6 @@ void create_core_python_bindings(pybind11::module& m)
 
 template <int QUEUE_SIZE,
           int NB_ACTUATORS,
-          class RI_ACTION,
-          class RI_OBSERVATION,
           class o80_STATE,
           class RobotDriver,
           class RobotStandalone,
@@ -167,17 +165,9 @@ template <int QUEUE_SIZE,
 void _create_python_bindings(pybind11::module& m,
                              Pybind11Config config)
 {
-    // checking classes derives from the correct base classes
-
-    typedef robot_interfaces::RobotDriver<RI_ACTION, RI_OBSERVATION> RI_DRIVER;
-    static_assert(std::is_base_of<RI_DRIVER, RobotDriver>::value,
-                  "o80 python bindings: RobotDriver must be derived from "
-                  "robot_interfaces::RobotDriver");
-
     typedef Standalone<QUEUE_SIZE,
                        NB_ACTUATORS,
-                       RI_ACTION,
-                       RI_OBSERVATION,
+		       RobotDriver,
                        o80_STATE,
                        o80_EXTENDED_STATE>
         standalone;
@@ -217,8 +207,6 @@ void create_python_bindings(pybind11::module& m, Pybind11Config config)
 {
     _create_python_bindings<RobotStandalone::queue_size,
                             RobotStandalone::nb_actuators,
-                            typename RobotStandalone::RiAction,
-                            typename RobotStandalone::RiObservation,
                             typename RobotStandalone::o80State,
                             RobotDriver,
                             RobotStandalone,
@@ -232,8 +220,6 @@ void create_python_bindings(pybind11::module& m)
     Pybind11Config config;
     _create_python_bindings<RobotStandalone::queue_size,
                             RobotStandalone::nb_actuators,
-                            typename RobotStandalone::RiAction,
-                            typename RobotStandalone::RiObservation,
                             typename RobotStandalone::o80State,
                             RobotDriver,
                             RobotStandalone,

@@ -5,7 +5,7 @@ project(o80)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 find_package(catkin REQUIRED COMPONENTS
-  robot_interfaces
+  pybind11_catkin
   synchronizer
   shared_memory
   real_time_tools
@@ -20,10 +20,10 @@ catkin_package(
  LIBRARIES  o80
  INCLUDE_DIRS include 
  CATKIN_DEPENDS
+ pybind11_catkin
  shared_memory
  real_time_tools
  synchronizer
- robot_interfaces
  time_series
 )
 
