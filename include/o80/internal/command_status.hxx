@@ -130,7 +130,7 @@ bool CommandStatus<STATE>::finished(long int current_iteration,
 
     if (command_type_.type == Type::ITERATION)
     {
-        if (current_iteration > command_type_.iteration.value)
+        if (current_iteration >= command_type_.iteration.value)
         {
             return true;
         }

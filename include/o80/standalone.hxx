@@ -26,7 +26,7 @@ static long int get_bursting(const std::string& segment_id)
 
 static void reset_bursting(const std::string& segment_id)
 {
-    shared_memory::set<int>(segment_id, "bursting", 0);
+    shared_memory::set<long int>(segment_id, "bursting", 0);
 }
 
 TEMPLATE_STANDALONE
@@ -46,6 +46,7 @@ STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
       ri_backend_ptr_(nullptr)
 {
     shared_memory::set<bool>(segment_id, "should_stop", false);
+    reset_bursting(segment_id);
 }
 
 TEMPLATE_STANDALONE
@@ -143,6 +144,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
 
     for (int it = 0; it < nb_iterations; it++)
     {
+      
         // one iteration (reading command, applying them, writing
         // observations to shared memory)
 

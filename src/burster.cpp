@@ -37,13 +37,13 @@ void Burster::turn_off(std::string segment_id)
 long int Burster::get_nb_bursts() const
 {
     long int v;
-    shared_memory::get(segment_id_, "bursting", v);
+    shared_memory::get<long int>(segment_id_, "bursting_sync", v);
     return v;
 }
 
 void Burster::reset_nb_bursts()
 {
-    shared_memory::set<double>(segment_id_, "bursting", 0.0);
+    shared_memory::set<long int>(segment_id_, "bursting_sync", 0);
 }
 
 bool Burster::should_run() const
