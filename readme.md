@@ -5,7 +5,7 @@ Readme
 # Overview
 
 o80 (pronounced 'oh eighty') is a tool for synchronizing processes while organizing exchange of information between them.
-The information exchanged are commands for computing (robotic) desired states and observations.
+The information exchanged are commands for computing (robotic) desired states and observations, where state and observation are user class (and o80 classes are templated over them).
 
 Here is a basic usage of o80, using python:
 
@@ -43,15 +43,15 @@ In the example above, the standalone process spawns a realtime process correspon
 to c++ (realtime) code. The frontend communicates under the hood with this process via
 a realtime shared memory.
 
-The "add_command" method of the frontend is flexible, for example:
+The frontend provides the user with an "add_command" which is flexibe (i.e. has many convenient overloads). For Example:
 
 ```python
 
-# the desired state will reach the value of 100  at 3 units per second
+# the desired state will reach the value of 100 at 3 units per second
 frontend.add_command(0,State(100),Speed.per_second(3),QUEUE)
 
-# after this, the desired state will reach the value of 150 in 5000 robot
-# control iterations
+# after this, the desired state will reach the value of 150 at the 5000th 
+# robot's control iteration
 frontend.add_command(0,State(150),Iteration(5000),QUEUE)
 
 # the desired states will increase by 5 for each of the following iteration
@@ -71,8 +71,8 @@ frontend.pulse()
 
 ```
 
-o80 is templated and in the above, State is a python wrapper over an arbitrary
-c++ class. For example, it can be for an actuator of your robot the desired position and velocity.
+o80 classes are templated over State. In the above, State is a python wrapper over an arbitrary
+c++ "State" class. For example, it can be for an actuator of your robot the desired position and velocity.
 
 o80 can also be used to synchronize processes. Here an example that has a simulated robot mirroring a
 a real robot:
@@ -94,15 +94,16 @@ robot.pulse()
 while True:
     observation = robot.wait_for_next()
     observed_states = observation.get_observed_states()
-    state0 = observed_states.get(0)
-    simulation.add_command(0,state0,OVERWRITE)
+    for actuator in range(nb_actuators):
+        state = observed_states.get(actuator)
+        simulation.add_command(actuator,state,OVERWRITE)
     simulation.pulse()
     if observation.get_iteration()>=end_iteration:
         break
 
 ```
 
-This is the gist of o80. For more concrete example, you may check: [demos](https://github.com/intelligent-soft-robots/o80_example/tree/master/demos).
+This is the gist of o80. For a fully commented concrete example / tutorial, you may check: [demos](https://github.com/intelligent-soft-robots/o80_example/tree/master/demos).
 
 # Installation
 
@@ -116,22 +117,22 @@ To use o80, you will need:
   o80 and your robot. o80 has been designed to that this code may be minimalist.
 - create the python binders (o80 provides some high level functions to makes this trivial)
 
-For a detailed installation procedure that will end up with demos you will be able to run,
-visit: [o80 example](https://github.com/intelligent-soft-robots/o80_example)
-
-You may also look at these other projects that use o80:
+o80 is mostly a templated header library. It can thus only be installed in relation with a package which provides concrete class to be used as template. Thus the detailed installation procedure (that end up with demos you will be able to run) is available along with a package providing such concrete classe:  [o80 example](https://github.com/intelligent-soft-robots/o80_example)
 
 - [o80 roboball2d](https://github.com/intelligent-soft-robots/o80_roboball2d)
 - [o80 PAM](https://github.com/intelligent-soft-robots/o80_pam)
 
 # Integrating your hardware
 
+ [o80 example](https://github.com/intelligent-soft-robots/o80_example) provides an example of (pseudo toy) hardware integration. Here are the main steps to follow.
+
 ## Step1: Robot driver
 
-To integrate your hardware, you need to code its corresponding Driver, as declared in the [robot_interfaces](https://github.com/open-dynamic-robot-initiative/robot_interfaces) package (see templated interface [RobotDriver](https://github.com/open-dynamic-robot-initiative/robot_interfaces/blob/master/include/robot_interfaces/robot_driver.hpp). 
-RobotDriver is templated with Action (e.g. robot actuation input) and Observation (e.g. robot sensory output), which you also need to declare.
+To integrate your hardware, you need to code its corresponding Driver, which should be sublcass of [o80::Driver](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/driver.hpp).
 
-Here is a toy example of a driver:
+A driver simply provides functions to communicate with the hardware, i.e. to send "action" (arbitrary user templated class IN)  and read sensors (arbitrary user templated class OUT).
+
+Here is a toy examples of a driver:
 
 - [driver.hpp](https://github.com/intelligent-soft-robots/o80_example/blob/master/include/o80_example/driver.hpp)
 - [driver.cpp](https://github.com/intelligent-soft-robots/o80_example/blob/master/src/driver.cpp)
@@ -139,82 +140,60 @@ Here is a toy example of a driver:
 
 ## Step2: o80 Standalone
 
-An o80 Standalone is an object that will wrap the RobotDriver so make the o80 API compatible with it. 
-To declare it, you need to create a subclass of the interface [Standalone](https://github.com/open-dynamic-robot-initiative/robot_interfaces/blob/master/include/robot_interfaces/robot_driver.hpp).
+An o80 [Standalone](https://github.com/intelligent-soft-robots/o80/blob/vberenz/doc/include/o80/driver.hpp) is an object that will wrap an instance of Driver so to make it compatible with the o80 API. 
 
-While RobotDriver is templated over Action and Observation, o80 Standalone is templated over State and ExtendedState, which are classes that need to be declared.
+A Standalone is templated over IN and OUT (the templates of the Driver). It is also templated over State and ExtendedState. Explanations:
 
 ### State
 
-While Action is the input to a robot, State represents the desired state of one actuator of the robot. Standalone is templated over State rather than Action because o80 allows to send desired states command to each actuator independantly. The Standalone class will need to implement a [convert method](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/standalone.hpp#L155) for converting States instance into Action.
+While IN is the input to a robot driver, State represents the desired state of *one* actuator of the robot.  For example, the State can be the position of a joint. 
 
-A State class does not only declare the desired state of a joint, but also method defining desired states interpolates. This will allow for example o80 user API to support duration command method, which will request the desired state of an actuator to reach, starting from its current desired state, a target desired state of a specified duration (this API is presented in a later section, but [here](https://github.com/intelligent-soft-robots/o80_example/blob/master/demos/duration_commands.py#L24) a preview). 
+State is a user developed class which should inheritate [o80::State](https://github.com/intelligent-soft-robots/o80/blob/vberenz/doc/include/o80/state.hpp).
 
-For example, the toy Joint class is a valid State class, with all requested interpolation methods ("intermediate_state" methods):
+Standalone is templated over State because o80 allows to send desired states command to each actuator independantly. The Standalone will receive commands related to desired States, and will convert them to instance of IN before forwarding them to the driver. The user implemented Standalone class will need to implement a [convert method](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/standalone.hpp#L155) for converting instances of State into instances of IN.
+
+A State class does not only declare the desired state of a joint, but also [methods](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/state.hpp#L46) defining how desired states interpolates.
+
+ This will allow for example o80 user API to support duration command method, which will request the desired state of an actuator to reach, starting from its current desired state, a target desired state of a specified duration (this API is presented in a later section, but [here](https://github.com/intelligent-soft-robots/o80_example/blob/master/demos/duration_commands.py#L24) a preview). 
+
+The o80::State base class implements simple [linear interpolation methods](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/state.hxx) for basic types (int, double, float). If the user State encapsulate more complex data, and/or if the interpolation should not be linear, the "intermediate_state" methods should be overridden. 
+
+If an actuator state consists of a boolean, [o80::BoolState](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/bool_state.hpp)  can be used.
+
+If the actuator state is empty (i.e. the hardware is a sensor that takes no input), [o80::VoidState](https://github.com/intelligent-soft-robots/o80/blob/vberenz/doc/include/o80/void_state.hpp) can be used.
+
+For example, the toy Joint class is a valid State class:
 
 - [joint.hpp](https://github.com/intelligent-soft-robots/o80_example/blob/master/include/o80_example/joint.hpp)
 - [joint.cpp](https://github.com/intelligent-soft-robots/o80_example/blob/master/src/joint.cpp)
 
-Note that o80 API provides [interpolation function](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/interpolation.hpp).
-
 ### ExtendedState
 
-An robot_interfaces Observation is the arbitrary output of a robot as captured and returned by a RobotDriver.  A o80 [Observation](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/observation.hpp) output of an o80 Standalone is more structured, and has three parts:
+The template OUT of a Driver is the arbitrary output of a robot.
+
+A o80 [Observation](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/observation.hpp) output of an o80 Standalone is more structured, and has three parts:
 
 - An instance of [States](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp), which encapsulates the current desired state of each actuator
 - An instance of [States](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp), which encapsulates the current observed state of each actuator
-- the extended state (any arbitrary that is not related to actuator state)
+- the extended state (an arbitrary user class)
 
-When defining a new Standalone, the method for extracting from a robot_interfaces Observation the current States of the robot (as done for example [here](https://github.com/intelligent-soft-robots/o80_example/blob/master/src/standalone.cpp#L30)) and the [extended state](https://github.com/intelligent-soft-robots/o80_example/blob/master/src/standalone.cpp#L38).
-During runtime, the o80 Standalone will generate o80 Observation using these two methods (and will add the current desired states).
+During runtime, the o80 Standalone will call the [get](https://github.com/intelligent-soft-robots/o80/blob/vberenz/doc/include/o80/driver.hpp#L16) method of the driver and retrieve an instance of OUT. It will then need to "convert" this OUT instance into an instance of [o80::States](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp). This instance of o80:States will encapsulate the current observed state of each actuator of the robot. The Standalone user class should implement this convert function.
+
+It may be that the instance of OUT returned by the get function of the driver encapsulate data other than the observed state of the robot actuator. This information may be encapsulated in o80 Observation via the extended state. During runtime, the standalone instance will call its ["enrich_extended_state"]((https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp)) function to convert the instances of OUT into instances of ExtendedState. As OUT, EXTENDED_STATE is an arbitrary user class that templates Standalone. Note: OUT and EXTENDED_STATE may be the same class, in which case the "enrich_extended_state" function becomes trivial.
 
 ### Summary
 
-To implement an o80 Standalone, one must create a State class with the following methods:
+To implement an o80 Standalone, one must implement:
 
-```cpp
-    bool finished(const o80::TimePoint &start,
-                  const o80::TimePoint &now,
-                  const Joint &start_state,
-                  const Joint &current_state,
-                  const Joint &previous_desired_state,
-                  const Joint &target_state,
-                  const o80::Speed &speed) const;
-    Joint intermediate_state(const o80::TimePoint &start,
-                             const o80::TimePoint &now,
-                             const Joint &start_state,
-                             const Joint &current_state,
-                             const Joint &previous_desired_state,
-                             const Joint &target_state,
-                             const o80::Speed &speed) const;
-    Joint intermediate_state(const o80::TimePoint &start,
-                             const o80::TimePoint &now,
-                             const Joint &start_state,
-                             const Joint &current_state,
-                             const Joint &previously_desired_state,
-                             const Joint &target_state,
-                             const o80::Duration_us &duration) const;
-    Joint intermediate_state(long int iteration_start,
-                             long int iteration_now,
-                             const Joint &start_state,
-                             const Joint &current_state,
-                             const Joint &previous_desired_state,
-                             const Joint &target_state,
-                             const o80::Iteration &iteration) const;
-```
-
-and a Standalone class with the following methods:
-
-```cpp
-    Action convert(const o80::States<2, Joint> &joints);
-    o80::States<2, Joint> convert(const Observation &observation);
-    void enrich_extended_state(o80::VoidExtendedState &extended_state,
-                               const Observation &observation);
-```
+- a Driver class inherating [o80::Driver](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/driver.hpp). This class imlements the communication with the hardware.
+- An OUT class and a out class that templates this driver class. Instances of these class are used by the driver to communicate with the hardware.
+- A State class inherating [o80::State](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/state.hpp). An instance of State represente the state of an actuator.
+- An ExtendedClass, which is an arbitrary class which will encapsulate robot's information other than states. Often, ExtendedClass can also be the OUT class.
+- A Standalone, inherating [o80::Standalone](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/standalone.hpp) which is templated over the Driver class, the State class and the ExtendedClass.
 
 ## Step3 : library
 
-The documentation above request to create 5 classes : Action, Observation, State, Driver and Standalone. Once these class declared, they shall be compiled in a new library that links with robot_interfaces and o80, as shown [here](https://github.com/intelligent-soft-robots/o80_example/blob/master/CMakeLists.txt#L30).
+The documentation above request to create 5 classes : In, Out, State, Driver and Standalone. Once these class declared, they shall be compiled in a new library that links with robot_interfaces and o80, as shown [here](https://github.com/intelligent-soft-robots/o80_example/blob/master/CMakeLists.txt#L30).
 
 ## Step4 : python bindings
 
@@ -222,6 +201,10 @@ The documentation above request to create 5 classes : Action, Observation, State
 
 o80 provides [helper functions](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/pybind11_helper.hpp) which will generate the bindings automatically. See the [example](https://github.com/intelligent-soft-robots/o80_example/blob/master/srcpy/wrappers.cpp).   
 The macro for the creation of the pybind11 module need to be added to the [CMakeLists.txt](https://github.com/intelligent-soft-robots/o80_example/blob/master/CMakeLists.txt#L42).
+
+The [o80::create_python_bindings](https://github.com/intelligent-soft-robots/o80/blob/e050f1ae16b47c4000f85fb237ded7835b3b3daa/include/o80/pybind11_helper.hpp#L73) function is templated over the Driver and the Standalone class, but other arguments (... DriverArgs). These correspond to the signature of the Driver's constructor. For example, this driver's constructor takes two double as arguments. Thus, the corresponding [create_python_bindings function](https://github.com/intelligent-soft-robots/o80_example/blob/c83398d19cd8bb69930fabe42b7cabf1a1d8fa38/srcpy/wrappers.cpp#L6) is templated over two doubles.
+
+Note: important detail. The name of the pybind11 library compiled and binded in the CMakeLists.txt has to match the name of the library passed in the PYBIND11_MODULE macro (as in [here](https://github.com/intelligent-soft-robots/o80_example/blob/c83398d19cd8bb69930fabe42b7cabf1a1d8fa38/CMakeLists.txt#L45) and [here](https://github.com/intelligent-soft-robots/o80_example/blob/c83398d19cd8bb69930fabe42b7cabf1a1d8fa38/srcpy/wrappers.cpp#L4).
 
 ## Step5: compilation
 
@@ -233,63 +216,165 @@ Note that only python3 is supported for the bindings, and therefore the path to 
 catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3 install
 ```
 
+# Usage
+
+Once the catkin workspace sourced, o80 may be used via its python API. Concrete examples of usage of this API is provided in the [o80 example](https://github.com/intelligent-soft-robots/o80_example) package.
+
+The code snippets below assumes the python binded library is called "o80_robot", and that the State class encapsulates only one integer. 
+
+## Starting a standalone
+
+```python
+import o80_robot
+
+segment_id = "id1"
+frequency = 1000 # in Hz
+bursting_mode = False
+driver_arg = [1,1]
+
+o80_robot.start_standalone(segment_id,
+                           frequency,
+                           bursting_mode,
+			   *driver_args)
+```
+
+The above starts an o80 Standalone that will run at 1000Hz, i.e. it will run 1000 iterations per second, and at each iteration will call the set() and get() method of the encapsulated driver.
+The argument is an arbitrary id (segment_id), the frequency, the bursting mode (later explained, set to False in doubt) and the arguments required for instantiating the driver.
+The standalone is spawned in a separated (c++) thread.
+
+## Starting a frontend
+
+```python
+import o80
+import o80_robot
+
+segment_id = "id1"
+
+frontend = o80_robot.FrontEnd(segment_id)
+```
+
+This starts a frontend, i.e. the instance of an object able to communicate with the standalone (i.e. send commands, read observation). The segment_id passed should be the same as the one used when starting the standalone.
+
+**The frontend and the standalone can be instantiated in two different scripts**. Just: the standalone must be started first. The frontend and the standalone will communicate under the hood via a realtime shared memory. 
+
+## Buffering commands
+
+```python
+target_value = 1000
+# actuator 0
+frontend.add_command(0,o80_robot.State(target_value),o80.Mode.OVERWRITE)
+# actuator 1
+frontend.add_command(1,o80_robot.State(target_value),o80.Mode.OVERWRITE)
+```
+
+The above creates a command requesting the desired state of actuator 0 to take the value 1000 as soon as possible (o80.Mode.OVERWRITE explained later). 
+It also creates a command requesting the same desired state value of actuator 1.
+These commands are not applied yet, they are just buffered in the frontend.
+
+## Sending commands
+
+```python
+frontend.pulse()
+```
+
+The buffer of command is purged, and all the commands are sent to the Standalone which execute them. Consequently, the desired state of actuators 0 and 1 get to the value 1000.
+
+## Time, Speed and Iteration commands
+
+The commands passed above requested the desired states of the actuators to change immediately upon execution of the command.
+One may request instead for the desired states to interpolate from their current value to their target value over several iterations.
+Several overload of the add_command function may be used:
+
+### Duration commands
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+```
+
+The command above requests the desired state value to interpolate from its current value to the target value over two seconds.
+
+### Speed commands
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Speed.per_millisecond(1),o80.Mode.OVERWRITE)
+```
+
+The command above requests the desired state value to interpolate from its current value to the target value at the speed of 1 unit per milliseconds.
+
+### Iteration commands
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Iteration(5000),o80.Mode.OVERWRITE)
+```
+
+The command above request to interpolate from its current value so that reaching the target value at the 5000th iteration of the standalone. 
+Note that it does **not** mean reaching the target value over 5000 iterations. When the standalone is started, it starts iterating at its specified frequency, and keeps count of its iteration number (starting at 0). If the current iteration number is 10 when the command is started, the desired state will iterate over 4990 iteration. If the iteration number is 4950, it will interpolate over 50 iterations.
+
+To specify the number of iteration to interpolate over:
+
+```python
+actuator = 0
+target_value = 1000
+relative = True
+reset = True
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Iteration(5000,relative,reset),o80.Mode.OVERWRITE)
+```
+
+The above request to reach to target value at the 5000th *relative* iteration number, i.e. the iteration number relative to the last command for which "reset" was True was started.
+In this case, this command reset the iteration count, and then considers iteration number relative to this resetted number. It will thus request to interpolate over 5000 iterations.
+
+# Interrupting command
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+frontend.pulse()
+time.sleep(1)
+target_value = 500
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+frontend.pulse()
+```
+
+The above sends a duration command to the standalone, which starts to execute it. 
+But after 1 seconds, the frontend sends another command (note: "pulse" returns immediately, not upon finalized execution of the command). 
+
+Because this second command is sent using the mode "o80.Mode.OVERWRITE", it requests the cancelation of the current command. The standalone interrupt its running command and starts execution of the second command.
+
+This has a different behavior:
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+frontend.pulse()
+time.sleep(1)
+target_value = 500
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
+frontend.pulse()
+```
+
+The 'QUEUE' mode is used, thus the standalone finishes the first command, then starts execution of the second command.
+
+Note that this is equivalent to:
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+target_value = 500
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
+frontend.pulse()
+frontend.pulse()
+```
 
 
-The expected domain of usage is robotics, and inside robotics, reinforcement learning.
-
-oCommands sent to robotic processes encapsulate the data required for computing desired states,
 
 
-
-##1. Overview
-
-o80 (pronounced 'oh eighty') is a tool for synchronizing processes while organizing exchange of information between them.
-The expected domain of usage is robotics, and inside robotics, reinforcement learning.
-
-Commands sent to robotic processes encapsulate the data required for computing desired states,
-and the robotics processes share observations (i.e. observed state, desired state and some misc data).
-While background robotics processes correspond to realtime c++ code, the user interfaces interfacing with them 
-provide a trivial python api.
-
-The main entities of o80 are frontends, backends and standalones.
-A frontend is a (python) interface that allows user code to send commands and read observations.
-A backend is hosted by a (c++ realtime) process which uses the commands provided by the frontend to compute the
-current desired states of each robot actuator and generate observations.
-A standalone is the (c++ realtime) processes that hosts the backend, and interfacing it with the hardware (or simulation).
-
-Typically, several frontends, backends and standalone will coexist. E.g. you may have backends connected to various sensors,
-backends connected to various actuators, and backends running in simulated environment, all at the same time.
-The (python) user code will then use the API provided by the correspondings frontends to synchronize all the related processes.
-For example, it may be that via the frontends, the user code waits for a new sensor input to be generated and then use the
-frontends to send related commands to the hardware and simulation backends running in parallel.
-Using o80, creating via a python interface such architecture becomes trivial.
-
-##2. We created it for machine learning research
-
-For running a robotic experiment, typically a lots of devices have to be integrated (robot(s), simulation(s), sensor(s), logger(s), etc).
-Typically, these devices runs at different frequences, and possibly needs to be synchronized one with another. On top of this,
-because there are realtime constraints, this integration must typically support realtime c++.
-
-On the other hand, machine learning researchers have low interest for such integration, which they may consider (to some extend) as a
-some technical details time consuming to solve. What they typically would like to have access to is a (trivial) python API allowing them to
-pass actions and read observations. And if possible, such API could be used in some convenient ML environment (e.g. gym).
-
-The goal of o80 is to help researchers into creating such an API, which manages and hide the details of the integration.
-
-##3. What o80 is not
-
-o80 is used to have frontends sending commands that will have backends computing related desired states. It is assumed the robot which will
-receive these desired states do have the (realtime) controllers required to compute the lower level commands that will have the real state of the robot
-converging to these desired states. o80 is not a control architecture.
-
-#4. Integration with your hardware 
-
-To perform (c++) integration between o80 and your hardware, you need to program the base classes for state and observation. 
-Then you need to program a driver class which follows this simple interface:
-[driver interface](https://github.com/open-dynamic-robot-initiative/robot_interfaces/blob/master/include/robot_interfaces/robot_driver.hpp).
-
-The 
-
-Integration of o80 is 
-o80 is a templated c++ library with python bindings.
 
