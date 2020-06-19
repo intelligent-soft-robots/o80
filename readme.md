@@ -179,7 +179,7 @@ A o80 [Observation](https://github.com/intelligent-soft-robots/o80/blob/master/i
 
 During runtime, the o80 Standalone will call the [get](https://github.com/intelligent-soft-robots/o80/blob/vberenz/doc/include/o80/driver.hpp#L16) method of the driver and retrieve an instance of OUT. It will then need to "convert" this OUT instance into an instance of [o80::States](https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp). This instance of o80:States will encapsulate the current observed state of each actuator of the robot. The Standalone user class should implement this convert function.
 
-It may be that the instance of OUT returned by the get function of the driver encapsulate data other than the observed state of the robot actuator. This information may be encapsulated in o80 Observation via the extended state. During runtime, the standalone instance will call its ["enrich_extended_state"]((https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp)) function to convert the instances of OUT into instances of ExtendedState. As OUT, EXTENDED_STATE is an arbitrary user class that templates Standalone. Note: OUT and EXTENDED_STATE may be the same class, in which case the "enrich_extended_state" function becomes trivial.
+It may be that the instance of OUT returned by the get function of the driver encapsulate data other than the observed state of the robot actuator. This information may be encapsulated in o80 Observation via the extended state. During runtime, the standalone instance will call its ["enrich_extended_state"]((https://github.com/intelligent-soft-robots/o80/blob/master/include/o80/states.hpp)) function to convert the instances of OUT into instances of ExtendedState. As OUT, EXTENDED_STATE is an arbitrary user class that templates Standalone. Note: OUT and EXTENDED_STATE may be the same class, in which case the "enrich_extended_state" function becomes trivial. If there are no sensory information beyond the actuators state, a [void extended state](https://github.com/intelligent-soft-robots/o80/blob/masterinclude/o80/void_extended_state.hpp) can be used.
 
 ### Summary
 
@@ -310,7 +310,8 @@ The command above requests the desired state value to interpolate from its curre
 ```python
 actuator = 0
 target_value = 1000
-frontend.add_command(actuator,o80_robot.State(target_value),o80.Iteration(5000),o80.Mode.OVERWRITE)
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Iteration(5000),o80.Mode.OVERWRITE)
 ```
 
 The command above request to interpolate from its current value so that reaching the target value at the 5000th iteration of the standalone. 
@@ -323,22 +324,25 @@ actuator = 0
 target_value = 1000
 relative = True
 reset = True
-frontend.add_command(actuator,o80_robot.State(target_value),o80.Iteration(5000,relative,reset),o80.Mode.OVERWRITE)
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Iteration(5000,relative,reset),o80.Mode.OVERWRITE)
 ```
 
 The above request to reach to target value at the 5000th *relative* iteration number, i.e. the iteration number relative to the last command for which "reset" was True was started.
 In this case, this command reset the iteration count, and then considers iteration number relative to this resetted number. It will thus request to interpolate over 5000 iterations.
 
-# Interrupting command
+## Interrupting command
 
 ```python
 actuator = 0
 target_value = 1000
-frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
 frontend.pulse()
 time.sleep(1)
 target_value = 500
-frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
 frontend.pulse()
 ```
 
@@ -352,11 +356,13 @@ This has a different behavior:
 ```python
 actuator = 0
 target_value = 1000
-frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
 frontend.pulse()
 time.sleep(1)
 target_value = 500
-frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
 frontend.pulse()
 ```
 
@@ -367,12 +373,118 @@ Note that this is equivalent to:
 ```python
 actuator = 0
 target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+target_value = 500
+frontend.add_command(actuator,o80_robot.State(target_value),
+                     o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
+frontend.pulse()
+```
+
+## Blocking pulse
+
+```python
+actuator = 0
+target_value = 1000
 frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
 target_value = 500
 frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
 frontend.pulse()
-frontend.pulse()
 ```
+
+In the above, the pulse method returns immediately, which allows for the frontend to buffer new commands while other commands are executed.
+
+Alternatively, to block the script until these two commands are completed:
+
+```python
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+target_value = 500
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
+frontend.pulse_and_wait() # !
+```
+
+Instead of returning once the commands have been finalized, one may return at a specific standalone iteration number
+
+```python
+frontend.pulse(o80.Iteration(5000)) 
+```
+
+This function will block until the 5000th iteration of the standalone has been reached.
+
+# Reading observation
+
+## latest observation
+
+The pulse and pulse_and_wait method do not only purge the command buffer, but they also return an observation.
+
+```python
+observation = frontend.pulse()
+```
+
+Alternatively, the latest method also returns an observation (but does not purge the command buffer)
+
+```python
+observation = frontend.latest()
+```
+
+Observation encapsulate these data:
+
+```python
+observed_states = observation.get_observed_states()
+desired_states = observation.get_observed_state()
+iteration_number = observation.iteration()
+frequency = observation.get_frequency()
+extended = observation.get_extended_state()
+```
+
+observed_states and desired_states are instances of States. To get the State of the 0th actuator:
+
+```python
+state = observed_states.get(0)
+value = state.get()
+```
+
+*iteration number* is a integer corresponding to the standalone iteration number at the time this observation was created.
+
+*frequency* is the frequency of the standalone as observed at the corresponding iteration. 
+
+*extended* is an instance of the "extended class" templating the Standalone. 
+
+
+## observation history
+
+```python
+history = frontend.get_latest_observations(1000)
+```
+
+History is a list of instances of Observation of size 1000, corresponding to the last 1000 observations writen by the standalone (one per iteration).
+
+Alternatively:
+ 
+```python
+starting_iteration = frontend.latest().get_iteration()
+actuator = 0
+target_value = 1000
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.OVERWRITE)
+target_value = 500
+frontend.add_command(actuator,o80_robot.State(target_value),o80.Duration.milliseconds(2000),o80.Mode.QUEUE)
+frontend.pulse_and_wait() 
+history = frontend.get_observation_since(starting_iteration)
+```
+
+## Putting things together
+
+Using the API described above, it is possible for example:
+
+- to generate in python a full trajectory whic specifies a desired state for each Standalone iteration ([code](https://github.com/intelligent-soft-robots/o80_example/blob/master/demos/full_trajectory.py#L20))
+
+- to have a robot replaying another robot actions ([code](https://github.com/intelligent-soft-robots/o80_example/blob/master/demos/delay.py))
+
+- to have a robot mirroring another robot ([code](https://github.com/intelligent-soft-robots/o80_example/blob/master/demos/mirroring.py))
+
+
 
 
 
