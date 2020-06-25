@@ -9,7 +9,7 @@
 #include "command.hpp"
 #include "command_status.hpp"
 #include "command_type.hpp"
-#include "o80/typedefs.hpp"
+#include "o80/time.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 
 namespace o80

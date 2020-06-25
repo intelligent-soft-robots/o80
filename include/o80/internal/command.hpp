@@ -11,7 +11,7 @@
 #include "command_status.hpp"
 #include "command_type.hpp"
 #include "o80/mode.hpp"
-#include "o80/type.hpp"
+#include "o80/command_types.hpp"
 #include "shared_memory/serializer.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include "time_stamp.hpp"

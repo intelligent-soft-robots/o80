@@ -1,4 +1,24 @@
 
+template<int>
+int cast(double v)
+{
+  return static_cast<int>(v+0.5);
+}
+
+template<long int>
+long int cast(double v)
+{
+  return static_cast<long int>(v+0.5);
+}
+
+template<typename T>
+T cast(double v)
+{
+  return static_cast<T>(v);
+}
+
+
+
 
 template <typename T>
 bool finished(const o80::TimePoint &start,
@@ -47,7 +67,7 @@ T intermediate_state(const o80::TimePoint &start,
     {
         return target_state;
     }
-    return static_cast<T>(desired);
+    return cast<T>(desired);
 }
 
 template <typename T>
@@ -67,8 +87,9 @@ T intermediate_state(const o80::TimePoint &start,
         static_cast<double>(passed) / static_cast<double>(duration.value);
     double total_diff = static_cast<double>(target_state - start_state);
     double value = total_diff * ratio;
-    return start_state + static_cast<T>(value);
+    return start_state + cast<T>(value);
 }
+
 
 template <typename T>
 T intermediate_state(long int iteration_start,
@@ -82,6 +103,7 @@ T intermediate_state(long int iteration_start,
     {
         return target_state;
     }
+    iteration_now++;
     T total_state = target_state - start_state;
     int total_iteration = iteration.value - iteration_start;
     int diff_iteration = iteration_now - iteration_start;
@@ -89,6 +111,6 @@ T intermediate_state(long int iteration_start,
                    static_cast<double>(total_iteration);
     double diff_state = ratio * static_cast<double>(total_state);
     double desired_state = diff_state + static_cast<double>(start_state);
-    T ds = static_cast<T>(desired_state);
+    T ds = cast<T>(desired_state);
     return ds;
 }

@@ -25,7 +25,7 @@ SRUNNER::~StandaloneRunner()
 template <class RobotDriver, class o80Standalone>
 void SRUNNER::start()
 {
-    driver_ptr_->initialize();
+    driver_ptr_->start();
     standalone_.start();
     thread_.create_realtime_thread(run_helper<RobotDriver, o80Standalone>,
                                    (void*)this);

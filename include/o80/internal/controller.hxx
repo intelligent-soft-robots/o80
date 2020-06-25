@@ -275,7 +275,7 @@ const STATE& Controller<STATE>::get_desired_state(
     // checking if current command finished, and updating
     // its status accordingly. If command finished,
     // poping the next one
-    if (command_status.finished(current_iteration + 1,
+    if (command_status.finished(current_iteration,
                                 time_now,
                                 command_status.get_starting_state(),
                                 current_state,

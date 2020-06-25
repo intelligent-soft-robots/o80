@@ -83,7 +83,6 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
             if (command_type.iteration.relative)
             {
                 command_type.iteration.value += relative_iteration_;
-                command.print();
             }
         }
         int dof = command.get_dof();

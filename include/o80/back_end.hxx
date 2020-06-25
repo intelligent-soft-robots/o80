@@ -17,8 +17,7 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
       desired_states_(),
       iteration_(0),
       observed_frequency_(-1),
-      new_commands_observations_(new_commands_observations),
-      logger_(nullptr)
+      new_commands_observations_(new_commands_observations)
 {
     frequency_measure_.tick();
 }
@@ -27,16 +26,6 @@ TEMPLATE_BACKEND
 BACKEND::~BackEnd()
 {
     clear_shared_memory(segment_id_);
-    if (logger_ != nullptr)
-    {
-        delete logger_;
-    }
-}
-
-TEMPLATE_BACKEND
-void BACKEND::start_logging(std::string logger_segment_id)
-{
-    logger_ = new Logger(QUEUE_SIZE, logger_segment_id, false);
 }
 
 TEMPLATE_BACKEND
@@ -45,11 +34,8 @@ bool BACKEND::iterate(const TimePoint& time_now,
                       bool iteration_update,
                       long int current_iteration)
 {
-    if (iteration_update)
-    {
-        iteration_++;
-    }
-    else
+
+    if (!iteration_update)
     {
         iteration_ = current_iteration;
     }
@@ -69,7 +55,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
     }
 
     observed_frequency_ = frequency_measure_.tick();
-
+    
     return controllers_manager_.reapplied_desired_states();
 }
 
@@ -104,17 +90,11 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
             iteration_,
             observed_frequency_);
         observations_.append(observation);
-        if (logger_ != nullptr)
-        {
-            if (reapplied_desired_states)
-            {
-                logger_->log(segment_id_, LogAction::BACKEND_WRITE_REAPPLY);
-            }
-            else
-            {
-                logger_->log(segment_id_, LogAction::BACKEND_WRITE_NEW);
-            }
-        }
+    }
+
+    if (iteration_update)
+    {
+        iteration_++;
     }
 
     return desired_states_;

@@ -5,7 +5,7 @@ project(o80)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 find_package(catkin REQUIRED COMPONENTS
-  robot_interfaces
+  pybind11_catkin
   synchronizer
   shared_memory
   real_time_tools
@@ -20,10 +20,10 @@ catkin_package(
  LIBRARIES  o80
  INCLUDE_DIRS include 
  CATKIN_DEPENDS
+ pybind11_catkin
  shared_memory
  real_time_tools
  synchronizer
- robot_interfaces
  time_series
 )
 
@@ -38,7 +38,7 @@ include_directories(include
 
 add_library( o80
   src/time_stamp.cpp
-  src/typedefs.cpp
+  src/time.cpp
   src/command_type.cpp
   src/burster.cpp
   src/bool_state.cpp
@@ -60,6 +60,13 @@ set_target_properties(o80_py PROPERTIES
   OUTPUT_NAME o80
   )
 install(TARGETS o80_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
+
+
+#################
+# Documentation #
+#################
+
+build_sphinx_documentation()
 
 ##############
 # Unit tests #

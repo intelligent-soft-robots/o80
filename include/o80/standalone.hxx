@@ -4,33 +4,31 @@
 #define TEMPLATE_STANDALONE         \
     template <int QUEUE_SIZE,       \
               int NB_ACTUATORS,     \
-              class RI_ACTION,      \
-              class RI_OBSERVATION, \
+	      class DRIVER,         \
               class o80_STATE,      \
               class o80_EXTENDED_STATE>
 
 #define STANDALONE             \
     Standalone<QUEUE_SIZE,     \
                NB_ACTUATORS,   \
-               RI_ACTION,      \
-               RI_OBSERVATION, \
+	       DRIVER,         \
                o80_STATE,      \
                o80_EXTENDED_STATE>
 
-static int get_bursting(const std::string& segment_id)
+static long int get_bursting(const std::string& segment_id)
 {
-    int r;
-    shared_memory::get<int>(segment_id, "bursting", r);
+    long int r;
+    shared_memory::get<long int>(segment_id, "bursting", r);
     return r;
 }
 
 static void reset_bursting(const std::string& segment_id)
 {
-    shared_memory::set<int>(segment_id, "bursting", 0);
+    shared_memory::set<long int>(segment_id, "bursting", 0);
 }
 
 TEMPLATE_STANDALONE
-STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
+STANDALONE::Standalone(DriverPtr driver_ptr,
                        double frequency,
                        std::string segment_id)
     : frequency_(frequency),
@@ -39,13 +37,11 @@ STANDALONE::Standalone(RiDriverPtr ri_driver_ptr,
       now_(time_now()),
       burster_(nullptr),
       segment_id_(segment_id),
-      ri_driver_ptr_(ri_driver_ptr),
-      ri_data_ptr_(std::make_shared<RiData>()),
-      ri_frontend_(ri_data_ptr_),
-      o8o_backend_(segment_id),
-      ri_backend_ptr_(nullptr)
+      driver_ptr_(driver_ptr),
+      o8o_backend_(segment_id)
 {
     shared_memory::set<bool>(segment_id, "should_stop", false);
+    reset_bursting(segment_id);
 }
 
 TEMPLATE_STANDALONE
@@ -57,33 +53,13 @@ STANDALONE::~Standalone()
 TEMPLATE_STANDALONE
 void STANDALONE::start()
 {
-    if (ri_backend_ptr_ == nullptr)
-    {
-        bool realtime_mode = false;
-        ri_backend_ptr_ =
-            new RiBackend(ri_driver_ptr_, ri_data_ptr_, realtime_mode);
-
-        ri_backend_ptr_->initialize();
-        RI_ACTION action;
-        ri_frontend_.append_desired_action(action);
-        std::cout
-            << "WARNING: o80 standalone start: setting random first action !\n";
-    }
-    else
-    {
-        throw std::runtime_error("a standalone should not be started twice");
-    }
-    // spinner_.set_frequency(frequency_);
+  driver_ptr_->start();
 }
 
 TEMPLATE_STANDALONE
 void STANDALONE::stop()
 {
-    if (ri_backend_ptr_ != nullptr)
-    {
-        delete ri_backend_ptr_;
-        ri_backend_ptr_ = nullptr;
-    }
+  driver_ptr_->stop();
 }
 
 TEMPLATE_STANDALONE
@@ -91,11 +67,7 @@ bool STANDALONE::iterate(const TimePoint& time_now,
                          o80_EXTENDED_STATE& extended_state)
 {
     // reading sensory info from the robot (robot_interfaces)
-
-    robot_interfaces::TimeIndex time_index =
-        ri_frontend_.get_current_timeindex();
-
-    RI_OBSERVATION ri_current_states = ri_frontend_.get_observation(time_index);
+    typename DRIVER::DRIVER_OUT ri_current_states = driver_ptr_->get();
 
     // converting robot_interfaces sensory reading to o80 state
     o80::States<NB_ACTUATORS, o80_STATE> o8o_current_states =
@@ -112,11 +84,11 @@ bool STANDALONE::iterate(const TimePoint& time_now,
         o8o_backend_.pulse(time_now, o8o_current_states, extended_state);
 
     // converting o80 desired state to action to input to robot interface
-    RI_ACTION action = convert(desired_states);
+    typename DRIVER::DRIVER_IN action = convert(desired_states);
 
     // applying actions to robot
-    robot_interfaces::TimeIndex ti = ri_frontend_.append_desired_action(action);
-
+    driver_ptr_->set(action);
+    
     // check if stop command written by user in shared memory
     bool should_stop;
     shared_memory::get<bool>(segment_id_, "should_stop", should_stop);
@@ -127,12 +99,13 @@ bool STANDALONE::iterate(const TimePoint& time_now,
 TEMPLATE_STANDALONE
 bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
 {
+  
     if (bursting && burster_ == nullptr)
     {
         burster_ = std::make_shared<Burster>(segment_id_);
     }
 
-    int nb_iterations = 1;
+    long int nb_iterations = 1;
     if (bursting)
     {
         nb_iterations = get_bursting(segment_id_);
@@ -143,6 +116,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
 
     for (int it = 0; it < nb_iterations; it++)
     {
+      
         // one iteration (reading command, applying them, writing
         // observations to shared memory)
 
@@ -173,7 +147,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
     // wait for client/python to ask to go again
     if (bursting && should_not_stop)
     {
-        burster_->pulse();
+      burster_->pulse();
     }
 
     return should_not_stop;
@@ -186,7 +160,7 @@ bool STANDALONE::spin(bool bursting)
     return spin(empty, bursting);
 }
 
-template <class RobotDriver, class o80Standalone, typename... Args>
+template <class Driver, class o80Standalone, typename... Args>
 void start_action_timed_standalone(std::string segment_id,
                                    double frequency,
                                    bool bursting,
@@ -202,7 +176,7 @@ void start_action_timed_standalone(std::string segment_id,
 
     o80::clear_shared_memory(segment_id);
 
-    typedef internal::StandaloneRunner<RobotDriver, o80Standalone> SR;
+    typedef internal::StandaloneRunner<Driver, o80Standalone> SR;
     typedef std::shared_ptr<SR> SRPtr;
 
     SRPtr runner(
@@ -211,13 +185,13 @@ void start_action_timed_standalone(std::string segment_id,
     internal::add_standalone(segment_id, runner);
 }
 
-template <class RobotDriver, class o80Standalone, typename... Args>
+template <class Driver, class o80Standalone, typename... Args>
 void start_standalone(std::string segment_id,
                       double frequency,
                       bool bursting,
                       Args&&... args)
 {
-    start_action_timed_standalone<RobotDriver, o80Standalone, Args...>(
+    start_action_timed_standalone<Driver, o80Standalone, Args...>(
         segment_id, frequency, bursting, std::forward<Args>(args)...);
 }
 

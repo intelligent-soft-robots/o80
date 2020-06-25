@@ -4,11 +4,14 @@
 
 namespace o80
 {
+/*! A State encapsulating a boolean
+ *
+ */
 class BoolState
 {
 public:
     BoolState();
-    BoolState(bool status);
+    BoolState(bool value);
 
     void set(bool value);
     bool get() const;
