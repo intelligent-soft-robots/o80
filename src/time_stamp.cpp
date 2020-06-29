@@ -1,7 +1,7 @@
 // Copyright (C) 2019 Max Planck Gesellschaft
 // Author : Vincent Berenz
 
-#include "o80/internal/time_stamp.hpp"
+#include "o80_internal/time_stamp.hpp"
 
 namespace o80
 {

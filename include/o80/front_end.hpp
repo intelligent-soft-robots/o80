@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <vector>
-#include "internal/command.hpp"
+#include "o80_internal/command.hpp"
 #include "observation.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include "synchronizer/leader.hpp"

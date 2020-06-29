@@ -4,7 +4,7 @@
 #pragma once
 
 #include "o80/frequency_measure.hpp"
-#include "o80/internal/controllers_manager.hpp"
+#include "o80_internal/controllers_manager.hpp"
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/observation.hpp"

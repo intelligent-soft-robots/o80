@@ -4,7 +4,8 @@
 apt install -y ssh \
                python3-pip \
                git \
-	       cmake libcereal-dev \
+	       cmake \
+	       libcereal-dev \
 	       libboost-all-dev \
 	       libgtest-dev \
 	       libeigen3-dev \

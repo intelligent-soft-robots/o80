@@ -4,10 +4,10 @@
 #pragma once
 
 #include "synchronizer/leader.hpp"
+#include "o80_internal/standalone_runner.hpp"
 #include "o80/back_end.hpp"
 #include "o80/burster.hpp"
 #include "o80/frequency_manager.hpp"
-#include "o80/internal/standalone_runner.hpp"
 #include "o80/observation.hpp"
 #include "o80/time.hpp"
 #include "o80/observation.hpp"

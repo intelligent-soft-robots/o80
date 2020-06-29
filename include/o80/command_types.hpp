@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "internal/time_stamp.hpp"
+#include "o80_internal/time_stamp.hpp"
 
 namespace o80
 {

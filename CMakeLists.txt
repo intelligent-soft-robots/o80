@@ -18,7 +18,7 @@ DEFINE_OS()
 
 catkin_package(
  LIBRARIES  o80
- INCLUDE_DIRS include 
+ INCLUDE_DIRS include internal
  CATKIN_DEPENDS
  pybind11_catkin
  shared_memory
@@ -27,9 +27,11 @@ catkin_package(
  time_series
 )
 
-include_directories(include
-  example/include
-  ${catkin_INCLUDE_DIRS} )
+include_directories(
+  internal
+  include
+  ${catkin_INCLUDE_DIRS}
+)
 
 
 ################

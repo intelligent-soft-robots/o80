@@ -1,4 +1,4 @@
-#include "o80/internal/command_type.hpp"
+#include "o80_internal/command_type.hpp"
 
 namespace o80
 {
