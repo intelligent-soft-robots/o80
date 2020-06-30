@@ -1,5 +1,5 @@
 ---
-title: 'o80: Synchronizing realtime processes for robotics via Python '
+title: 'o80: A C++ templated toolbox for designing customized Python APIs for synchronizing realtime processes'
 tags:
   - Python
   - C++
@@ -43,14 +43,18 @@ bibliography: paper.bib
 
 ## Overview
 
-o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (possibly realtime) processes via simple customized Python API.
+o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (realtime) processes via simple customized Python APIs.
 
 There are two types of processes;
 
-- A server process encapsulate an instance of o80 back-end as well as an instance of a driver to a (robotic) hardware (real or simulated). The back-end instance computes desired actuator states that they transmit to the hardware via the driver. The back-end also read sensory information (including observed actuator states) from the driver. Typically, the server process is programmed in c++ with consideration for realtime.
-- A client process encapsulate an instance of o80 front-end instances, which provides: 1) an interface to send commands to the back-end; commands the back-end will use to determine at each iteration of the server process the desired states to request the driver with, 2) methods for making available sensor information to the user code, and 3) methos for synchronizing the client with the server process.
+- A server process encapsulates an instance of o80 back-end as well as an instance of a driver to a (robotic) hardware (real or simulated). A each iteration, the back-end instance computes for each actuator a desired states that it transmits to the hardware via the driver. The back-end also reads sensory information (including observed actuator states) from the driver. Typically, the server process is programmed in c++ with consideration for realtime.
+- A client process encapsulates an instance of o80 front-end instances, which provides: 1) an interface to send commands to the back-end (that the back-end will use to determine at each iteration of the server process the desired states to request the driver with), 2) methods querying sensory information, and 3) methos for synchronizing the client with the server process.
 
-In the background, back-end and front-end(s) communicate by exchanging serialized object instances (the cereal library) via an interprocess shared memory (boost library).
+In the background, back-end and front-end(s) communicate by exchanging serialized object instances (implemented using the cereal library) via an interprocess shared memory (implemented using the boost library).
+
+o80 is versatile because templated over actuator states and driver. o80's core library is 
+
+methods allows to specify explicity desired states trajectory, i.e. desired states values for each time real time backend iteration. They allow also to specify implicit trajectories, i.e. trajectories of desired states and indication on how the backend should interpolate between them.
 
 ## Toolbox for customizable Python API
 
@@ -133,3 +137,9 @@ publisher = {XML Press}
 
 Grant, W. Shane and Voorhies, Randolph (2017). cereal - A C++11 library for serialization. URL: http://uscilab.github.io/cereal/
 
+@misc{pybind11,
+   author = {Wenzel Jakob and Jason Rhinelander and Dean Moldovan},
+   year = {2016},
+   note = {https://github.com/pybind/pybind11},
+   title = {pybind11 — Seamless operability between C++11 and Python}
+} 
