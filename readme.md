@@ -1,6 +1,6 @@
 
-Readme
-======
+Overiew
+=======
 
 o80 (pronounced 'oh eighty') is a tool for synchronizing processes while organizing exchange of information between them.
 The information exchanged are commands for computing (robotic) desired states and observations, where state and observation are user class (and o80 classes are templated over them).
@@ -37,4 +37,9 @@ state1 = observation.get_observed_states().get(1).get()
 stop_standalone("my_robot",frequency)
 
 ```
+
+Autor
+=====
+
+Vincent Berenz, Max Planck Institute for Intelligent Systems
 
