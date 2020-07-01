@@ -1,7 +1,4 @@
 
-Overview
-========
-
 o80 (pronounced 'oh eighty') is a tool for synchronizing processes while organizing exchange of information between them.
 The information exchanged are commands for computing (robotic) desired states and observations, where state and observation are user class (and o80 classes are templated over them).
 o80 is in c++, with python wrappers.
@@ -38,8 +35,8 @@ stop_standalone("my_robot",frequency)
 
 ```
 
-Autor
-=====
+A useful complement to this webpage is the documentation of the [o80_example](https://intelligent-soft-robots.github.io/code_documentation/o80/docs/sphinx/html/index.html) package, which provides a concrete implementation of an o80 project.
 
-Vincent Berenz, Max Planck Institute for Intelligent Systems
+The github source code of o80 is [here](https://github.com/intelligent-soft-robots/o80).
+
 

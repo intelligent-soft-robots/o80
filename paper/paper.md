@@ -45,7 +45,7 @@ o80 (pronounced "oh-eighty") is a software for synchronizing and organizing mess
 
 There are two types of processes;
 
-- A server process encapsulates an instance of o80 back-end and an instance of a driver. A each iteration, the back-end instance computes for each actuator the desired state to be transmited to the hardware via the driver. The back-end also reads sensory information from the driver. Typically, the server process is programmed in c++ with consideration for realtime.
+- A server process encapsulates an instance of o80 back-end and an instance of a driver. At each iteration, the back-end instance computes for each actuator the desired state to be transmitted to the hardware via the driver. The back-end also reads sensory information from the driver. Typically, the server process is programmed in c++ with consideration for realtime.
 - A client process encapsulates an instance of o80 front-end instances, which provides: 1) an interface to send commands to the back-end (i.e. requests to compute desired states), 2) methods for querying sensory information, and 3) methods for synchronizing the client with the server process.
 
 In the background, back-end and front-end(s) communicate by exchanging serialized object instances via a interprocess shared memory. Serialization is based on the cereal library [@cereal], and the shared memory is based on the boost library [@boost].
@@ -56,12 +56,14 @@ o80's core API supports:
 
 - methods for specifying via commands either full desired state trajectories or partial trajectories relying on interpolation.
 - interpolations methods based on specified duration, speed, or number of server iterations.
-- methods for either queuing or interrupting trajectories
+- methods for either queuing or interrupting trajectories.
 - frontend methods for setting commands that are either blocking or non blocking.
 - frontend methods for retrieving sensory data that request the latest available information, sensor information corresponding to a specific past server iteration, or the full history of sensory information.
-- client processes and the server processes that run asynchronuously or synchronously. Synchronization method may be based on a fixed desired frequency set for the server, or may be setup by the client process ("bursting mode").
+- client processes and the server processes that run asynchronously or synchronously.
 
-o80 library may be considered complex as it is versatile and can be used in the context of a wide range of control strategies. Yet, the objective of o80 is to provide robot users with a simple Python API. For this purpose, o80 provides convenience method for generating application tailored Python bindings. The expected usage is that an expert o80 user develop the template classes and a task/robot specific python API which hides the complexities related to interprocess communication and synchronization. Scientists may then use this simplified API to design new robotic experiments. In this sense, o80 aims to be toolbox for creating customized Python APIs. Generation of Python bindings via the o80 API is based on pybind11 [@pybind11].
+Synchronizations method may be based on a fixed desired frequency set for the server, or may be set up by the client process ("bursting mode").
+
+o80 library may be considered complex as it is versatile and can be used in the context of a wide range of control strategies. Yet, the objective of o80 is to provide robot users with a simple Python API. For this purpose, o80 provides convenience functions for generating application tailored Python bindings. The expected usage is that an expert developer uses o80 to design the python API that will hide to end users the complexities related to interprocess communication and synchronization. Scientists may then use this simplified API to design new robotic experiments. In this sense, o80 aims to be a toolbox for creating customized Python APIs. Generation of Python bindings via the o80 API is based on pybind11 [@pybind11].
 
 # Modular Implementation
 
@@ -73,9 +75,9 @@ o80 is based on open source packages that are maintained by the Max Planck Insti
 
 # Examples of usage
 
-## integration with SL
+## Integration with SL
 
-An instance of o80 backend has been integrated into the SL realtime library [@sl] used for the control of the Apollo manipulator [@apollo]. This allows scientists to program robot behavior using a simple Python interface running at a low non-realtime frequency that synchronizes with the realtime higher frequency c++ control loop of the robot. This interface was used for example for the experiment described in this paper [@icsds].
+An instance of o80 backend has been integrated into the SL realtime library [@sl] used for the control of the Apollo manipulator [@apollo]. This allows scientists to program robot behavior using a simple Python interface running at a low non-realtime frequency that synchronizes with the realtime higher frequency c++ control loop of the robot. This interface was used for example for the experiments described in this paper [@icsds].
 
 ## HYSR training
 
@@ -83,7 +85,7 @@ o80 has been used in the context of reinforcement learning applied to real robot
 
 - provide a Python API that could be integrated into gym environment for reinforcement learning [@gym]
 - setting up the synchronization between the real robot control and the MuJoCo simulator [@mujoco] used for HYSR
-
+- setting up asynchronous processes for live plotting of the robot state
 
 # References
 
