@@ -1,0 +1,17 @@
+#!/bin/bash
+
+
+apt install -y ssh \
+               python3-pip \
+               git \
+	       cmake \
+	       libcereal-dev \
+	       libboost-all-dev \
+	       libgtest-dev \
+	       libeigen3-dev \
+	       libedit-dev \
+	       libncurses5-dev \
+	       freeglut3-dev \
+	       libxmu-dev
+	       
+pip3 install catkin_tools treep fyplot pyside2 empy
