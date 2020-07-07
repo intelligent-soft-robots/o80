@@ -41,9 +41,9 @@ bibliography: paper.bib
 
 # Overview
 
-o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (realtime) processes via simple customized Python APIs. Its target domain is robotics. Our motivation for developing o80 is to ease the setup of robotics experiments by making integration of various hardware (actuated robotic system and sensors) and software (simulation).
+o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (realtime) processes via simple customized Python APIs. Its target domain is robotics and machine learning. Our motivation for developing o80 is to ease the setup of robotics experiments (i.e. integration of various hardware and software) by machine learning scientists. Such setup typically requires time and technical effort, especially when realtime processes are involved. Ideally, scientists should have access to a simple Python API that hides the lower level communication details and simply allows to send actions and receive observations. o80 is a tool box for creating such API.
 
-There are two types of processes;
+For implementing synchronization, o80 organizes two types of processes:
 
 - A server process encapsulates an instance of o80 back-end and an instance of a driver. At each iteration, the back-end instance computes for each actuator the desired state to be transmitted to the hardware via the driver. The back-end also reads sensory information from the driver. Typically, the server process is programmed in C++ with consideration for realtime.
 - A client process encapsulates instances of o80 front-end, which provides: 1) an interface to send commands to the back-end (i.e. requests to compute desired states), 2) methods for querying sensory information, and 3) methods for synchronizing the client with the server process.
