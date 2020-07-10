@@ -5,7 +5,7 @@
 # o80
 Synchronization of c++ processes via a custom python API.
 
-See : the [documentation](https://intelligent-soft-robots.github.io/code_documentation/o80/docs/sphinx/html/index.html) and an [example project](https://github.com/intelligent-soft-robots/o80_example).
+See : the [documentation](https://intelligent-soft-robots.github.io/code_documentation/o80/docs/html/index.html) and an [example project](https://github.com/intelligent-soft-robots/o80_example).
 
 
 # Author
