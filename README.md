@@ -11,4 +11,4 @@ See : the [documentation](https://intelligent-soft-robots.github.io/code_documen
 # Author
 Vincent Berenz, Max Planck Institute for Intelligent Systems.
 
-<sup><sub>dev note: the unit tests for o80 as with the [o80_example]((https://github.com/intelligent-soft-robots/o80_example)) package
+<sup><sub>dev note: the unit tests for o80 are with the [o80_example]((https://github.com/intelligent-soft-robots/o80_example)) package
