@@ -39,9 +39,11 @@ bibliography: paper.bib
 #aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
-# Overview
+# Statement of need
 
 o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (realtime) processes via simple customized Python APIs. Its target domain is robotics and machine learning. Our motivation for developing o80 is to ease the setup of robotics experiments (i.e. integration of various hardware and software) by machine learning scientists. Such setup typically requires time and technical effort, especially when realtime processes are involved. Ideally, scientists should have access to a simple Python API that hides the lower level communication details and simply allows to send actions and receive observations. o80 is a tool box for creating such API.
+
+# Overview
 
 For implementing synchronization, o80 organizes two types of processes:
 
