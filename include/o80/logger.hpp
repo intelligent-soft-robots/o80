@@ -58,4 +58,4 @@ private:
     std::string segment_id_;
     time_series::MultiprocessTimeSeries<LogEntry> logs_;
 };
-}
+}  // namespace o80

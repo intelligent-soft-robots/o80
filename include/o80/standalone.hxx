@@ -1,19 +1,15 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Author : Vincent Berenz
 
-#define TEMPLATE_STANDALONE         \
-    template <int QUEUE_SIZE,       \
-              int NB_ACTUATORS,     \
-	      class DRIVER,         \
-              class o80_STATE,      \
+#define TEMPLATE_STANDALONE     \
+    template <int QUEUE_SIZE,   \
+              int NB_ACTUATORS, \
+              class DRIVER,     \
+              class o80_STATE,  \
               class o80_EXTENDED_STATE>
 
-#define STANDALONE             \
-    Standalone<QUEUE_SIZE,     \
-               NB_ACTUATORS,   \
-	       DRIVER,         \
-               o80_STATE,      \
-               o80_EXTENDED_STATE>
+#define STANDALONE \
+    Standalone<QUEUE_SIZE, NB_ACTUATORS, DRIVER, o80_STATE, o80_EXTENDED_STATE>
 
 static long int get_bursting(const std::string& segment_id)
 {
@@ -53,13 +49,13 @@ STANDALONE::~Standalone()
 TEMPLATE_STANDALONE
 void STANDALONE::start()
 {
-  driver_ptr_->start();
+    driver_ptr_->start();
 }
 
 TEMPLATE_STANDALONE
 void STANDALONE::stop()
 {
-  driver_ptr_->stop();
+    driver_ptr_->stop();
 }
 
 TEMPLATE_STANDALONE
@@ -88,7 +84,7 @@ bool STANDALONE::iterate(const TimePoint& time_now,
 
     // applying actions to robot
     driver_ptr_->set(action);
-    
+
     // check if stop command written by user in shared memory
     bool should_stop;
     shared_memory::get<bool>(segment_id_, "should_stop", should_stop);
@@ -99,7 +95,6 @@ bool STANDALONE::iterate(const TimePoint& time_now,
 TEMPLATE_STANDALONE
 bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
 {
-  
     if (bursting && burster_ == nullptr)
     {
         burster_ = std::make_shared<Burster>(segment_id_);
@@ -116,7 +111,6 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
 
     for (int it = 0; it < nb_iterations; it++)
     {
-      
         // one iteration (reading command, applying them, writing
         // observations to shared memory)
 
@@ -147,7 +141,7 @@ bool STANDALONE::spin(o80_EXTENDED_STATE& extended_state, bool bursting)
     // wait for client/python to ask to go again
     if (bursting && should_not_stop)
     {
-      burster_->pulse();
+        burster_->pulse();
     }
 
     return should_not_stop;

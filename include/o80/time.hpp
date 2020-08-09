@@ -5,8 +5,7 @@
 
 namespace o80
 {
-
-  typedef std::chrono::seconds Seconds;
+typedef std::chrono::seconds Seconds;
 typedef std::chrono::milliseconds Milliseconds;
 typedef std::chrono::microseconds Microseconds;
 typedef std::chrono::nanoseconds Nanoseconds;
@@ -27,4 +26,4 @@ long int time_diff(const TimePoint& before, const TimePoint& after);
  * ! returns the duration between after and before, in microseconds
  */
 long int time_diff_us(const TimePoint& before, const TimePoint& after);
-}
+}  // namespace o80

@@ -209,4 +209,4 @@ const CommandType& CommandStatus<STATE>::get_command_type() const
 {
     return command_type_;
 }
-}
+}  // namespace o80

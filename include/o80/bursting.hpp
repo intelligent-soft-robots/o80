@@ -28,4 +28,4 @@ private:
 
     synchronizer::Follower follower_;
 };
-}
+}  // namespace o80

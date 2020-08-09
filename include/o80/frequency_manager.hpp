@@ -22,4 +22,4 @@ private:
     TimePoint previous_time_;
     Nanoseconds period_;
 };
-}
+}  // namespace o80

@@ -58,4 +58,4 @@ Microseconds TimeStamp::get_stamp() const
 {
     return stamp_;
 }
-}
+}  // namespace o80

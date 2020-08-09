@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 #include "o80/interpolation.hpp"
 
 namespace o80
@@ -22,12 +23,27 @@ namespace o80
  *  (e.g. double, float) and has to be overriden for any other type.
  *  @tparam T value of the state
  */
-template <typename T, class Sub>
-class State
+template <class Sub, typename... Args>
+class MdState
 {
 public:
-    State(T value);
+    State(Args &&... args);
     State();
+
+    template <int INDEX>
+    typename std::tuple_element<INDEX, std::tuple<Args...> >::type get()
+    {
+        return std::get<INDEX>(values_);
+    }
+
+    template <int INDEX>
+    void set(
+        typename std::tuple_element<INDEX, std::tuple<Args...> >::type value)
+    {
+        std::get<INDEX>(values_) = value;
+    }
+
+    template <int INDEX>
     T get() const;
     void set(T value);
     std::string to_string() const;
@@ -70,7 +86,7 @@ public:
         archive(value);
     }
 
-    T value;
+    std::tuple<Args...> values_;
 };
 
 #include "state.hxx"

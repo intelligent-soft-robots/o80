@@ -51,6 +51,6 @@ private:
     std::array<bool, NB_ACTUATORS> initialized_;
     long int relative_iteration_;
 };
-}
+}  // namespace o80
 
 #include "controllers_manager.hxx"

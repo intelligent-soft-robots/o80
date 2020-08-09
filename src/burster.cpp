@@ -97,4 +97,4 @@ bool Burster::pulse()
 
     return true;
 }
-}
+}  // namespace o80

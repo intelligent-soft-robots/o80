@@ -56,4 +56,4 @@ T intermediate_state(long int start_iteration,
                      const o80::Iteration &iteration);
 
 #include "interpolation.hxx"
-}
+}  // namespace o80

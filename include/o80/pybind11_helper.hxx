@@ -1,21 +1,18 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Author : Vincent Berenz
 
-
-Pybind11Config::Pybind11Config(bool all_false)
-  : prefix("")
+Pybind11Config::Pybind11Config(bool all_false) : prefix("")
 {
-  if (all_false)
+    if (all_false)
     {
-      states = false;
-      state = false;
-      observation = false;
-      extended_state = false;
-      frontend = false;
-      backend = false;
+        states = false;
+        state = false;
+        observation = false;
+        extended_state = false;
+        frontend = false;
+        backend = false;
     }
 }
-
 
 template <int QUEUE_SIZE,
           int NB_ACTUATORS,
@@ -101,8 +98,8 @@ void create_core_python_bindings(pybind11::module& m,
             .def("read", &frontend::read)
             .def("latest", [](frontend& fe) { return fe.read(-1); })
             .def("pulse",
-                 (observation (frontend::*)(Iteration)) & frontend::pulse)
-            .def("pulse", (observation (frontend::*)()) & frontend::pulse);
+                 (observation(frontend::*)(Iteration)) & frontend::pulse)
+            .def("pulse", (observation(frontend::*)()) & frontend::pulse);
     }
 
     if (pybind11_config.backend)
@@ -162,12 +159,11 @@ template <int QUEUE_SIZE,
           class RobotStandalone,
           class o80_EXTENDED_STATE,
           typename... DriverArgs>
-void _create_python_bindings(pybind11::module& m,
-                             Pybind11Config config)
+void _create_python_bindings(pybind11::module& m, Pybind11Config config)
 {
     typedef Standalone<QUEUE_SIZE,
                        NB_ACTUATORS,
-		       RobotDriver,
+                       RobotDriver,
                        o80_STATE,
                        o80_EXTENDED_STATE>
         standalone;
@@ -184,7 +180,7 @@ void _create_python_bindings(pybind11::module& m,
                                 o80_EXTENDED_STATE>(m, config);
     // adding robot driver and standalone
 
-    m.def((config.prefix+std::string("start_standalone")).c_str(),
+    m.def((config.prefix + std::string("start_standalone")).c_str(),
           [](std::string segment_id,
              double frequency,
              bool bursting,
@@ -193,11 +189,9 @@ void _create_python_bindings(pybind11::module& m,
                   segment_id, frequency, bursting, (driver_args)...);
           });
 
-    m.def("stop_standalone",
-	  &stop_standalone);
+    m.def("stop_standalone", &stop_standalone);
 
-    m.def("standalone_is_running",
-	  &standalone_is_running);
+    m.def("standalone_is_running", &standalone_is_running);
 
     m.def("please_stop", &please_stop);
 }

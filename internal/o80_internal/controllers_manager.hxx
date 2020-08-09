@@ -24,9 +24,8 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
-bool ControllersManager<NB_ACTUATORS,
-                        QUEUE_SIZE,
-                        STATE>::reapplied_desired_states() const
+bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::
+    reapplied_desired_states() const
 {
     for (int dof = 0; dof < NB_ACTUATORS; dof++)
     {
@@ -156,10 +155,9 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::get_commands_time_series()
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 time_series::MultiprocessTimeSeries<int>&
-ControllersManager<NB_ACTUATORS,
-                   QUEUE_SIZE,
-                   STATE>::get_completed_commands_time_series()
+ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::
+    get_completed_commands_time_series()
 {
     return completed_commands_;
 }
-}
+}  // namespace o80

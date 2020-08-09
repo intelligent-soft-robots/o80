@@ -232,4 +232,4 @@ long int Command<STATE>::get_pulse_id() const
 
 template <class STATE>
 std::mutex Command<STATE>::mutex;
-}
+}  // namespace o80

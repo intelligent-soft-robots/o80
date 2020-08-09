@@ -1,24 +1,21 @@
 
-template<int>
+template <int>
 int cast(double v)
 {
-  return static_cast<int>(v+0.5);
+    return static_cast<int>(v + 0.5);
 }
 
-template<long int>
+template <long int>
 long int cast(double v)
 {
-  return static_cast<long int>(v+0.5);
+    return static_cast<long int>(v + 0.5);
 }
 
-template<typename T>
+template <typename T>
 T cast(double v)
 {
-  return static_cast<T>(v);
+    return static_cast<T>(v);
 }
-
-
-
 
 template <typename T>
 bool finished(const o80::TimePoint &start,
@@ -89,7 +86,6 @@ T intermediate_state(const o80::TimePoint &start,
     double value = total_diff * ratio;
     return start_state + cast<T>(value);
 }
-
 
 template <typename T>
 T intermediate_state(long int iteration_start,

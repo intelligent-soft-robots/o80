@@ -15,4 +15,4 @@ double FrequencyMeasure::tick()
     previous_time_ = now;
     return frequency;
 }
-}
+}  // namespace o80

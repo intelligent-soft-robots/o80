@@ -295,4 +295,4 @@ const STATE& Controller<STATE>::get_desired_state(
 
 template <class STATE>
 std::mutex Controller<STATE>::mutex_;
-}
+}  // namespace o80

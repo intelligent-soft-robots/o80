@@ -221,4 +221,4 @@ private:
 };
 
 #include "front_end.hxx"
-}
+}  // namespace o80

@@ -22,4 +22,4 @@ void FrequencyManager::wait()
     }
     previous_time_ = now + time_diff;
 }
-}
+}  // namespace o80

@@ -26,4 +26,4 @@ bool CommandType::direct_passed() const
 {
   return TimeStamp(delayed.stamp).passed();
   }*/
-}
+}  // namespace o80

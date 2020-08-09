@@ -19,4 +19,4 @@ public:
 private:
     TimePoint previous_time_;
 };
-}
+}  // namespace o80

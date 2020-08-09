@@ -22,4 +22,4 @@ private:
     Microseconds stamp_;
     bool immediate_;
 };
-}
+}  // namespace o80

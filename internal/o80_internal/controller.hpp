@@ -82,6 +82,6 @@ private:
     // queue was empty)
     bool reapplied_desired_state_;
 };
-}
+}  // namespace o80
 
 #include "controller.hxx"

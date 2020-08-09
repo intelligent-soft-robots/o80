@@ -27,4 +27,4 @@ void clear_shared_memory(std::string segment_id)
                                        std::string("_synchronizer_leader"));
     shared_memory::clear_shared_memory(segment_id);
 }
-}
+}  // namespace o80

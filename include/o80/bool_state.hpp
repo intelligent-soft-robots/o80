@@ -62,4 +62,4 @@ public:
 private:
     bool status_;
 };
-}
+}  // namespace o80

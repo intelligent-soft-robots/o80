@@ -62,4 +62,4 @@ VoidState VoidState::intermediate_state(long int iteration_start,
 {
     throw std::runtime_error("o80::VoidState iteration command not supported");
 }
-}
+}  // namespace o80

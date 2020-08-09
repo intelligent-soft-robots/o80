@@ -80,4 +80,4 @@ BoolState BoolState::intermediate_state(long int iteration_start,
     }
     return BoolState(false);
 }
-}
+}  // namespace o80

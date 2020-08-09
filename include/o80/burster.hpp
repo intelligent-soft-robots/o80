@@ -56,4 +56,4 @@ private:
 
     std::shared_ptr<synchronizer::Follower> follower_;
 };
-}
+}  // namespace o80

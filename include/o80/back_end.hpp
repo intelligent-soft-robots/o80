@@ -4,11 +4,11 @@
 #pragma once
 
 #include "o80/frequency_measure.hpp"
-#include "o80_internal/controllers_manager.hpp"
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/observation.hpp"
 #include "o80/states.hpp"
+#include "o80_internal/controllers_manager.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 
 namespace o80
@@ -114,4 +114,4 @@ private:
 };
 
 #include "back_end.hxx"
-}
+}  // namespace o80

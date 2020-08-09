@@ -53,5 +53,5 @@ void add_standalone(const std::string& segment_id, StandalonePtr standalone);
 bool standalone_exists(const std::string& segment_id);
 
 #include "standalone_runner.hxx"
-}
-}
+}  // namespace internal
+}  // namespace o80

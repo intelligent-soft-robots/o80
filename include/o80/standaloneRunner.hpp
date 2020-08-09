@@ -72,4 +72,4 @@ THREAD_FUNCTION_RETURN_TYPE run_helper(void *arg)
     ((StandaloneRunner<RobotDriver, o80Standalone> *)arg)->run();
     return THREAD_FUNCTION_RETURN_VALUE;
 }
-}
+}  // namespace o80

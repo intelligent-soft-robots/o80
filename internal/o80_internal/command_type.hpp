@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "o80/mode.hpp"
 #include "o80/command_types.hpp"
+#include "o80/mode.hpp"
 #include "time_stamp.hpp"
 
 namespace o80
@@ -31,4 +31,4 @@ public:
     Duration_us duration;
     Iteration iteration;
 };
-}
+}  // namespace o80

@@ -34,7 +34,6 @@ bool BACKEND::iterate(const TimePoint& time_now,
                       bool iteration_update,
                       long int current_iteration)
 {
-
     if (!iteration_update)
     {
         iteration_ = current_iteration;
@@ -55,7 +54,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
     }
 
     observed_frequency_ = frequency_measure_.tick();
-    
+
     return controllers_manager_.reapplied_desired_states();
 }
 

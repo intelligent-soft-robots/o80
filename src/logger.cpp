@@ -63,4 +63,4 @@ void Logger::save(std::string path)
     f.close();
     std::cout << "saved ! " << path << " \n";
 }
-}
+}  // namespace o80

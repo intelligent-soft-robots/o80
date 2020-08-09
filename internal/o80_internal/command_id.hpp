@@ -48,4 +48,4 @@ public:
         return id;
     }
 };
-}
+}  // namespace o80

@@ -43,4 +43,4 @@ public:
 };
 
 #include "states.hxx"
-}
+}  // namespace o80

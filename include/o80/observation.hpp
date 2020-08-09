@@ -30,10 +30,10 @@ class Observation
 public:
     Observation();
 
-  /*! copy the control iteration, sensor iteration and observed frequency 
-   *   from this to from. If full, also copies observed_states, desired_states,
-   *   extended_states and time stamp. 
-  */
+    /*! copy the control iteration, sensor iteration and observed frequency
+     *   from this to from. If full, also copies observed_states,
+     * desired_states, extended_states and time stamp.
+     */
     void copy(
         const Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>& from,
         bool full);
@@ -51,7 +51,7 @@ public:
         Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>&&
             other) noexcept;
 
-  /* ! iteration is used to define both control and sensor iteration */
+    /* ! iteration is used to define both control and sensor iteration */
     Observation(States<NB_ACTUATORS, ROBOT_STATE> observed_state,
                 States<NB_ACTUATORS, ROBOT_STATE> desired_state,
                 long int stamp,
@@ -160,4 +160,4 @@ protected:
 };
 
 #include "observation.hxx"
-}
+}  // namespace o80

@@ -10,8 +10,8 @@
 
 #include "command_status.hpp"
 #include "command_type.hpp"
-#include "o80/mode.hpp"
 #include "o80/command_types.hpp"
+#include "o80/mode.hpp"
 #include "shared_memory/serializer.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include "time_stamp.hpp"
@@ -119,6 +119,6 @@ public:
     const CommandStatus<STATE>& get_command_status() const;
     CommandStatus<STATE>& get_mutable_command_status();
 };
-}
+}  // namespace o80
 
 #include "command.hxx"

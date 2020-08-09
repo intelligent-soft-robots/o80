@@ -4,8 +4,8 @@
 #pragma once
 
 #include "command_type.hpp"
-#include "o80/mode.hpp"
 #include "o80/command_types.hpp"
+#include "o80/mode.hpp"
 #include "o80/time.hpp"
 #include "shared_memory/shared_memory.hpp"
 
@@ -62,6 +62,6 @@ private:
     bool direct_done_;
     CommandType command_type_;
 };
-}
+}  // namespace o80
 
 #include "command_status.hxx"

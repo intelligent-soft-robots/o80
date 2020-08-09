@@ -13,4 +13,4 @@ enum Mode
     QUEUE,
     OVERWRITE
 };
-}
+}  // namespace o80

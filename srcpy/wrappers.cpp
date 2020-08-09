@@ -1,12 +1,12 @@
 #include "o80/back_end.hpp"
 #include "o80/bool_state.hpp"
 #include "o80/burster.hpp"
+#include "o80/command_types.hpp"
 #include "o80/frequency_manager.hpp"
 #include "o80/frequency_measure.hpp"
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/pybind11_helper.hpp"
-#include "o80/command_types.hpp"
 #include "o80/time.hpp"
 
 // are wrapped here only the non templated class if o80.
@@ -40,7 +40,7 @@ PYBIND11_MODULE(o80, m)
     pybind11::class_<o80::Iteration>(m, "Iteration")
         .def(pybind11::init<long int>())
         .def(pybind11::init<long int, bool>())
-      .def(pybind11::init<long int, bool, bool>())
+        .def(pybind11::init<long int, bool, bool>())
         .def("reset", &Iteration::reset);
 
     pybind11::class_<o80::Direct>(m, "Direct").def(pybind11::init<>());
