@@ -48,7 +48,7 @@ template < size_t INDEX = 0,
                                     command);
         std::get<INDEX>(interpolated_state) = value;
         // recursive call over the tuples
-        if constexpr (INDEX + 1 < SIZE)
+        if constexpr (INDEX + 1 < SIZE && std::is_same<COMMAND_TYPE, o80::Speed>::value)
         {
             if (use_duration)
             {
@@ -74,6 +74,16 @@ template < size_t INDEX = 0,
                                          interpolated_state);
             }
         }
+	else
+	  {
+	    intermediates<INDEX + 1>(std::forward<INCR>(start),
+				     std::forward<INCR>(now),
+				     start_state,
+				     previous_desired_state,
+                                         target_state,
+				     command,
+				     interpolated_state);
+	  }
     }
 }
 
@@ -221,6 +231,7 @@ Sub StateXd<Sub, Args...>::intermediate_state(
                             previous_desired_state.values_,
                             target_state.values_,
                             iteration,
-                            interpolated_state.values_);
+                            interpolated_state.values_,
+			    false);
     return interpolated_state;
 }
