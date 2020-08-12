@@ -17,7 +17,7 @@ namespace o80
  *  \endcode
  *  Joint2d will encapsulate an int and a double attribute.
  */
-template <class Sub, typename... Args>
+template <typename... Args>
 class StateXd
 {
 public:
@@ -33,15 +33,17 @@ public:
     void set(
         typename std::tuple_element<INDEX, std::tuple<Args...> >::type value);
 
+    std::string to_string() const;
+  
     /*! returns true if the speed command finished for the attribute
      *  at the first (0) index
      */
     bool finished(const o80::TimePoint &start,
                   const o80::TimePoint &now,
-                  const Sub &start_state,
-                  const Sub &current_state,
-                  const Sub &previous_desired_state,
-                  const Sub &target_state,
+                  const StateXd<Args...> &start_state,
+                  const StateXd<Args...> &current_state,
+                  const StateXd<Args...> &previous_desired_state,
+                  const StateXd<Args...> &target_state,
                   const o80::Speed &speed) const;
 
     /* ! uses linear interpolation to compute the desired state
@@ -49,32 +51,32 @@ public:
      *   of the command corresponds to the first (0) index attribute.
      *   The other attribute will interpolate using a duration command
      *   inferred from the speed command applied to the first index. */
-    Sub intermediate_state(const o80::TimePoint &start,
+    StateXd<Args...> intermediate_state(const o80::TimePoint &start,
                            const o80::TimePoint &now,
-                           const Sub &start_state,
-                           const Sub &current_state,
-                           const Sub &previous_desired_state,
-                           const Sub &target_state,
+                           const StateXd<Args...> &start_state,
+                           const StateXd<Args...> &current_state,
+                           const StateXd<Args...> &previous_desired_state,
+                           const StateXd<Args...> &target_state,
                            const o80::Speed &speed) const;
 
     /* ! uses linear interpolation to compute the desired state
      *   at TimePoint "now" provided the duration command. */
-    Sub intermediate_state(const o80::TimePoint &start,
+    StateXd<Args...> intermediate_state(const o80::TimePoint &start,
                            const o80::TimePoint &now,
-                           const Sub &start_state,
-                           const Sub &current_state,
-                           const Sub &previous_desired_state,
-                           const Sub &target_state,
+                           const StateXd<Args...> &start_state,
+                           const StateXd<Args...> &current_state,
+                           const StateXd<Args...> &previous_desired_state,
+                           const StateXd<Args...> &target_state,
                            const o80::Duration_us &duration) const;
 
     /* ! uses linear interpolation to compute the desired state
      *   at TimePoint "now" provided the iteration command. */
-    Sub intermediate_state(long int start_iteration,
+    StateXd<Args...> intermediate_state(long int start_iteration,
                            long int current_iteration,
-                           const Sub &start_state,
-                           const Sub &current_state,
-                           const Sub &previous_desired_state,
-                           const Sub &target_state,
+                           const StateXd<Args...> &start_state,
+                           const StateXd<Args...> &current_state,
+                           const StateXd<Args...> &previous_desired_state,
+                           const StateXd<Args...> &target_state,
                            const o80::Iteration &iteration) const;
 
     template <class Archive>

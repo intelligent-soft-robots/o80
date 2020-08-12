@@ -127,42 +127,66 @@ bool all_finished(const o80::TimePoint &start,
     return true;
 }
 
+      template<std::size_t INDEX=0,
+	     typename TUPLE,
+	     size_t SIZE =
+	     std::tuple_size_v<
+	       std::remove_reference_t<TUPLE>>>
+      void to_string(std::stringstream& stream, const TUPLE& tuple)
+    {
+      if constexpr(INDEX<SIZE)
+		    {
+		      stream << std::get<INDEX>(tuple) << " ";
+		      to_string<INDEX+1>(stream,tuple);
+		    }
+    }
+
+  
 }  // namespace internal
 
-template <class Sub, typename... Args>
-StateXd<Sub, Args...>::StateXd(Args... args)
+template <typename... Args>
+StateXd<Args...>::StateXd(Args... args)
     : values_(std::forward<Args>(args)...)
 {
 }
 
-template <class Sub, typename... Args>
-StateXd<Sub, Args...>::StateXd()
+template <typename... Args>
+StateXd<Args...>::StateXd()
 {
 }
 
-template <class Sub, typename... Args>
+template <typename... Args>
 template <int INDEX>
 typename std::tuple_element<INDEX, std::tuple<Args...>>::type
-StateXd<Sub, Args...>::get() const
+StateXd<Args...>::get() const
 {
     return std::get<INDEX>(values_);
 }
 
-template <class Sub, typename... Args>
+template <typename... Args>
 template <int INDEX>
-void StateXd<Sub, Args...>::set(
+void StateXd<Args...>::set(
     typename std::tuple_element<INDEX, std::tuple<Args...>>::type value)
 {
     std::get<INDEX>(values_) = value;
 }
 
-template <class Sub, typename... Args>
-bool StateXd<Sub, Args...>::finished(const o80::TimePoint &start,
+
+template<typename ... Args>
+std::string StateXd<Args...>::to_string() const
+{
+  std::stringstream stream;
+  internal::to_string(stream,values_);
+  return stream.str();
+}
+
+template <typename... Args>
+bool StateXd<Args...>::finished(const o80::TimePoint &start,
                                      const o80::TimePoint &now,
-                                     const Sub &start_state,
-                                     const Sub &current_state,
-                                     const Sub &previous_desired_state,
-                                     const Sub &target_state,
+                                     const StateXd<Args...> &start_state,
+                                     const StateXd<Args...> &current_state,
+                                     const StateXd<Args...> &previous_desired_state,
+                                     const StateXd<Args...> &target_state,
                                      const o80::Speed &speed) const
 {
     return internal::all_finished(start,
@@ -173,16 +197,16 @@ bool StateXd<Sub, Args...>::finished(const o80::TimePoint &start,
                                   speed);
 }
 
-template <class Sub, typename... Args>
-Sub StateXd<Sub, Args...>::intermediate_state(const o80::TimePoint &start,
+template <typename... Args>
+StateXd<Args...> StateXd<Args...>::intermediate_state(const o80::TimePoint &start,
                                               const o80::TimePoint &now,
-                                              const Sub &start_state,
-                                              const Sub &current_state,
-                                              const Sub &previous_desired_state,
-                                              const Sub &target_state,
+                                              const StateXd<Args...> &start_state,
+                                              const StateXd<Args...> &current_state,
+                                              const StateXd<Args...> &previous_desired_state,
+                                              const StateXd<Args...> &target_state,
                                               const o80::Speed &speed) const
 {
-    Sub interpolated_state;
+    StateXd<Args...> interpolated_state;
     internal::intermediates(start,
                             now,
                             start_state.values_,
@@ -193,17 +217,17 @@ Sub StateXd<Sub, Args...>::intermediate_state(const o80::TimePoint &start,
     return interpolated_state;
 }
 
-template <class Sub, typename... Args>
-Sub StateXd<Sub, Args...>::intermediate_state(
+template <typename... Args>
+StateXd<Args...> StateXd<Args...>::intermediate_state(
     const o80::TimePoint &start,
     const o80::TimePoint &now,
-    const Sub &start_state,
-    const Sub &current_state,
-    const Sub &previous_desired_state,
-    const Sub &target_state,
+    const StateXd<Args...> &start_state,
+    const StateXd<Args...> &current_state,
+    const StateXd<Args...> &previous_desired_state,
+    const StateXd<Args...> &target_state,
     const o80::Duration_us &duration) const
 {
-    Sub interpolated_state;
+    StateXd<Args...> interpolated_state;
     internal::intermediates(start,
                             now,
                             start_state.values_,
@@ -214,17 +238,17 @@ Sub StateXd<Sub, Args...>::intermediate_state(
     return interpolated_state;
 }
 
-template <class Sub, typename... Args>
-Sub StateXd<Sub, Args...>::intermediate_state(
+template <typename... Args>
+StateXd<Args...> StateXd<Args...>::intermediate_state(
     long int start_iteration,
     long int current_iteration,
-    const Sub &start_state,
-    const Sub &current_state,
-    const Sub &previous_desired_state,
-    const Sub &target_state,
+    const StateXd<Args...> &start_state,
+    const StateXd<Args...> &current_state,
+    const StateXd<Args...> &previous_desired_state,
+    const StateXd<Args...> &target_state,
     const o80::Iteration &iteration) const
 {
-    Sub interpolated_state;
+    StateXd<Args...> interpolated_state;
     internal::intermediates(start_iteration,
                             current_iteration,
                             start_state.values_,
