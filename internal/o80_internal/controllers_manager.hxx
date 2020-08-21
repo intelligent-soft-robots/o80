@@ -19,6 +19,7 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
         controllers_[i].set_completed_commands(completed_commands_);
     }
     shared_memory::set<long int>(segment_id_, "pulse_id", pulse_id_);
+    std::cout << "o80 controllers manager set pulse id " << segment_id << "\n";
     shared_memory::set<time_series::Index>(
         segment_id_, "command_read", commands_index_);
 }
