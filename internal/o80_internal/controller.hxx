@@ -231,66 +231,72 @@ const STATE& Controller<STATE>::get_desired_state(
         return state;
     }
 
-    const STATE& starting_state = command_status.get_starting_state();
-    const STATE& target_state = command->get_target_state();
-    const TimePoint& start_time = command_status.get_start_time();
-
-    if (type == Type::SPEED)
+    // if STATE is a sublcass of SensorState, then it is not expected
+    // to get interpolation and finished method (i.e only direct commands
+    // are supported)
+    if constexpr (!std::is_base_of<SensorState, STATE>::value)
     {
-        desired_state_ =
-            target_state.intermediate_state(start_time,
-                                            time_now,
-                                            starting_state,
-                                            current_state,
-                                            previously_desired_state,
-                                            target_state,
-                                            command_type.speed);
-    }
+        const STATE& starting_state = command_status.get_starting_state();
+        const STATE& target_state = command->get_target_state();
+        const TimePoint& start_time = command_status.get_start_time();
 
-    if (type == Type::DURATION)
-    {
-        desired_state_ =
-            target_state.intermediate_state(start_time,
-                                            time_now,
-                                            starting_state,
-                                            current_state,
-                                            previously_desired_state,
-                                            target_state,
-                                            command_type.duration);
-    }
+        if (type == Type::SPEED)
+        {
+            desired_state_ =
+                target_state.intermediate_state(start_time,
+                                                time_now,
+                                                starting_state,
+                                                current_state,
+                                                previously_desired_state,
+                                                target_state,
+                                                command_type.speed);
+        }
 
-    if (type == Type::ITERATION)
-    {
-        long int start_iteration = command_status.get_start_iteration();
-        desired_state_ =
-            target_state.intermediate_state(start_iteration,
-                                            current_iteration,
-                                            starting_state,
-                                            current_state,
-                                            previously_desired_state,
-                                            target_state,
-                                            command_type.iteration);
-    }
+        if (type == Type::DURATION)
+        {
+            desired_state_ =
+                target_state.intermediate_state(start_time,
+                                                time_now,
+                                                starting_state,
+                                                current_state,
+                                                previously_desired_state,
+                                                target_state,
+                                                command_type.duration);
+        }
 
-    // checking if current command finished, and updating
-    // its status accordingly. If command finished,
-    // poping the next one
-    if (command_status.finished(current_iteration,
-                                time_now,
-                                command_status.get_starting_state(),
+        if (type == Type::ITERATION)
+        {
+            long int start_iteration = command_status.get_start_iteration();
+            desired_state_ =
+                target_state.intermediate_state(start_iteration,
+                                                current_iteration,
+                                                starting_state,
+                                                current_state,
+                                                previously_desired_state,
+                                                target_state,
+                                                command_type.iteration);
+        }
+
+        // checking if current command finished, and updating
+        // its status accordingly. If command finished,
+        // poping the next one
+        if (command_status.finished(current_iteration,
+                                    time_now,
+                                    command_status.get_starting_state(),
+                                    current_state,
+                                    previously_desired_state,
+                                    current_command_.get_target_state()))
+        {
+            share_completed_command(current_command_);
+            command_status.set_inactive();
+            get_current_command(current_iteration + 1,
                                 current_state,
                                 previously_desired_state,
-                                current_command_.get_target_state()))
-    {
-        share_completed_command(current_command_);
-        command_status.set_inactive();
-        get_current_command(current_iteration + 1,
-                            current_state,
-                            previously_desired_state,
-                            time_now);
-    }
+                                time_now);
+        }
 
-    return desired_state_;
+        return desired_state_;
+    }
 }
 
 template <class STATE>

@@ -1,30 +1,27 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Author : Vincent Berenz
 
-
 namespace internal
 {
-
-  // returns true if T in Ts, false otherwise
-  template<typename T, typename ... Ts>
-  constexpr bool has_type()
-  {
-    return std::disjunction_v<std::is_same<T, Ts>...>;
-  }
-
+// returns true if T in Ts, false otherwise
+template <typename T, typename... Ts>
+constexpr bool has_type()
+{
+    return std::disjunction<std::is_same<T, Ts>...>::value;
 }
+
+}  // namespace internal
 
 template <int QUEUE_SIZE,
           int NB_ACTUATORS,
           class o80_STATE,
           class o80_EXTENDED_STATE,
-	  typename ... EXCLUDED_CLASSES>
-void create_python_bindings(pybind11::module& m,
-                                 std::string prefix)
+          typename... EXCLUDED_CLASSES>
+void create_python_bindings(pybind11::module& m, std::string prefix)
 {
-  // binding States only if NO_STATES *not* passed as template
-  // argument (similar comment for all the bindings below)
-  if constexpr ( ! internal::has_type<NO_STATES,EXCLUDED_CLASSES...>() )
+    // binding States only if NO_STATES *not* passed as template
+    // argument (similar comment for all the bindings below)
+    if constexpr (!internal::has_type<NO_STATES, EXCLUDED_CLASSES...>())
     {
         typedef States<NB_ACTUATORS, o80_STATE> states;
         pybind11::class_<states>(m, (prefix + "States").c_str())
@@ -33,29 +30,27 @@ void create_python_bindings(pybind11::module& m,
             .def("get", &states::get)
             .def_readwrite("values", &states::values);
     }
-  if constexpr ( ! internal::has_type<NO_STATE,EXCLUDED_CLASSES...>() )
+    if constexpr (!internal::has_type<NO_STATE, EXCLUDED_CLASSES...>())
     {
-        pybind11::class_<o80_STATE>(m,
-                                    (prefix + "State").c_str())
+        pybind11::class_<o80_STATE>(m, (prefix + "State").c_str())
             .def(pybind11::init<>())
             .def("get", &o80_STATE::get)
             .def("set", &o80_STATE::set)
             .def("to_string", &o80_STATE::to_string);
     }
 
-    if constexpr ( ! internal::has_type<NO_EXTENDED_STATE,EXCLUDED_CLASSES...>() )
+    if constexpr (!internal::has_type<NO_EXTENDED_STATE, EXCLUDED_CLASSES...>())
     {
-        pybind11::class_<o80_EXTENDED_STATE>(
-            m, (prefix + "ExtendedState").c_str())
+        pybind11::class_<o80_EXTENDED_STATE>(m,
+                                             (prefix + "ExtendedState").c_str())
             .def(pybind11::init<>());
     }
 
-    if constexpr ( ! internal::has_type<NO_OBSERVATION,EXCLUDED_CLASSES...>() )
+    if constexpr (!internal::has_type<NO_OBSERVATION, EXCLUDED_CLASSES...>())
     {
         typedef Observation<NB_ACTUATORS, o80_STATE, o80_EXTENDED_STATE>
             observation;
-        pybind11::class_<observation>(
-            m, (prefix + "Observation").c_str())
+        pybind11::class_<observation>(m, (prefix + "Observation").c_str())
             .def(pybind11::init<>())
             .def("get_observed_states", &observation::get_observed_states)
             .def("get_desired_states", &observation::get_desired_states)
@@ -66,7 +61,7 @@ void create_python_bindings(pybind11::module& m,
             .def("__str__", &observation::to_string);
     }
 
-    if constexpr ( ! internal::has_type<NO_FRONTEND,EXCLUDED_CLASSES...>() )
+    if constexpr (!internal::has_type<NO_FRONTEND, EXCLUDED_CLASSES...>())
     {
         typedef Observation<NB_ACTUATORS, o80_STATE, o80_EXTENDED_STATE>
             observation;
@@ -75,8 +70,7 @@ void create_python_bindings(pybind11::module& m,
                          o80_STATE,
                          o80_EXTENDED_STATE>
             frontend;
-        pybind11::class_<frontend>(
-            m, (prefix + "FrontEnd").c_str())
+        pybind11::class_<frontend>(m, (prefix + "FrontEnd").c_str())
             .def(pybind11::init<std::string>())
             .def("get_nb_actuators", &frontend::get_nb_actuators)
             .def("get_observations_since", &frontend::get_observations_since)
@@ -105,12 +99,11 @@ void create_python_bindings(pybind11::module& m,
             .def("pulse", (observation(frontend::*)()) & frontend::pulse);
     }
 
-    if constexpr ( ! internal::has_type<NO_BACKEND,EXCLUDED_CLASSES...>() )
+    if constexpr (!internal::has_type<NO_BACKEND, EXCLUDED_CLASSES...>())
     {
         typedef BackEnd<QUEUE_SIZE, NB_ACTUATORS, o80_STATE, o80_EXTENDED_STATE>
             backend;
-        pybind11::class_<backend>(m,
-                                  (prefix + "BackEnd").c_str())
+        pybind11::class_<backend>(m, (prefix + "BackEnd").c_str())
             .def(pybind11::init<std::string>())
             .def(pybind11::init<std::string, bool>())
             .def("pulse", &backend::pulse)
@@ -142,15 +135,14 @@ void create_python_bindings(pybind11::module& m,
     }
 }
 
-template <class RobotStandalone,
-	  typename ... EXCLUDED_CLASSES>
+template <class RobotStandalone, typename... EXCLUDED_CLASSES>
 void create_python_bindings(pybind11::module& m, std::string prefix)
 {
     create_python_bindings<RobotStandalone::queue_size,
-				RobotStandalone::nb_actuators,
-				typename RobotStandalone::o80State,
-				typename RobotStandalone::o80ExtendedState,
-				EXCLUDED_CLASSES...>(m, prefix);
+                           RobotStandalone::nb_actuators,
+                           typename RobotStandalone::o80State,
+                           typename RobotStandalone::o80ExtendedState,
+                           EXCLUDED_CLASSES...>(m, prefix);
 }
 
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
@@ -171,4 +163,3 @@ void create_standalone_python_bindings(pybind11::module& m, std::string prefix)
 
     m.def("please_stop", &please_stop);
 }
-

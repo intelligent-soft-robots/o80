@@ -6,9 +6,11 @@
 #include <chrono>
 #include <mutex>
 #include <queue>
+#include <type_traits>
 #include "command.hpp"
 #include "command_status.hpp"
 #include "command_type.hpp"
+#include "o80/sensor_state.hpp"
 #include "o80/time.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 

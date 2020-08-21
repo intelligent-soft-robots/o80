@@ -18,15 +18,12 @@
 
 namespace o80
 {
-
-  typedef std::integral_constant<int,0> NO_STATES;
-  typedef std::integral_constant<int,1> NO_STATE;
-  typedef std::integral_constant<int,2> NO_OBSERVATION;
-  typedef std::integral_constant<int,3> NO_EXTENDED_STATE;
-  typedef std::integral_constant<int,4> NO_FRONTEND;
-  typedef std::integral_constant<int,5> NO_BACKEND;
-
-
+typedef std::integral_constant<int, 0> NO_STATES;
+typedef std::integral_constant<int, 1> NO_STATE;
+typedef std::integral_constant<int, 2> NO_OBSERVATION;
+typedef std::integral_constant<int, 3> NO_EXTENDED_STATE;
+typedef std::integral_constant<int, 4> NO_FRONTEND;
+typedef std::integral_constant<int, 5> NO_BACKEND;
 
 /**
  * ! Creates in python module m python bindings
@@ -37,15 +34,14 @@ template <int QUEUE_SIZE,
           int NB_ACTUATORS,
           class o80_STATE,
           class o80_EXTENDED_STATE,
-	  typename ... EXCLUDED_CLASSES>
+          typename... EXCLUDED_CLASSES>
 void create_python_bindings(pybind11::module &m,
-				 std::string prefix=std::string(""));
+                            std::string prefix = std::string(""));
 
-template <class RobotStandalone,
-	  typename ... EXCLUDED_CLASSES>
+template <class RobotStandalone, typename... EXCLUDED_CLASSES>
 void create_python_bindings(pybind11::module &m,
-				 std::string prefix=std::string(""));
-  
+                            std::string prefix = std::string(""));
+
 /**
  * ! Creates the python bindings for the classes
  *   States, State, ExtendedState, Observation,
@@ -58,7 +54,7 @@ void create_python_bindings(pybind11::module &m,
  */
 template <class RobotDriver, class RobotStandalone, typename... DriverArgs>
 void create_standalone_python_bindings(pybind11::module &m,
-				       std::string prefix=std::string(""));
+                                       std::string prefix = std::string(""));
 
 #include "pybind11_helper.hxx"
 }  // namespace o80

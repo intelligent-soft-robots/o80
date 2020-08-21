@@ -34,7 +34,7 @@ public:
         typename std::tuple_element<INDEX, std::tuple<Args...> >::type value);
 
     std::string to_string() const;
-  
+
     /*! returns true if the speed command finished for the attribute
      *  at the first (0) index
      */
@@ -51,33 +51,36 @@ public:
      *   of the command corresponds to the first (0) index attribute.
      *   The other attribute will interpolate using a duration command
      *   inferred from the speed command applied to the first index. */
-    StateXd<Args...> intermediate_state(const o80::TimePoint &start,
-                           const o80::TimePoint &now,
-                           const StateXd<Args...> &start_state,
-                           const StateXd<Args...> &current_state,
-                           const StateXd<Args...> &previous_desired_state,
-                           const StateXd<Args...> &target_state,
-                           const o80::Speed &speed) const;
+    StateXd<Args...> intermediate_state(
+        const o80::TimePoint &start,
+        const o80::TimePoint &now,
+        const StateXd<Args...> &start_state,
+        const StateXd<Args...> &current_state,
+        const StateXd<Args...> &previous_desired_state,
+        const StateXd<Args...> &target_state,
+        const o80::Speed &speed) const;
 
     /* ! uses linear interpolation to compute the desired state
      *   at TimePoint "now" provided the duration command. */
-    StateXd<Args...> intermediate_state(const o80::TimePoint &start,
-                           const o80::TimePoint &now,
-                           const StateXd<Args...> &start_state,
-                           const StateXd<Args...> &current_state,
-                           const StateXd<Args...> &previous_desired_state,
-                           const StateXd<Args...> &target_state,
-                           const o80::Duration_us &duration) const;
+    StateXd<Args...> intermediate_state(
+        const o80::TimePoint &start,
+        const o80::TimePoint &now,
+        const StateXd<Args...> &start_state,
+        const StateXd<Args...> &current_state,
+        const StateXd<Args...> &previous_desired_state,
+        const StateXd<Args...> &target_state,
+        const o80::Duration_us &duration) const;
 
     /* ! uses linear interpolation to compute the desired state
      *   at TimePoint "now" provided the iteration command. */
-    StateXd<Args...> intermediate_state(long int start_iteration,
-                           long int current_iteration,
-                           const StateXd<Args...> &start_state,
-                           const StateXd<Args...> &current_state,
-                           const StateXd<Args...> &previous_desired_state,
-                           const StateXd<Args...> &target_state,
-                           const o80::Iteration &iteration) const;
+    StateXd<Args...> intermediate_state(
+        long int start_iteration,
+        long int current_iteration,
+        const StateXd<Args...> &start_state,
+        const StateXd<Args...> &current_state,
+        const StateXd<Args...> &previous_desired_state,
+        const StateXd<Args...> &target_state,
+        const o80::Iteration &iteration) const;
 
     template <class Archive>
     void serialize(Archive &archive)

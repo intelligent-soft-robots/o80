@@ -7,6 +7,8 @@
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/pybind11_helper.hpp"
+#include "o80/state2d.hpp"
+#include "o80/state3d.hpp"
 #include "o80/time.hpp"
 
 // are wrapped here only the non templated class if o80.
@@ -91,4 +93,46 @@ PYBIND11_MODULE(o80, m)
     pybind11::class_<o80::FrequencyManager>(m, "FrequencyManager")
         .def(pybind11::init<double>())
         .def("wait", &FrequencyManager::wait);
+
+    pybind11::class_<o80::State2d>(m, "State2d")
+        .def(pybind11::init<>())
+        .def(pybind11::init<double, double>())
+        .def("__str__", &State2d::to_string)
+        .def("get",
+             [](o80::State2d& state2d, int index) {
+                 if (index == 0) return state2d.get<0>();
+                 return state2d.get<1>();
+             })
+        .def("set", [](o80::State2d& state2d, int index, double value) {
+            if (index == 0)
+            {
+                state2d.set<0>(value);
+                return;
+            }
+            state2d.set<1>(value);
+        });
+
+    pybind11::class_<o80::State3d>(m, "State3d")
+        .def(pybind11::init<>())
+        .def(pybind11::init<double, double, double>())
+        .def("__str__", &State3d::to_string)
+        .def("get",
+             [](o80::State3d& state3d, int index) {
+                 if (index == 0) return state3d.get<0>();
+                 if (index == 1) return state3d.get<1>();
+                 return state3d.get<2>();
+             })
+        .def("set", [](o80::State3d& state3d, int index, double value) {
+            if (index == 0)
+            {
+                state3d.set<0>(value);
+                return;
+            }
+            if (index == 1)
+            {
+                state3d.set<1>(value);
+                return;
+            }
+            state3d.set<2>(value);
+        });
 }

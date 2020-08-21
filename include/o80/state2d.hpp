@@ -4,5 +4,5 @@
 
 namespace o80
 {
-  typedef StateXd<double, double> State2d;
+typedef StateXd<double, double> State2d;
 }  // namespace o80

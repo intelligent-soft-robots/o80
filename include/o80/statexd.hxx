@@ -48,7 +48,8 @@ template < size_t INDEX = 0,
                                     command);
         std::get<INDEX>(interpolated_state) = value;
         // recursive call over the tuples
-        if constexpr (INDEX + 1 < SIZE && std::is_same<COMMAND_TYPE, o80::Speed>::value)
+        if constexpr (INDEX + 1 < SIZE &&
+                      std::is_same<COMMAND_TYPE, o80::Speed>::value)
         {
             if (use_duration)
             {
@@ -74,16 +75,16 @@ template < size_t INDEX = 0,
                                          interpolated_state);
             }
         }
-	else
-	  {
-	    intermediates<INDEX + 1>(std::forward<INCR>(start),
-				     std::forward<INCR>(now),
-				     start_state,
-				     previous_desired_state,
-                                         target_state,
-				     command,
-				     interpolated_state);
-	  }
+        else
+        {
+            intermediates<INDEX + 1>(std::forward<INCR>(start),
+                                     std::forward<INCR>(now),
+                                     start_state,
+                                     previous_desired_state,
+                                     target_state,
+                                     command,
+                                     interpolated_state);
+        }
     }
 }
 
@@ -127,26 +128,22 @@ bool all_finished(const o80::TimePoint &start,
     return true;
 }
 
-      template<std::size_t INDEX=0,
-	     typename TUPLE,
-	     size_t SIZE =
-	     std::tuple_size_v<
-	       std::remove_reference_t<TUPLE>>>
-      void to_string(std::stringstream& stream, const TUPLE& tuple)
+template <std::size_t INDEX = 0,
+          typename TUPLE,
+          size_t SIZE = std::tuple_size_v<std::remove_reference_t<TUPLE>>>
+void to_string(std::stringstream &stream, const TUPLE &tuple)
+{
+    if constexpr (INDEX < SIZE)
     {
-      if constexpr(INDEX<SIZE)
-		    {
-		      stream << std::get<INDEX>(tuple) << " ";
-		      to_string<INDEX+1>(stream,tuple);
-		    }
+        stream << std::get<INDEX>(tuple) << " ";
+        to_string<INDEX + 1>(stream, tuple);
     }
+}
 
-  
 }  // namespace internal
 
 template <typename... Args>
-StateXd<Args...>::StateXd(Args... args)
-    : values_(std::forward<Args>(args)...)
+StateXd<Args...>::StateXd(Args... args) : values_(std::forward<Args>(args)...)
 {
 }
 
@@ -171,23 +168,22 @@ void StateXd<Args...>::set(
     std::get<INDEX>(values_) = value;
 }
 
-
-template<typename ... Args>
+template <typename... Args>
 std::string StateXd<Args...>::to_string() const
 {
-  std::stringstream stream;
-  internal::to_string(stream,values_);
-  return stream.str();
+    std::stringstream stream;
+    internal::to_string(stream, values_);
+    return stream.str();
 }
 
 template <typename... Args>
 bool StateXd<Args...>::finished(const o80::TimePoint &start,
-                                     const o80::TimePoint &now,
-                                     const StateXd<Args...> &start_state,
-                                     const StateXd<Args...> &current_state,
-                                     const StateXd<Args...> &previous_desired_state,
-                                     const StateXd<Args...> &target_state,
-                                     const o80::Speed &speed) const
+                                const o80::TimePoint &now,
+                                const StateXd<Args...> &start_state,
+                                const StateXd<Args...> &current_state,
+                                const StateXd<Args...> &previous_desired_state,
+                                const StateXd<Args...> &target_state,
+                                const o80::Speed &speed) const
 {
     return internal::all_finished(start,
                                   now,
@@ -198,13 +194,14 @@ bool StateXd<Args...>::finished(const o80::TimePoint &start,
 }
 
 template <typename... Args>
-StateXd<Args...> StateXd<Args...>::intermediate_state(const o80::TimePoint &start,
-                                              const o80::TimePoint &now,
-                                              const StateXd<Args...> &start_state,
-                                              const StateXd<Args...> &current_state,
-                                              const StateXd<Args...> &previous_desired_state,
-                                              const StateXd<Args...> &target_state,
-                                              const o80::Speed &speed) const
+StateXd<Args...> StateXd<Args...>::intermediate_state(
+    const o80::TimePoint &start,
+    const o80::TimePoint &now,
+    const StateXd<Args...> &start_state,
+    const StateXd<Args...> &current_state,
+    const StateXd<Args...> &previous_desired_state,
+    const StateXd<Args...> &target_state,
+    const o80::Speed &speed) const
 {
     StateXd<Args...> interpolated_state;
     internal::intermediates(start,
@@ -256,6 +253,6 @@ StateXd<Args...> StateXd<Args...>::intermediate_state(
                             target_state.values_,
                             iteration,
                             interpolated_state.values_,
-			    false);
+                            false);
     return interpolated_state;
 }
