@@ -1,5 +1,6 @@
 #include "o80/back_end.hpp"
 #include "o80/bool_state.hpp"
+#include "o80/state1d.hpp"
 #include "o80/state2d.hpp"
 #include "o80/state3d.hpp"
 #include "o80/burster.hpp"
@@ -41,42 +42,6 @@ PYBIND11_MODULE(o80, m)
         .def("get", &BoolState::get)
         .def("to_string", &BoolState::to_string);
 
-    pybind11::class_<o80::State2d>(m, "State2d")
-        .def(pybind11::init<>())
-      .def(pybind11::init<double,double>())
-      .def("__str__",&State2d::to_string)
-      .def("get",[](o80::State2d& state2d, int index)
-	   {
-	     if(index==0)
-	       return state2d.get<0>();
-	     return state2d.get<1>();
-	   })
-      .def("set",[](o80::State2d& state2d, double v1, double v2)
-	   {
-	     state2d.set<0>(v1);
-	     state2d.set<1>(v2);
-	   });
-
-    pybind11::class_<o80::State3d>(m, "State3d")
-        .def(pybind11::init<>())
-      .def(pybind11::init<double,double,double>())
-      .def("__str__",&State3d::to_string)
-      .def("get",[](o80::State3d& state3d, int index)
-	   {
-	     if(index==0)
-	       return state3d.get<0>();
-	     if(index==1)
-	       return state3d.get<1>();
-	     return state3d.get<2>();
-	   })
-      .def("set",[](o80::State3d& state3d,
-		    double v1, double v2, double v3)
-	   {
-	     state3d.set<0>(v1);
-	     state3d.set<1>(v2);
-	     state3d.set<2>(v3);
-	   });
-    
     pybind11::class_<o80::Iteration>(m, "Iteration")
         .def(pybind11::init<long int>())
         .def(pybind11::init<long int, bool>())
@@ -132,6 +97,13 @@ PYBIND11_MODULE(o80, m)
         .def(pybind11::init<double>())
         .def("wait", &FrequencyManager::wait);
 
+    pybind11::class_<o80::State1d>(m, "State1d")
+        .def(pybind11::init<>())
+        .def(pybind11::init<double>())
+        .def("__str__", &State1d::to_string)
+      .def("get", &State1d::get)
+      .def("set", &State1d::set);
+    
     pybind11::class_<o80::State2d>(m, "State2d")
         .def(pybind11::init<>())
         .def(pybind11::init<double, double>())
