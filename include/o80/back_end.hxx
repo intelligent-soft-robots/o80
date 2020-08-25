@@ -19,7 +19,6 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
       observed_frequency_(-1),
       new_commands_observations_(new_commands_observations)
 {
-  std::cout << "constructing o80 backend " << segment_id << "\n";
     frequency_measure_.tick();
 }
 
