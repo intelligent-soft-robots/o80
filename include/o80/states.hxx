@@ -20,4 +20,3 @@ const STATE& States<NB_ACTUATORS, STATE>::get(int actuator) const
     }
     return values[actuator];
 }
-

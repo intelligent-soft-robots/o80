@@ -1,8 +1,5 @@
 #include "o80/back_end.hpp"
 #include "o80/bool_state.hpp"
-#include "o80/state1d.hpp"
-#include "o80/state2d.hpp"
-#include "o80/state3d.hpp"
 #include "o80/burster.hpp"
 #include "o80/command_types.hpp"
 #include "o80/frequency_manager.hpp"
@@ -10,6 +7,7 @@
 #include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/pybind11_helper.hpp"
+#include "o80/state1d.hpp"
 #include "o80/state2d.hpp"
 #include "o80/state3d.hpp"
 #include "o80/time.hpp"
@@ -101,9 +99,9 @@ PYBIND11_MODULE(o80, m)
         .def(pybind11::init<>())
         .def(pybind11::init<double>())
         .def("__str__", &State1d::to_string)
-      .def("get", &State1d::get)
-      .def("set", &State1d::set);
-    
+        .def("get", &State1d::get)
+        .def("set", &State1d::set);
+
     pybind11::class_<o80::State2d>(m, "State2d")
         .def(pybind11::init<>())
         .def(pybind11::init<double, double>())

@@ -12,7 +12,8 @@
 TEMPLATE_BACKEND
 BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
     : segment_id_(segment_id),
-      observations_(segment_id + "_observations", QUEUE_SIZE, true),
+      observations_{ObservationsTimeSeries::create_leader(
+          segment_id + "_observations", QUEUE_SIZE)},
       controllers_manager_(segment_id),
       desired_states_(),
       iteration_(0),

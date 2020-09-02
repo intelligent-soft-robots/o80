@@ -4,13 +4,15 @@
 
 namespace o80
 {
+class State1d : public State<double, State1d>
+{
+public:
+    State1d() : State<double, State1d>()
+    {
+    }
+    State1d(double value) : State<double, State1d>(value)
+    {
+    }
+};
 
-  class State1d : public State<double,State1d>
-  {
-  public:
-    State1d(): State<double,State1d>(){}
-    State1d(double value): State<double,State1d>(value){}
-  };
-
-  
-}
+}  // namespace o80

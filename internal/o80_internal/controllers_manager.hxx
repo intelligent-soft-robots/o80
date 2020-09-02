@@ -6,10 +6,12 @@ namespace o80
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
     std::string segment_id)
-    : commands_(segment_id + "_commands", QUEUE_SIZE, true),
+    : commands_{CommandsTimeSeries::create_leader(segment_id + "_commands",
+                                                  QUEUE_SIZE)},
       commands_index_(-1),
       pulse_id_(0),
-      completed_commands_(segment_id + "_completed", QUEUE_SIZE, true),
+      completed_commands_{CompletedCommandsTimeSeries::create_leader(
+          segment_id + "_completed", QUEUE_SIZE)},
       segment_id_(segment_id),
       relative_iteration_(-1)
 {

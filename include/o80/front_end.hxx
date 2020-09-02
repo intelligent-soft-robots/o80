@@ -20,11 +20,13 @@ void set_bursting(const std::string& segment_id, int nb_iterations)
 TEMPLATE_FRONTEND
 FRONTEND::FrontEnd(std::string segment_id)
     : segment_id_(segment_id),
-      commands_(segment_id + "_commands", QUEUE_SIZE, false),
+      commands_{CommandsTimeSeries::create_follower(segment_id + "_commands")},
       buffer_commands_(QUEUE_SIZE),
       buffer_index_(0),
-      observations_(segment_id + "_observations", QUEUE_SIZE, false),
-      completed_commands_(segment_id + "_completed", QUEUE_SIZE, false),
+      observations_{ObservationsTimeSeries::create_follower(segment_id +
+                                                            "_observations")},
+      completed_commands_{CompletedCommandsTimeSeries::create_follower(
+          segment_id + "_completed")},
       leader_(nullptr)
 {
     shared_memory::get<long int>(segment_id_, "pulse_id", pulse_id_);
