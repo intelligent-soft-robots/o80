@@ -4,7 +4,6 @@
 #include "o80/command_types.hpp"
 #include "o80/frequency_manager.hpp"
 #include "o80/frequency_measure.hpp"
-#include "o80/logger.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/pybind11_helper.hpp"
 #include "o80/state1d.hpp"
@@ -82,10 +81,6 @@ PYBIND11_MODULE(o80, m)
         .value("BACKEND_READ", o80::BACKEND_READ)
         .value("BACKEND_WRITE_REAPPLY", o80::BACKEND_WRITE_REAPPLY)
         .value("BACKEND_WRITE_NEW", o80::BACKEND_WRITE_NEW);
-
-    pybind11::class_<o80::Logger>(m, "Logger")
-        .def(pybind11::init<int, std::string, bool>())
-        .def("save", &Logger::save);
 
     pybind11::class_<o80::FrequencyMeasure>(m, "FrequencyMeasure")
         .def(pybind11::init<>())
