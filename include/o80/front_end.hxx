@@ -27,7 +27,9 @@ FRONTEND::FrontEnd(std::string segment_id)
                                                             "_observations")},
       completed_commands_{CompletedCommandsTimeSeries::create_follower(
           segment_id + "_completed")},
-      leader_(nullptr)
+      leader_(nullptr),
+      completed_index_(-1),
+      wait_prepared_(false)
 {
     shared_memory::get<long int>(segment_id_, "pulse_id", pulse_id_);
     pulse_id_++;
@@ -258,6 +260,7 @@ TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse(
     Iteration iteration)
 {
+  wait_prepared_=false;
     share_commands(sent_command_ids_, false);
     observations_.wait_for_timeindex(iteration.value);
     return observations_[iteration.value];
@@ -266,12 +269,38 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse(
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse()
 {
+  wait_prepared_=false;
     share_commands(sent_command_ids_, false);
     if (observations_.is_empty())
     {
         return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
     }
     return observations_.newest_element();
+}
+
+TEMPLATE_FRONTEND
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
+FRONTEND::pulse_prepare_wait()
+{
+    sent_command_ids_.clear();
+    completed_index_ = -1;
+    if (!completed_commands_.is_empty())
+    {
+        completed_index_ = completed_commands_.newest_timeindex();
+    }
+    share_commands(sent_command_ids_, true);
+    wait_prepared_=true;
+    return observations_.newest_element();
+}
+
+TEMPLATE_FRONTEND
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
+FRONTEND::wait()
+{
+  if(!wait_prepared_)
+    throw std::runtime_error("o80 frontend: call to wait not following call to pulse_prepare_wait");
+  wait_for_completion(sent_command_ids_, completed_index_);
+  wait_prepared_=false;
 }
 
 TEMPLATE_FRONTEND
@@ -288,6 +317,7 @@ FRONTEND::pulse_and_wait()
     wait_for_completion(sent_command_ids_, completed_index);
     return observations_.newest_element();
 }
+
 
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
