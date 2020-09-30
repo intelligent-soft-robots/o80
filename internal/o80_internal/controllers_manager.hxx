@@ -48,6 +48,14 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
         return;
     }
 
+    // checking if the frontend is done with its current command batch
+    long int current_pulse_id;
+    shared_memory::get<long int>(segment_id_, "pulse_id", current_pulse_id);
+    if (current_pulse_id == pulse_id_)
+    {
+        return;
+    }
+
     time_series::Index newest_index = commands_.newest_timeindex(false);
     if (newest_index < commands_index_)
     {
@@ -59,19 +67,13 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
         commands_index_ = commands_.oldest_timeindex(false);
     }
 
-    // checking if the frontend is done with its current command batch
-    long int current_pulse_id;
-    shared_memory::get<long int>(segment_id_, "pulse_id", current_pulse_id);
-    if (current_pulse_id == pulse_id_)
-    {
-        return;
-    }
     for (time_series::Index index = commands_index_; index <= newest_index;
          index++)
     {
         Command<STATE> command = commands_[index];
         if (command.get_pulse_id() > current_pulse_id)
         {
+            newest_index = index - 1;
             break;
         }
         CommandType& command_type = command.get_command_type();

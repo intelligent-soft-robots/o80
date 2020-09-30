@@ -93,7 +93,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("final_burst", &frontend::final_burst)
             .def("pulse_and_wait", &frontend::pulse_and_wait)
             .def("pulse_prepare_wait", &frontend::pulse_prepare_wait)
-	    .def("wait", &frontend::wait)
+            .def("wait", &frontend::wait)
             .def("read", &frontend::read)
             .def("latest", [](frontend& fe) { return fe.read(-1); })
             .def("pulse",

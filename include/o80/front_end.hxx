@@ -253,6 +253,7 @@ void FRONTEND::wait_for_completion(std::set<int>& command_ids,
             return;
         }
         completed_index++;
+        usleep(10);
     }
 }
 
@@ -260,7 +261,7 @@ TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse(
     Iteration iteration)
 {
-  wait_prepared_=false;
+    wait_prepared_ = false;
     share_commands(sent_command_ids_, false);
     observations_.wait_for_timeindex(iteration.value);
     return observations_[iteration.value];
@@ -269,7 +270,7 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse(
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::pulse()
 {
-  wait_prepared_=false;
+    wait_prepared_ = false;
     share_commands(sent_command_ids_, false);
     if (observations_.is_empty())
     {
@@ -289,18 +290,19 @@ FRONTEND::pulse_prepare_wait()
         completed_index_ = completed_commands_.newest_timeindex();
     }
     share_commands(sent_command_ids_, true);
-    wait_prepared_=true;
+    wait_prepared_ = true;
     return observations_.newest_element();
 }
 
 TEMPLATE_FRONTEND
-Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
-FRONTEND::wait()
+Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::wait()
 {
-  if(!wait_prepared_)
-    throw std::runtime_error("o80 frontend: call to wait not following call to pulse_prepare_wait");
-  wait_for_completion(sent_command_ids_, completed_index_);
-  wait_prepared_=false;
+    if (!wait_prepared_)
+        throw std::runtime_error(
+            "o80 frontend: call to wait not following call to "
+            "pulse_prepare_wait");
+    wait_for_completion(sent_command_ids_, completed_index_);
+    wait_prepared_ = false;
 }
 
 TEMPLATE_FRONTEND
@@ -317,7 +319,6 @@ FRONTEND::pulse_and_wait()
     wait_for_completion(sent_command_ids_, completed_index);
     return observations_.newest_element();
 }
-
 
 TEMPLATE_FRONTEND
 Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(

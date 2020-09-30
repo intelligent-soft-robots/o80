@@ -52,7 +52,6 @@ void Controller<STATE>::set_command(const Command<STATE>& command)
     {
         reset();
     }
-
     queue_.push(command);
 }
 

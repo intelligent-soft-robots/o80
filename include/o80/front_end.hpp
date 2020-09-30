@@ -173,20 +173,19 @@ public:
 
     /*! write all buffered commands to the multiprocess time series commands
      *  (i.e. the related backend will read and execute them), then return
-     * the latest observation. Optionaly, this call may be followed by a 
+     * the latest observation. Optionaly, this call may be followed by a
      * call to wait, which will be blocking until completion of all commands
      */
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> pulse_prepare_wait();
 
-  /*! If the previous call to this instance of frontend was a call to
-   * "pulse_prepare_wait", a call to wait will be blocking until
-   * all commands added to the multiprocess time series commands have
-   * been executed. If following call to another of the "pulse" method,
-   * thows a runtime_error.
-   */
-  Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> wait();
+    /*! If the previous call to this instance of frontend was a call to
+     * "pulse_prepare_wait", a call to wait will be blocking until
+     * all commands added to the multiprocess time series commands have
+     * been executed. If following call to another of the "pulse" method,
+     * thows a runtime_error.
+     */
+    Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> wait();
 
-  
     /*! write all buffered commands to the multiprocess time series commands
      *  (i.e. the related backend will read and execute them), then wait for the
      *  backend to finish executation of all commands, then return the latest
@@ -203,6 +202,9 @@ private:
                              time_series::Index completed_index);
 
 private:
+    // to delete !
+    void _print(CommandsTimeSeries* time_series);
+
     std::string segment_id_;
 
     time_series::Index history_index_;
@@ -235,10 +237,9 @@ private:
     // in burst mode: used to the send the activating signal to the backend.
     LeaderPtr leader_;
 
-  // for the use of prepare_wait
-  int completed_index_;
-  bool wait_prepared_;
-  
+    // for the use of prepare_wait
+    int completed_index_;
+    bool wait_prepared_;
 };
 
 #include "front_end.hxx"

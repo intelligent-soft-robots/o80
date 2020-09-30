@@ -41,6 +41,9 @@ public:
     CompletedCommandsTimeSeries &get_completed_commands_time_series();
 
 private:
+    // ! to delete
+    void _print(CommandsTimeSeries *time_series);
+
     std::string segment_id_;
     CommandsTimeSeries commands_;
     long int pulse_id_;
