@@ -15,7 +15,7 @@ public:
     /*! will sleep for the duration required so that the
      *  the period that passed since the last call
      *  matches the desired frequency */
-    void wait();
+    long int wait();
 
 private:
     timespec req_;

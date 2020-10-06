@@ -9,7 +9,7 @@ FrequencyManager::FrequencyManager(double frequency)
 {
 }
 
-void FrequencyManager::wait()
+long int FrequencyManager::wait()
 {
     TimePoint now = time_now();
     Nanoseconds time_diff = period_ - now + previous_time_;
@@ -21,5 +21,6 @@ void FrequencyManager::wait()
         nanosleep(&req_, NULL);
     }
     previous_time_ = now + time_diff;
+    return td;
 }
 }  // namespace o80
