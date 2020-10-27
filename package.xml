@@ -1,25 +1,32 @@
 <?xml version="1.0"?>
-<package>
+<?xml-model
+   href="http://download.ros.org/schema/package_format3.xsd"
+   schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
+
   <name>o80</name>
   <version>1.0.0</version>
-  <description>synchronizing via python c++ processes</description>
+  <description>
+    synchronizing pythons and c++ processes
+  </description>
   <author email="vincent.berenz@tuebingen.mpg.de">Vincent Berenz</author>
   <maintainer email="vincent.berenz@tuebingen.mpg.de">Vincent Berenz</maintainer>
-  <license>TODO</license>
-  <buildtool_depend>catkin</buildtool_depend>
+  <license>BSD 3-Clause</license>
 
-  <build_depend>pybind11_catkin</build_depend>
-  <build_depend>shared_memory</build_depend>
-  <build_depend>real_time_tools</build_depend>
-  <build_depend>synchronizer</build_depend>
-  <build_depend>time_series</build_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <run_depend>pybind11_catkin</run_depend>
-  <run_depend>shared_memory</run_depend>
-  <run_depend>real_time_tools</run_depend>
-  <run_depend>synchronizer</run_depend>
-  <run_depend>time_series</run_depend>
+  <depend>pybind11_vendor</depend>
+  <depend>shared_memory</depend>
+  <depend>real_time_tools</depend>
+  <depend>synchronizer</depend>
+  <depend>time_series</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
   </export>
+
 </package>
+
