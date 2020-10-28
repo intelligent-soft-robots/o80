@@ -53,7 +53,11 @@ ament_target_dependencies(${PROJECT_NAME}
   shared_memory
   real_time_tools
   time_series )
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+target_link_libraries(${PROJECT_NAME} shared_memory::shared_memory)
+target_link_libraries(${PROJECT_NAME} real_time_tools::real_time_tools)
+target_link_libraries(${PROJECT_NAME} synchronizer::synchronizer)
+target_link_libraries(${PROJECT_NAME} time_series::time_series)
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 list(APPEND all_targets ${PROJECT_NAME})
 list(APPEND all_target_exports export_${PROJECT_NAME})
 
@@ -74,7 +78,7 @@ target_include_directories(
          $<INSTALL_INTERFACE:include> SYSTEM
   PUBLIC ${PYTHON_INCLUDE_DIRS})
 _ament_cmake_python_get_python_install_dir()
-install(TARGETS ${PROJECT_NAME}_py DESTINATION ${PYTHON_INSTALL_DIR})
+install(TARGETS ${PROJECT_NAME} DESTINATION ${PYTHON_INSTALL_DIR})
 
 
 #################
@@ -89,6 +93,7 @@ add_documentation()
 ######################\
 
 install(DIRECTORY include/ DESTINATION include)
+install(DIRECTORY internal/ DESTINATION include)
 install(
   TARGETS ${all_targets}
   EXPORT ${all_target_exports}

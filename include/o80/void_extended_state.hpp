@@ -16,20 +16,6 @@ public:
     VoidExtendedState()
     {
     }
-    VoidExtendedState(const VoidExtendedState& other)
-    {
-    }
-    VoidExtendedState(VoidExtendedState&& other) noexcept
-    {
-    }
-    VoidExtendedState& operator=(const VoidExtendedState& other)
-    {
-        return *this;
-    }
-    VoidExtendedState& operator=(VoidExtendedState&& other) noexcept
-    {
-        return *this;
-    }
     void console() const
     {
         std::cout << "empty extended state" << std::endl;

@@ -18,8 +18,8 @@ public:
     long int wait();
 
 private:
-    timespec req_;
-    TimePoint previous_time_;
     Nanoseconds period_;
+    TimePoint previous_time_;
+    timespec req_;
 };
 }  // namespace o80

@@ -66,6 +66,7 @@ public:
     typedef std::shared_ptr<DRIVER> DriverPtr;
     typedef o80_STATE o80State;
     typedef o80_EXTENDED_STATE o80ExtendedState;
+    typedef DRIVER o80DRIVER;
 
 private:
     typedef BackEnd<QUEUE_SIZE, NB_ACTUATORS, o80_STATE, o80_EXTENDED_STATE>
@@ -127,11 +128,11 @@ public:
 
     /**
      * ! converts the observation as returned by the robot_interfaces
-     *   frontend into the o80 extended state.
+     *   frontend into the o80 extended state (optional)
      */
     virtual void enrich_extended_state(
         o80_EXTENDED_STATE& extended_state,
-        const typename DRIVER::DRIVER_OUT& observation) = 0;
+        const typename DRIVER::DRIVER_OUT& observation){};
 
 private:
     bool iterate(const TimePoint& time_now, o80_EXTENDED_STATE& extended_state);
