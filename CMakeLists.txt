@@ -78,7 +78,7 @@ target_include_directories(
          $<INSTALL_INTERFACE:include> SYSTEM
   PUBLIC ${PYTHON_INCLUDE_DIRS})
 _ament_cmake_python_get_python_install_dir()
-install(TARGETS ${PROJECT_NAME} DESTINATION ${PYTHON_INSTALL_DIR})
+install(TARGETS ${PROJECT_NAME}_py DESTINATION ${PYTHON_INSTALL_DIR})
 
 
 #################
