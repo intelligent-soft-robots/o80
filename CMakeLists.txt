@@ -18,7 +18,9 @@ find_package(synchronizer REQUIRED)
 find_package(shared_memory REQUIRED)
 find_package(real_time_tools REQUIRED)
 find_package(time_series REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem system thread)
 ament_export_dependencies(
+  Boost
   mpi_cmake_modules
   pybind11
   synchronizer

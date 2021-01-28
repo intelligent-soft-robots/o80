@@ -21,6 +21,7 @@
   <depend>real_time_tools</depend>
   <depend>synchronizer</depend>
   <depend>time_series</depend>
+  <depend>Boost</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
