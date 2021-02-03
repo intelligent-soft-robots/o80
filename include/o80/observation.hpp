@@ -122,6 +122,9 @@ public:
      */
     double get_frequency() const;
 
+    /**
+     * @brief time stamp of the observation (in nanoseconds)
+     */
     long int get_time_stamp() const;
 
     /**
