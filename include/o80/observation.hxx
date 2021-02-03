@@ -40,7 +40,8 @@ TEMPLATE_OBSERVATION
 OBSERVATION::Observation(OBSERVATION&& other) noexcept
     : observed_states_(std::move(other.observed_states_)),
       desired_states_(std::move(other.desired_states_)),
-      extended_state_(std::move(other.extended_state_))
+      extended_state_(std::move(other.extended_state_)),
+      stamp_(std::move(other.stamp_))
 {
     copy(other, false);
 }
@@ -59,6 +60,7 @@ OBSERVATION& OBSERVATION::operator=(OBSERVATION&& other) noexcept
     observed_states_ = std::move(other.observed_states_);
     desired_states_ = std::move(other.desired_states_);
     extended_state_ = std::move(other.extended_state_);
+    stamp_ = std::move(other.stamp_);
     return *this;
 }
 
