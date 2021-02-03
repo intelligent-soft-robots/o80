@@ -61,6 +61,21 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("__str__", &observation::to_string);
     }
 
+    if constexpr (!internal::has_type<NO_SERIALIZER, EXCLUDED_CLASSES...>())
+    {
+        typedef Observation<NB_ACTUATORS, o80_STATE, o80_EXTENDED_STATE>
+            observation;
+	typedef shared_memory::Serializer<observation> serializer;
+        pybind11::class_<serializer>(m, (prefix + "Serializer").c_str())
+	  .def(pybind11::init<>())
+	  .def("serializable_size", &serializer::serializable_size)
+	  .def("serialize", [](serializer& s,const observation& obs)
+	       {
+		 return s.serialize(obs);
+	       })
+	  .def("deserialize", &serializer::deserialize);
+    }
+    
     if constexpr (!internal::has_type<NO_FRONTEND, EXCLUDED_CLASSES...>())
     {
         typedef Observation<NB_ACTUATORS, o80_STATE, o80_EXTENDED_STATE>

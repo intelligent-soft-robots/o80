@@ -21,9 +21,10 @@ namespace o80
 typedef std::integral_constant<int, 0> NO_STATES;
 typedef std::integral_constant<int, 1> NO_STATE;
 typedef std::integral_constant<int, 2> NO_OBSERVATION;
-typedef std::integral_constant<int, 3> NO_EXTENDED_STATE;
-typedef std::integral_constant<int, 4> NO_FRONTEND;
-typedef std::integral_constant<int, 5> NO_BACKEND;
+typedef std::integral_constant<int, 3> NO_SERIALIZER;
+typedef std::integral_constant<int, 4> NO_EXTENDED_STATE;
+typedef std::integral_constant<int, 5> NO_FRONTEND;
+typedef std::integral_constant<int, 6> NO_BACKEND;
 
 /**
  * ! Creates in python module m python bindings
