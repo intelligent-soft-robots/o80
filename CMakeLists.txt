@@ -10,10 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 ################
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_python REQUIRED)
 find_package(mpi_cmake_modules REQUIRED)
-find_package(pybind11_vendor REQUIRED)
 find_package(pybind11 REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(synchronizer REQUIRED)
 find_package(shared_memory REQUIRED)
 find_package(real_time_tools REQUIRED)

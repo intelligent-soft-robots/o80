@@ -35,7 +35,7 @@ stop_standalone("my_robot",frequency)
 
 ```
 
-A useful complement to this webpage is the documentation of the [o80_example](https://intelligent-soft-robots.github.io/code_documentation/o80/docs/sphinx/html/index.html) package, which provides a concrete implementation of an o80 project.
+A useful complement to this webpage is the documentation of the [o80_example](http://people.tuebingen.mpg.de/mpi-is-software/o80/docs/o80_example/index.html) package, which provides a concrete implementation of an o80 project.
 
 The github source code of o80 is [here](https://github.com/intelligent-soft-robots/o80).
 
