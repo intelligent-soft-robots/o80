@@ -1,10 +1,10 @@
 # o80
 Synchronization of c++ processes via a custom python API.
 
-See : the [documentation](https://intelligent-soft-robots.github.io/code_documentation/o80/docs/html/index.html), an [example project](https://github.com/intelligent-soft-robots/o80_example) and the [installation instructions](https://intelligent-soft-robots.github.io/code_documentation/o80/docs/html/doc/02.installation.html)
+See : the [documentation](http://people.tuebingen.mpg.de/mpi-is-software/o80/docs/o80/index.html), an [example project](http://people.tuebingen.mpg.de/mpi-is-software/o80/docs/o80_example/index.html) and the [installation instructions](http://people.tuebingen.mpg.de/mpi-is-software/o80/docs/o80/doc/02.installation.html)
 
 
 # Author
-Vincent Berenz, Max Planck Institute for Intelligent Systems.
+Vincent Berenz, Max Planck Institute for Intelligent Systems, Empirical Inference Department
 
 <sup><sub>dev note: the unit tests for o80 are with the [o80_example]((https://github.com/intelligent-soft-robots/o80_example)) package
