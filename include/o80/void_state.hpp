@@ -1,8 +1,8 @@
 #pragma once
 
 #include "o80/command_types.hpp"
-#include "o80/time.hpp"
 #include "o80/sensor_state.hpp"
+#include "o80/time.hpp"
 
 namespace o80
 {

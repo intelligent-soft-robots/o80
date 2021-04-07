@@ -1,6 +1,8 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Author : Vincent Berenz
 
+#pragma once
+
 #include <o80/burster.hpp>
 #include <o80/command_types.hpp>
 #include <o80/front_end.hpp>

@@ -2,15 +2,11 @@
 
 namespace o80
 {
-BoolState::BoolState() :
-  SensorState{},
-  status_{false}
+BoolState::BoolState() : SensorState{}, status_{false}
 {
 }
 
-BoolState::BoolState(bool status) :
-  SensorState{},
-  status_{status}
+BoolState::BoolState(bool status) : SensorState{}, status_{status}
 {
 }
 
