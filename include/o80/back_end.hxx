@@ -21,6 +21,10 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
       new_commands_observations_(new_commands_observations)
 {
     frequency_measure_.tick();
+    // this will be set to true when iterations do not reapply desired
+    // states (i.e. at least one command is active), to false when
+    // desired states is reapplied (no command is active)
+    shared_memory::set<bool>(segment_id, "active", false);
 }
 
 TEMPLATE_BACKEND
@@ -69,6 +73,15 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
 {
     bool reapplied_desired_states =
         iterate(time_now, current_states, iteration_update, current_iteration);
+
+    if (reapplied_desired_states)
+    {
+        shared_memory::set<bool>(segment_id_, "active", false);
+    }
+    else
+    {
+        shared_memory::set<bool>(segment_id_, "active", true);
+    }
 
     bool print_obs = true;
     if (new_commands_observations_)

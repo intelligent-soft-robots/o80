@@ -115,6 +115,13 @@ public:
      *  iteration will be increase by one at each call*/
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> wait_for_next();
 
+    /*! if returns true: during its latest iteration, the backend did not
+     * reapply the previous desired states (i.e. at least one command was
+     * active), if false, the backend reapplied the previous desired state (no
+     * active command)
+     */
+    bool backend_is_active();
+
     /*! reset the reference iteration used by the "wait_for_next" method
      *  to the current iteration number*/
     void reset_next_index();

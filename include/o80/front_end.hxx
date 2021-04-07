@@ -127,6 +127,14 @@ FRONTEND::get_latest_observations(size_t nb_items)
 }
 
 TEMPLATE_FRONTEND
+bool FRONTEND::backend_is_active()
+{
+    bool active;
+    shared_memory::get<bool>(segment_id_, "active", active);
+    return active;
+}
+
+TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator,
                            ROBOT_STATE target_state,
                            Iteration target_iteration,
