@@ -71,9 +71,16 @@ public:
         bool iteration_update = true,
         long int current_iteration = -1);
 
+  /**
+   * returns false if a the last iteration, the previous desired states
+   * was returned as such (i.e. no command is active)
+   */
+  bool is_active();
+  
     // TODO: revive
     // void start_logging(std::string logger_segment_id);
 
+  
 private:
     // performing on iteration. Called internally by "pulse"
     bool iterate(const TimePoint& time_now,
@@ -111,6 +118,11 @@ private:
     // via the shared memory
     bool new_commands_observations_;
 
+  // will be true or false depending if at the latest iteration,
+  // the previous desired states as been reapplied as such (i.e.
+  // true: no command was active)
+  bool reapplied_desired_states_;
+  
     // TODO: revive
     // Logger* logger_;
 };
