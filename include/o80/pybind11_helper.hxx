@@ -92,7 +92,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("get_latest_observations", &frontend::get_latest_observations)
             .def("wait_for_next", &frontend::wait_for_next)
             .def("reset_next_index", &frontend::reset_next_index)
-	    .def("is_backend_active", &frontend::backend_is_active)
+            .def("is_backend_active", &frontend::backend_is_active)
             .def("add_command",
                  (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
                      frontend::add_command)
@@ -124,7 +124,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
         pybind11::class_<backend>(m, (prefix + "BackEnd").c_str())
             .def(pybind11::init<std::string>())
             .def(pybind11::init<std::string, bool>())
-            .def("is_active",&backend::is_active)
+            .def("is_active", &backend::is_active)
             .def("pulse", &backend::pulse)
             .def("pulse",
                  [](backend& bc) {

@@ -67,9 +67,8 @@ bool BACKEND::iterate(const TimePoint& time_now,
 TEMPLATE_BACKEND
 bool BACKEND::is_active()
 {
-  return (!reapplied_desired_states_);
+    return (!reapplied_desired_states_);
 }
-
 
 TEMPLATE_BACKEND
 const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
@@ -79,10 +78,10 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     bool iteration_update,
     long int current_iteration)
 {
-  reapplied_desired_states_ =
+    reapplied_desired_states_ =
         iterate(time_now, current_states, iteration_update, current_iteration);
 
-  // for the sake of frontend::backend_is_active
+    // for the sake of frontend::backend_is_active
     if (reapplied_desired_states_)
     {
         shared_memory::set<bool>(segment_id_, "active", false);
