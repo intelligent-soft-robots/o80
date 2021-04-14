@@ -10,6 +10,7 @@
 #include <o80/observation.hpp>
 #include <o80/standalone.hpp>
 #include <o80/states.hpp>
+#include <o80/introspector.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -27,6 +28,7 @@ typedef std::integral_constant<int, 3> NO_SERIALIZER;
 typedef std::integral_constant<int, 4> NO_EXTENDED_STATE;
 typedef std::integral_constant<int, 5> NO_FRONTEND;
 typedef std::integral_constant<int, 6> NO_BACKEND;
+typedef std::integral_constant<int, 7> NO_INTROSPECTOR;
 
 /**
  * ! Creates in python module m python bindings

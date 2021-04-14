@@ -4,6 +4,7 @@
 #pragma once
 
 #include <chrono>
+#include <sstream>
 #include <iostream>
 #include <mutex>
 #include <vector>
@@ -59,6 +60,7 @@ public:
     Mode get_mode() const;
     CommandType& get_command_type();
     long int get_pulse_id() const;
+  std::string to_string() const;
     void print() const;
 
 private:

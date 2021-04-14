@@ -134,40 +134,47 @@ Command<STATE>::Command(long int pulse_id,
     id_ = Command<STATE>::get_next_id();
 }
 
-template <class STATE>
-void Command<STATE>::print() const
-{
-    std::cout << "command " << id_;
-    std::cout << " | dof: " << dof_;
+  template<class STATE>
+  std::string Command<STATE>::to_string() const
+  {
+    std::stringstream stream;
+    stream << "command " << id_;
+    stream << " | dof: " << dof_;
     if (mode_ == Mode::OVERWRITE)
     {
-        std::cout << " | mode: overwrite";
+        stream << " | mode: overwrite";
     }
     else
     {
-        std::cout << " | mode: queue";
+        stream << " | mode: queue";
     }
     if (command_type_.type == Type::DIRECT)
     {
-        std::cout << " | type: direct";
+        stream << " | type: direct";
     }
     else if (command_type_.type == Type::DURATION)
     {
-        std::cout << " | type: duration";
-        std::cout << " | duration (microseconds): "
+        stream << " | type: duration";
+        stream << " | duration (microseconds): "
                   << command_type_.duration.value;
     }
     else if (command_type_.type == Type::ITERATION)
     {
-        std::cout << " | type: iteration";
-        std::cout << " | iteration: " << command_type_.iteration.value;
+        stream << " | type: iteration";
+        stream << " | iteration: " << command_type_.iteration.value;
     }
     else
     {
-        std::cout << " | type: speed";
-        std::cout << " | speed: " << command_type_.speed.value;
+        stream << " | type: speed";
+        stream << " | speed: " << command_type_.speed.value;
     }
-    std::cout << "\n";
+    return stream.str();
+  }
+  
+template <class STATE>
+void Command<STATE>::print() const
+{
+  std::cout << to_string() << std::endl;
 }
 
 template <class STATE>
