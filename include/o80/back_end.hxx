@@ -19,7 +19,12 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
       iteration_(0),
       observed_frequency_(-1),
       new_commands_observations_(new_commands_observations),
-      reapplied_desired_states_{true}
+      reapplied_desired_states_{true},
+      waiting_for_completion_{CompletedCommandsTimeSeries::create_leader(
+									 segment_id + "_waiting_for_completion",QUEUE_SIZE)},
+      completion_reported_{CompletedCommandsTimeSeries::create_leader(
+								     segment_id + "_completion_reported",QUEUE_SIZE)}
+
 {
     frequency_measure_.tick();
     // this will be set to true when iterations do not reapply desired

@@ -37,6 +37,11 @@ public:
         Observation<NB_ACTUATORS, STATE, EXTENDED_STATE>>
         ObservationsTimeSeries;
 
+    /*! multiprocess times series hosting the commands id that have been
+        processed by the backend*/
+    typedef time_series::MultiprocessTimeSeries<int>
+        CompletedCommandsTimeSeries;
+  
 public:
     /**
      * @param segment_id should be the same for the
@@ -122,8 +127,17 @@ private:
     // true: no command was active)
     bool reapplied_desired_states_;
 
-    // TODO: revive
-    // Logger* logger_;
+    // everytime a frontend will wait for the completion of a
+    // command (pulse_and_wait method), it will write the corresponding id in
+    // this time series. For debug and introspection. The backend creates the
+    // leader time series, but do not use it.
+    CompletedCommandsTimeSeries waiting_for_completion_;
+
+    // everytime a frontend will process the information that a
+    // command has been completed by the backend, its id will be 
+    // written in this time series. For debug and introspection. The
+    // backend creates the leader time series but do not use it.
+    CompletedCommandsTimeSeries completion_reported_;
 };
 
 #include "back_end.hxx"
