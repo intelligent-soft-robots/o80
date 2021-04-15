@@ -38,6 +38,9 @@ public:
     void set_completed_commands(
         CompletedCommandsTimeSeries& completed_commands);
 
+    void set_starting_commands(
+        CompletedCommandsTimeSeries& starting_commands);
+  
     void set_command(const Command<STATE>& command);
 
     bool stop_current(const STATE& current_state,
@@ -73,7 +76,8 @@ private:
 
 private:
     static std::mutex mutex_;
-    CompletedCommandsTimeSeries* completed_commands_;
+  CompletedCommandsTimeSeries* completed_commands_;
+  CompletedCommandsTimeSeries* starting_commands_;
     std::queue<Command<STATE>> queue_;
     Command<STATE> current_command_;
     STATE desired_state_;

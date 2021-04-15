@@ -260,19 +260,19 @@ void FRONTEND::wait_for_completion(std::set<int>& command_ids,
       // for debug and introspection
       waiting_for_completion_.append(command_id);
     }
-    completed_index++;
-    while (true)
+  completed_index++;
+  while (true)
     {
-        time_series::Index command_id = completed_commands_[completed_index];
-        command_ids.erase(command_id);
-	// for debug and introspection
-	completion_reported_.append(command_id);
-        if (command_ids.empty())
+      time_series::Index command_id = completed_commands_[completed_index];
+      command_ids.erase(command_id);
+      // for debug and introspection
+      completion_reported_.append(command_id);
+      if (command_ids.empty())
         {
-            return;
+	  return;
         }
-        completed_index++;
-        usleep(10);
+      completed_index++;
+      usleep(10);
     }
 }
 

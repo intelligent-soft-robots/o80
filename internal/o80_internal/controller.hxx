@@ -42,6 +42,13 @@ void Controller<STATE>::set_completed_commands(
 }
 
 template <class STATE>
+void Controller<STATE>::set_starting_commands(
+    CompletedCommandsTimeSeries& starting_commands)
+{
+    starting_commands_ = &starting_commands;
+}
+  
+template <class STATE>
 void Controller<STATE>::set_command(const Command<STATE>& command)
 {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -85,6 +92,9 @@ Command<STATE>* Controller<STATE>::get_current_command(
     // getting top (lower command_id) command
     current_command_ = queue_.front();
 
+    // for debug and introspection
+    starting_commands_->append(current_command_.get_id());
+    
     queue_.pop();
 
     {

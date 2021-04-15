@@ -63,6 +63,19 @@ list(APPEND all_targets ${PROJECT_NAME})
 list(APPEND all_target_exports export_${PROJECT_NAME})
 
 
+##############
+# Executable #
+##############
+
+add_executable(${PROJECT_NAME}_clear_memory
+  bin/clear_memory.cpp)
+target_include_directories(${PROJECT_NAME}_clear_memory
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(${PROJECT_NAME}_clear_memory ${PROJECT_NAME})
+set(all_targets ${all_targets} ${PROJECT_NAME}_clear_memory)
+
+
 ###################
 # Python wrappers #
 ###################

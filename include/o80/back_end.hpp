@@ -138,6 +138,7 @@ private:
     // written in this time series. For debug and introspection. The
     // backend creates the leader time series but do not use it.
     CompletedCommandsTimeSeries completion_reported_;
+
 };
 
 #include "back_end.hxx"
