@@ -82,6 +82,13 @@ public:
      */
     bool is_active();
 
+    /**
+     * purge all the commands currently queued in the controllers,
+     * including the ones currently running. The purge occurs when
+     * the method iterate is called.
+     */
+    void purge();
+
     // TODO: revive
     // void start_logging(std::string logger_segment_id);
 

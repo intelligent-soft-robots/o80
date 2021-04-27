@@ -43,6 +43,13 @@ BACKEND::~BackEnd()
 }
 
 TEMPLATE_BACKEND
+void BACKEND::purge()
+{
+    // will trigger purge at the next call to iterate
+    shared_memory::set<bool>(segment_id_, "purge", true);
+}
+
+TEMPLATE_BACKEND
 bool BACKEND::iterate(const TimePoint& time_now,
                       const States<NB_ACTUATORS, STATE>& current_states,
                       bool iteration_update,
@@ -59,7 +66,7 @@ bool BACKEND::iterate(const TimePoint& time_now,
     if (must_purge)
     {
         controllers_manager_.purge();
-        shared_memory::set<bool>(segment_id_, "purge", true);
+        shared_memory::set<bool>(segment_id_, "purge", false);
     }
 
     controllers_manager_.process_commands(iteration_);
