@@ -4,9 +4,9 @@
 #pragma once
 
 #include <chrono>
-#include <sstream>
 #include <iostream>
 #include <mutex>
+#include <sstream>
 #include <vector>
 
 #include "command_status.hpp"
@@ -60,7 +60,7 @@ public:
     Mode get_mode() const;
     CommandType& get_command_type();
     long int get_pulse_id() const;
-  std::string to_string() const;
+    std::string to_string() const;
     void print() const;
 
 private:

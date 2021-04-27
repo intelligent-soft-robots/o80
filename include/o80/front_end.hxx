@@ -29,11 +29,11 @@ FRONTEND::FrontEnd(std::string segment_id)
           segment_id + "_completed")},
       leader_(nullptr),
       completed_index_(-1),
-      wait_prepared_(false), 
+      wait_prepared_(false),
       waiting_for_completion_{CompletedCommandsTimeSeries::create_follower(
-									   segment_id + "_waiting_for_completion")},
+          segment_id + "_waiting_for_completion")},
       completion_reported_{CompletedCommandsTimeSeries::create_follower(
-								       segment_id + "_completion_reported")}
+          segment_id + "_completion_reported")}
 {
     shared_memory::get<long int>(segment_id_, "pulse_id", pulse_id_);
     pulse_id_++;
@@ -141,10 +141,8 @@ bool FRONTEND::backend_is_active()
 TEMPLATE_FRONTEND
 void FRONTEND::purge() const
 {
-  shared_memory::set<bool>(segment_id_, "purge", true);
+    shared_memory::set<bool>(segment_id_, "purge", true);
 }
-
-
 
 TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator,
@@ -263,24 +261,24 @@ TEMPLATE_FRONTEND
 void FRONTEND::wait_for_completion(std::set<int>& command_ids,
                                    time_series::Index completed_index)
 {
-  for(int command_id: command_ids)
+    for (int command_id : command_ids)
     {
-      // for debug and introspection
-      waiting_for_completion_.append(command_id);
+        // for debug and introspection
+        waiting_for_completion_.append(command_id);
     }
-  completed_index++;
-  while (true)
+    completed_index++;
+    while (true)
     {
-      time_series::Index command_id = completed_commands_[completed_index];
-      command_ids.erase(command_id);
-      // for debug and introspection
-      completion_reported_.append(command_id);
-      if (command_ids.empty())
+        time_series::Index command_id = completed_commands_[completed_index];
+        command_ids.erase(command_id);
+        // for debug and introspection
+        completion_reported_.append(command_id);
+        if (command_ids.empty())
         {
-	  return;
+            return;
         }
-      completed_index++;
-      usleep(10);
+        completed_index++;
+        usleep(10);
     }
 }
 
@@ -404,26 +402,26 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read(
 TEMPLATE_FRONTEND
 auto FRONTEND::get_introspection_commands(std::string segment_id)
 {
-  return CommandsTimeSeries::create_follower_ptr(segment_id + "_commands");
+    return CommandsTimeSeries::create_follower_ptr(segment_id + "_commands");
 }
 
 TEMPLATE_FRONTEND
 auto FRONTEND::get_introspection_completed_commands(std::string segment_id)
 {
-  return CompletedCommandsTimeSeries::create_follower_ptr(
-							  segment_id + "_completed");
+    return CompletedCommandsTimeSeries::create_follower_ptr(segment_id +
+                                                            "_completed");
 }
 
 TEMPLATE_FRONTEND
 auto FRONTEND::get_introspection_waiting_for_completion(std::string segment_id)
 {
-  return CompletedCommandsTimeSeries::create_follower_ptr(
-							  segment_id + "_waiting_for_completion");
+    return CompletedCommandsTimeSeries::create_follower_ptr(
+        segment_id + "_waiting_for_completion");
 }
 
 TEMPLATE_FRONTEND
 auto FRONTEND::get_introspection_completion_reported(std::string segment_id)
 {
-  return CompletedCommandsTimeSeries::create_follower(
-						      segment_id + "_completion_reported");
+    return CompletedCommandsTimeSeries::create_follower(segment_id +
+                                                        "_completion_reported");
 }

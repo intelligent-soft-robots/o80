@@ -147,10 +147,10 @@ public:
                      Speed speed,
                      Mode mode);
 
-  /*! requests the backend to purge its command queues (including current commands)
-    during next iteration*/
-  void purge() const;
-  
+    /*! requests the backend to purge its command queues (including current
+      commands) during next iteration*/
+    void purge() const;
+
     /*! request the related backend or standalone to perform nb_iterations
         in a row, as fast as possible. Assumes the related backend or standalone
         is running in bursting mode*/
@@ -206,23 +206,23 @@ public:
         long int iteration = -1);
 
 public:
+    /*! returns the time series of commands shared between the
+     *   frontend and the backend*/
+    static auto get_introspection_commands(std::string segment_id);
 
-  /*! returns the time series of commands shared between the
-   *   frontend and the backend*/
-  static auto get_introspection_commands(std::string segment_id);
+    /*! returns the time series of (completed) command ids
+     *  shared between the frontend and the backend*/
+    static auto get_introspection_completed_commands(std::string segment_id);
 
-  /*! returns the time series of (completed) command ids  
-   *  shared between the frontend and the backend*/
-  static auto get_introspection_completed_commands(std::string segment_id);
+    /*! returns the time series of command ids the frontend
+     *  waits completion of */
+    static auto get_introspection_waiting_for_completion(
+        std::string segment_id);
 
-  /*! returns the time series of command ids the frontend
-   *  waits completion of */
-  static auto get_introspection_waiting_for_completion(std::string segment_id);
+    /*! returns the time series of command ids the frontend
+     *  processed reports of completion */
+    static auto get_introspection_completion_reported(std::string segment_id);
 
-  /*! returns the time series of command ids the frontend
-   *  processed reports of completion */
-  static auto get_introspection_completion_reported(std::string segment_id);
-  
 private:
     void size_check();
     time_series::Index last_index_read_by_backend();
@@ -269,10 +269,10 @@ private:
     CompletedCommandsTimeSeries waiting_for_completion_;
 
     // everytime the frontend will process the information that a
-    // command has been completed by the backend, its id will be 
+    // command has been completed by the backend, its id will be
     // written in this time series. For debug and introspection.
     CompletedCommandsTimeSeries completion_reported_;
-  
+
     // in burst mode: used to the send the activating signal to the backend.
     LeaderPtr leader_;
 

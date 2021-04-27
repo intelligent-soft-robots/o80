@@ -6,11 +6,11 @@
 #include <o80/burster.hpp>
 #include <o80/command_types.hpp>
 #include <o80/front_end.hpp>
+#include <o80/introspector.hpp>
 #include <o80/mode.hpp>
 #include <o80/observation.hpp>
 #include <o80/standalone.hpp>
 #include <o80/states.hpp>
-#include <o80/introspector.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

@@ -47,7 +47,7 @@ void Controller<STATE>::set_starting_commands(
 {
     starting_commands_ = &starting_commands;
 }
-  
+
 template <class STATE>
 void Controller<STATE>::set_command(const Command<STATE>& command)
 {
@@ -65,16 +65,16 @@ void Controller<STATE>::set_command(const Command<STATE>& command)
 template <class STATE>
 void Controller<STATE>::purge()
 {
-  std::lock_guard<std::mutex> guard(mutex_);
-  while(!queue_.empty())
+    std::lock_guard<std::mutex> guard(mutex_);
+    while (!queue_.empty())
     {
-      queue_.pop();
+        queue_.pop();
     }
-  CommandStatus<STATE>& command_status =
-    current_command_.get_mutable_command_status();
-  command_status.set_inactive();
+    CommandStatus<STATE>& command_status =
+        current_command_.get_mutable_command_status();
+    command_status.set_inactive();
 }
-  
+
 template <class STATE>
 Command<STATE>* Controller<STATE>::get_current_command(
     long int current_iteration,
@@ -107,7 +107,7 @@ Command<STATE>* Controller<STATE>::get_current_command(
 
     // for debug and introspection
     starting_commands_->append(current_command_.get_id());
-    
+
     queue_.pop();
 
     {

@@ -134,9 +134,9 @@ Command<STATE>::Command(long int pulse_id,
     id_ = Command<STATE>::get_next_id();
 }
 
-  template<class STATE>
-  std::string Command<STATE>::to_string() const
-  {
+template <class STATE>
+std::string Command<STATE>::to_string() const
+{
     std::stringstream stream;
     stream << "command " << id_;
     stream << " | dof: " << dof_;
@@ -156,7 +156,7 @@ Command<STATE>::Command(long int pulse_id,
     {
         stream << " | type: duration";
         stream << " | duration (microseconds): "
-                  << command_type_.duration.value;
+               << command_type_.duration.value;
     }
     else if (command_type_.type == Type::ITERATION)
     {
@@ -169,12 +169,12 @@ Command<STATE>::Command(long int pulse_id,
         stream << " | speed: " << command_type_.speed.value;
     }
     return stream.str();
-  }
-  
+}
+
 template <class STATE>
 void Command<STATE>::print() const
 {
-  std::cout << to_string() << std::endl;
+    std::cout << to_string() << std::endl;
 }
 
 template <class STATE>

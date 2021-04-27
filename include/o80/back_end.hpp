@@ -41,7 +41,7 @@ public:
         processed by the backend*/
     typedef time_series::MultiprocessTimeSeries<int>
         CompletedCommandsTimeSeries;
-  
+
 public:
     /**
      * @param segment_id should be the same for the
@@ -134,11 +134,10 @@ private:
     CompletedCommandsTimeSeries waiting_for_completion_;
 
     // everytime a frontend will process the information that a
-    // command has been completed by the backend, its id will be 
+    // command has been completed by the backend, its id will be
     // written in this time series. For debug and introspection. The
     // backend creates the leader time series but do not use it.
     CompletedCommandsTimeSeries completion_reported_;
-
 };
 
 #include "back_end.hxx"

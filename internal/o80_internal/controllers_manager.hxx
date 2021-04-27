@@ -23,7 +23,7 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
     {
         initialized_[i] = false;
         controllers_[i].set_completed_commands(completed_commands_);
-	controllers_[i].set_starting_commands(starting_commands_);
+        controllers_[i].set_starting_commands(starting_commands_);
     }
     shared_memory::set<long int>(segment_id_, "pulse_id", pulse_id_);
     shared_memory::set<time_series::Index>(
@@ -47,13 +47,12 @@ bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::purge()
 {
-  for(Controller<STATE>& controller: controllers_)
+    for (Controller<STATE>& controller : controllers_)
     {
-      controller.purge();
+        controller.purge();
     }
 }
 
-  
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
     long int current_iteration)
@@ -108,7 +107,7 @@ void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
         {
             throw std::runtime_error("command with incorrect dof index");
         }
-	received_commands_.append(command.get_id());
+        received_commands_.append(command.get_id());
         controllers_[dof].set_command(command);
     }
     pulse_id_ = current_pulse_id;

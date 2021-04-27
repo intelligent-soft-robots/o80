@@ -93,7 +93,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("wait_for_next", &frontend::wait_for_next)
             .def("reset_next_index", &frontend::reset_next_index)
             .def("is_backend_active", &frontend::backend_is_active)
-	  .def("purge", &frontend::purge)
+            .def("purge", &frontend::purge)
             .def("add_command",
                  (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
                      frontend::add_command)
@@ -152,16 +152,16 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
                      }
                      return bc.pulse(time_now, states, extended_state);
                  });
-	
     }
     if constexpr (!internal::has_type<NO_INTROSPECTOR, EXCLUDED_CLASSES...>())
     {
-      typedef Introspector<o80_STATE> introspector;
-      pybind11::class_<introspector>(m, (prefix + "Introspector").c_str())
-	.def_static((prefix+std::string("start")).c_str(), &introspector::start_running)
-	.def_static((prefix+std::string("stop")).c_str(), &introspector::stop_running);
+        typedef Introspector<o80_STATE> introspector;
+        pybind11::class_<introspector>(m, (prefix + "Introspector").c_str())
+            .def_static((prefix + std::string("start")).c_str(),
+                        &introspector::start_running)
+            .def_static((prefix + std::string("stop")).c_str(),
+                        &introspector::stop_running);
     }
-
 }
 
 template <class RobotStandalone, typename... EXCLUDED_CLASSES>

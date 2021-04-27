@@ -40,8 +40,8 @@ public:
     CommandsTimeSeries &get_commands_time_series();
     CompletedCommandsTimeSeries &get_completed_commands_time_series();
 
-  void purge();
-  
+    void purge();
+
 private:
     // ! to delete
     void _print(CommandsTimeSeries *time_series);
@@ -56,7 +56,7 @@ private:
     std::array<bool, NB_ACTUATORS> initialized_;
     long int relative_iteration_;
 
-    // everytime the backend reads a new command from the 
+    // everytime the backend reads a new command from the
     // shared memory, it will write in this time series its
     // command id. For debug and introspection.
     CompletedCommandsTimeSeries received_commands_;
@@ -65,8 +65,6 @@ private:
     // it will write in this time series its
     // command id. For debug and introspection.
     CompletedCommandsTimeSeries starting_commands_;
-
-  
 };
 }  // namespace o80
 
