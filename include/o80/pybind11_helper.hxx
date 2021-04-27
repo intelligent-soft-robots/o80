@@ -93,6 +93,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("wait_for_next", &frontend::wait_for_next)
             .def("reset_next_index", &frontend::reset_next_index)
             .def("is_backend_active", &frontend::backend_is_active)
+	  .def("purge", &frontend::purge)
             .def("add_command",
                  (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
                      frontend::add_command)

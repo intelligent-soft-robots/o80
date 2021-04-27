@@ -63,6 +63,19 @@ void Controller<STATE>::set_command(const Command<STATE>& command)
 }
 
 template <class STATE>
+void Controller<STATE>::purge()
+{
+  std::lock_guard<std::mutex> guard(mutex_);
+  while(!queue_.empty())
+    {
+      queue_.pop();
+    }
+  CommandStatus<STATE>& command_status =
+    current_command_.get_mutable_command_status();
+  command_status.set_inactive();
+}
+  
+template <class STATE>
 Command<STATE>* Controller<STATE>::get_current_command(
     long int current_iteration,
     const STATE& current_state,

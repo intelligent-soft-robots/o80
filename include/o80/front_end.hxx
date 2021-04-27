@@ -139,6 +139,14 @@ bool FRONTEND::backend_is_active()
 }
 
 TEMPLATE_FRONTEND
+void FRONTEND::purge() const
+{
+  shared_memory::set<bool>(segment_id_, "purge", true);
+}
+
+
+
+TEMPLATE_FRONTEND
 void FRONTEND::add_command(int nb_actuator,
                            ROBOT_STATE target_state,
                            Iteration target_iteration,

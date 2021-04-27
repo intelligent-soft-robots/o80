@@ -45,6 +45,16 @@ bool ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::
 }
 
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
+void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::purge()
+{
+  for(Controller<STATE>& controller: controllers_)
+    {
+      controller.purge();
+    }
+}
+
+  
+template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 void ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::process_commands(
     long int current_iteration)
 {

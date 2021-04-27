@@ -147,6 +147,10 @@ public:
                      Speed speed,
                      Mode mode);
 
+  /*! requests the backend to purge its command queues (including current commands)
+    during next iteration*/
+  void purge() const;
+  
     /*! request the related backend or standalone to perform nb_iterations
         in a row, as fast as possible. Assumes the related backend or standalone
         is running in bursting mode*/

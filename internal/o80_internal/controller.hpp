@@ -49,7 +49,9 @@ public:
     void stop_all(const STATE& current_state, Microseconds control_iteration);
 
     int running(const STATE& current_state, Microseconds control_iteration);
-
+  
+  void purge();
+  
     int size() const;
 
     const STATE& get_desired_state(long int current_iteration,

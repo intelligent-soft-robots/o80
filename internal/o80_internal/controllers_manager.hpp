@@ -40,6 +40,8 @@ public:
     CommandsTimeSeries &get_commands_time_series();
     CompletedCommandsTimeSeries &get_completed_commands_time_series();
 
+  void purge();
+  
 private:
     // ! to delete
     void _print(CommandsTimeSeries *time_series);

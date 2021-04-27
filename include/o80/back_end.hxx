@@ -31,6 +31,9 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
     // states (i.e. at least one command is active), to false when
     // desired states is reapplied (no command is active)
     shared_memory::set<bool>(segment_id, "active", false);
+    // frontend(s) may set this value to "true" to trigger
+    // the purge of all commands
+    shared_memory::set<bool>(segment_id,"purge",false);
 }
 
 TEMPLATE_BACKEND
@@ -50,6 +53,15 @@ bool BACKEND::iterate(const TimePoint& time_now,
         iteration_ = current_iteration;
     }
 
+    // checking if a frontend requested the purge of commands
+    bool must_purge;
+    shared_memory::get<bool>(segment_id_,"purge",must_purge);
+    if(must_purge)
+      {
+	controllers_manager_.purge();
+	shared_memory::set<bool>(segment_id_,"purge",true);
+      }
+    
     controllers_manager_.process_commands(iteration_);
 
     // reading desired state based on controllers output
