@@ -89,8 +89,13 @@ public:
      */
     void purge();
 
-    // TODO: revive
-    // void start_logging(std::string logger_segment_id);
+    /**
+     * returns the first observed states provided (via
+     * the first call to the pulse function.
+     * May be usefull for the implementation of reset
+     * functions
+     */
+    const States<NB_ACTUATORS, STATE>& initial_states() const;
 
 private:
     // performing on iteration. Called internally by "pulse"
@@ -115,6 +120,11 @@ private:
     // Desired states as computed by the controllers. Reference to this instance
     // is returned by "pulse" functions
     States<NB_ACTUATORS, STATE> desired_states_;
+
+    // first observed states as set by the user via the first
+    // call to the pulse function
+    States<NB_ACTUATORS, STATE> initial_states_;
+    bool first_iteration_;
 
     // incremented at each call of iterate
     long int iteration_;

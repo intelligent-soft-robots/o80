@@ -16,6 +16,8 @@ BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
           segment_id + "_observations", QUEUE_SIZE)},
       controllers_manager_(segment_id),
       desired_states_(),
+      initial_states_(),
+      first_iteration_{true},
       iteration_(0),
       observed_frequency_(-1),
       new_commands_observations_(new_commands_observations),
@@ -47,6 +49,12 @@ void BACKEND::purge()
 {
     // will trigger purge at the next call to iterate
     shared_memory::set<bool>(segment_id_, "purge", true);
+}
+
+TEMPLATE_BACKEND
+const States<NB_ACTUATORS, STATE>& BACKEND::initial_states() const
+{
+    return initial_states_;
 }
 
 TEMPLATE_BACKEND
@@ -102,6 +110,12 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     bool iteration_update,
     long int current_iteration)
 {
+    if (first_iteration_)
+    {
+        initial_states_ = current_states;
+        first_iteration_ = false;
+    }
+
     reapplied_desired_states_ =
         iterate(time_now, current_states, iteration_update, current_iteration);
 
