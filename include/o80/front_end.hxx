@@ -185,6 +185,17 @@ void FRONTEND::add_command(int nb_actuator, ROBOT_STATE target_state, Mode mode)
 }
 
 TEMPLATE_FRONTEND
+void FRONTEND::add_reinit_command()
+{
+  States<NB_ACTUATORS,ROBOT_STATE> init_states = initial_states();
+  for(int actuator=0;actuator<NB_ACTUATORS;actuator++)
+    {
+      add_command(actuator,init_states.get(actuator),
+		  Mode::OVERWRITE);
+    }
+}
+
+TEMPLATE_FRONTEND
 time_series::Index FRONTEND::last_index_read_by_backend()
 {
     time_series::Index index;
