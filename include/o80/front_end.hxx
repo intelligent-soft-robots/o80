@@ -400,6 +400,14 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::read(
 }
 
 TEMPLATE_FRONTEND
+States<NB_ACTUATORS, ROBOT_STATE> FRONTEND::initial_states() const
+{
+    States<NB_ACTUATORS, ROBOT_STATE> r;
+    shared_memory::deserialize(segment_id_, "initial_states", r);
+    return r;
+}
+
+TEMPLATE_FRONTEND
 auto FRONTEND::get_introspection_commands(std::string segment_id)
 {
     return CommandsTimeSeries::create_follower_ptr(segment_id + "_commands");

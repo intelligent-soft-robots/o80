@@ -205,6 +205,11 @@ public:
     Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> read(
         long int iteration = -1);
 
+    /*!
+     * returns the first states ever observed by the backend
+     */
+    States<NB_ACTUATORS, ROBOT_STATE> initial_states() const;
+
 public:
     /*! returns the time series of commands shared between the
      *   frontend and the backend*/

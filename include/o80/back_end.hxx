@@ -114,6 +114,8 @@ const States<NB_ACTUATORS, STATE>& BACKEND::pulse(
     {
         initial_states_ = current_states;
         first_iteration_ = false;
+        shared_memory::serialize(
+            segment_id_, "initial_states", initial_states_);
     }
 
     reapplied_desired_states_ =
