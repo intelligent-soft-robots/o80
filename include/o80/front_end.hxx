@@ -8,15 +8,6 @@
 
 #define FRONTEND FrontEnd<QUEUE_SIZE, NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>
 
-namespace internal
-{
-void set_bursting(const std::string& segment_id, int nb_iterations)
-{
-    shared_memory::set<long int>(segment_id, "bursting", nb_iterations);
-    shared_memory::set<long int>(segment_id, "bursting_sync", nb_iterations);
-}
-}  // namespace internal
-
 TEMPLATE_FRONTEND
 FRONTEND::FrontEnd(std::string segment_id)
     : segment_id_(segment_id),
@@ -27,18 +18,17 @@ FRONTEND::FrontEnd(std::string segment_id)
                                                             "_observations")},
       completed_commands_{CompletedCommandsTimeSeries::create_follower(
           segment_id + "_completed")},
-      leader_(nullptr),
       completed_index_(-1),
       wait_prepared_(false),
       waiting_for_completion_{CompletedCommandsTimeSeries::create_follower(
           segment_id + "_waiting_for_completion")},
       completion_reported_{CompletedCommandsTimeSeries::create_follower(
-          segment_id + "_completion_reported")}
+									segment_id + "_completion_reported")},
+      burster_client_{nullptr}
 {
     shared_memory::get<long int>(segment_id_, "pulse_id", pulse_id_);
     pulse_id_++;
     observations_index_ = observations_.newest_timeindex(false);
-    internal::set_bursting(segment_id, 1);
 }
 
 TEMPLATE_FRONTEND
@@ -350,13 +340,11 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
     int nb_iterations)
 {
     share_commands(sent_command_ids_, false);
-    internal::set_bursting(segment_id_, nb_iterations);
-    if (leader_ == nullptr)
-    {
-        leader_.reset(
-            new synchronizer::Leader(segment_id_ + "_synchronizer", true));
-    }
-    leader_->pulse();
+    if (burster_client_ == nullptr)
+      {
+	burster_client_.reset(new BursterClient(segment_id_));
+      }
+    burster_client_->burst(nb_iterations);
     if (observations_.is_empty())
     {
         return Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>();
@@ -367,7 +355,10 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
 TEMPLATE_FRONTEND
 void FRONTEND::final_burst()
 {
-    leader_->stop_sync();
+  if(burster_client_ != nullptr)
+    {
+      burster_client_->final_burst();
+    }
 }
 
 TEMPLATE_FRONTEND

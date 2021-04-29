@@ -33,6 +33,12 @@ PYBIND11_MODULE(o80, m)
         .def("turn_on", &Burster::turn_on)
         .def("turn_off", &Burster::turn_off);
 
+    pybind11::class_<o80::BursterClient>(m, "BursterClient")
+        .def(pybind11::init<std::string>())
+        .def("burst", &BursterClient::burst)
+      .def("final_burst", &BursterClient::final_burst);
+
+    
     pybind11::class_<o80::BoolState>(m, "BoolState")
         .def(pybind11::init<bool>())
         .def("set", &BoolState::set)

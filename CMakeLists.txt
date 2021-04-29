@@ -75,6 +75,21 @@ target_include_directories(${PROJECT_NAME}_clear_memory
 target_link_libraries(${PROJECT_NAME}_clear_memory ${PROJECT_NAME})
 set(all_targets ${all_targets} ${PROJECT_NAME}_clear_memory)
 
+add_executable(demo_burster_client
+  demos/demo_burster_client.cpp)
+target_include_directories(demo_burster_client
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(demo_burster_client ${PROJECT_NAME})
+set(all_targets ${all_targets} demo_burster_client)
+
+add_executable(demo_burster
+  demos/demo_burster.cpp)
+target_include_directories(demo_burster
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(demo_burster ${PROJECT_NAME})
+set(all_targets ${all_targets} demo_burster)
 
 ###################
 # Python wrappers #

@@ -4,6 +4,7 @@
 
 #include "shared_memory/shared_memory.hpp"
 #include "synchronizer/follower.hpp"
+#include "synchronizer/leader.hpp"
 
 namespace o80
 {
@@ -56,4 +57,44 @@ private:
 
     std::shared_ptr<synchronizer::Follower> follower_;
 };
+
+class BursterClient
+{
+public:
+  typedef std::shared_ptr<synchronizer::Leader> LeaderPtr;
+
+  BursterClient(std::string segment_id)
+    : leader_{segment_id+"_synchronizer",true},
+      segment_id_{segment_id}
+  {
+    set_bursting(1);
+  }
+
+  void burst(int nb_iterations)
+  {
+    set_bursting(nb_iterations);
+    leader_.pulse();
+  }
+
+  void final_burst()
+  {
+    leader_.stop_sync();
+  }
+  
+private:
+  void set_bursting(int nb_iterations)
+  {
+    shared_memory::set<long int>(segment_id_, "bursting", nb_iterations);
+    shared_memory::set<long int>(segment_id_, "bursting_sync", nb_iterations);
+  }
+private:
+  synchronizer::Leader leader_;
+  std::string segment_id_;
+
+
+
+  
+};
+
+  
 }  // namespace o80
