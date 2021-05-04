@@ -12,24 +12,22 @@ authors:
   - name: Maximilien Naveau
     affiliation: 2
   - name: Felix Widmaier
-    affiliation: 3
+    affiliation: 1
   - name: Manuel Wüthrich
-    affiliation: 3
+    affiliation: 1
   - name: Jean-Claude Passy
-    affiliation: 4
+    affiliation: 3
   - name: Simon Guist
-    affiliation: 3
+    affiliation: 1
   - name: Dieter Büchler
-    affiliation: 3
+    affiliation: 1
 affiliations:
- - name: Autonomous Motion, Max Planck Institute for Intelligent Systems
+ - name: Empirical Inference, Max Planck Institute for Intelligent Systems
    index: 1
  - name: Movement Generation and Control, Max Planck Institute for Intelligent Systems
    index: 2
- - name: Empirical Inference, Max Planck Institute for Intelligent Systems
-   index: 3
  - name: Software Workshop, Max Planck Institute for Intelligent Systems
-   index: 4
+   index: 3
 date: 05 July 2020
 bibliography: paper.bib
 
@@ -43,6 +41,8 @@ bibliography: paper.bib
 
 o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (realtime) processes via simple customized Python APIs. Its target domain is robotics and machine learning. Our motivation for developing o80 is to ease the setup of robotics experiments (i.e. integration of various hardware and software) by machine learning scientists. Such setup typically requires time and technical effort, especially when realtime processes are involved. Ideally, scientists should have access to a simple Python API that hides the lower level communication details and simply allows to send actions and receive observations. o80 is a tool box for creating such API.
 
+o80 is in some aspects similar to ROS's actionlib [@actionlib], as both allow a process to create and monitor execution of commands executed by process, with python and c++ interoperability. A particularity of o80 is its support for queues of command and the possibilities to request the server to automatically perform linear interpolation between them. o80 also introduces new synchronization methods (see "bursting mode" in the next section). Contrary to actionlib, o80 does not support network communication as it expects the process it orchestrates to run on the same computer.
+
 # Overview
 
 For implementing synchronization, o80 organizes two types of processes:
@@ -50,7 +50,7 @@ For implementing synchronization, o80 organizes two types of processes:
 - A server process encapsulates an instance of o80 back-end and an instance of a driver. At each iteration, the back-end instance computes for each actuator the desired state to be transmitted to the hardware via the driver. The back-end also reads sensory information from the driver. Typically, the server process is programmed in C++ with consideration for realtime.
 - A client process encapsulates instances of o80 front-end, which provides: 1) an interface to send commands to the back-end (i.e. requests to compute desired states), 2) methods for querying sensory information, and 3) methods for synchronizing the client with the server process.
 
-In the background, back-end and front-end(s) communicate by exchanging serialized object instances via a interprocess shared memory. Serialization is based on the cereal library [@cereal], and the shared memory is based on the Boost library [@boost].
+In the background, back-end and front-end(s) communicate by exchanging serialized object instances via a interprocess shared memory. Serialization is based on the cereal library [@cereal], and the shared memory is based on the Boost interprocess library [@boost].
 
 o80 is templated over actuator states and driver; and may therefore support a wide range of systems.
 
@@ -75,6 +75,9 @@ o80 is based on open source packages that are maintained by the Max Planck Insti
 - shared memory: a wrapper over the boost interprocess library that makes exchange of serialized data over an interprocess shared memory trivial
 - time series: a templated circular buffer with time stamps, supporting multiprocess access and synchronization
 
+The complete list, the sources, the binaries as well as the documentation of theses packages can be found online [@corerobotics].
+
+
 # Examples of usage
 
 ## Integration with SL
@@ -88,6 +91,8 @@ o80 has been used in the context of reinforcement learning applied to real robot
 - provide a Python API that has been integrated into a Gym environment to provide an interface to reinforcement algorithms [@gym]
 - setting up the synchronization between the real robot control and the MuJoCo simulator [@mujoco] used for HYSR
 - setting up asynchronous processes for live plotting of the robot state
+
+The code and documentation of this project is available open source online [@pamsource].
 
 # References
 
