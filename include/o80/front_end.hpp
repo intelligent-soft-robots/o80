@@ -5,18 +5,17 @@
 
 #include <memory>
 #include <vector>
+#include "burster.hpp"
 #include "o80_internal/command.hpp"
 #include "observation.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include "synchronizer/leader.hpp"
 #include "time_series/multiprocess_time_series.hpp"
 #include "time_series/time_series.hpp"
-#include "burster.hpp"
 
 namespace o80
 
 {
-
 /*! A frontend sends commands to a related backend and
  *  read observations writen by this same backend.
  * @tparam QUEUE_SIZE size of the commands and observations
@@ -52,8 +51,8 @@ public:
     /*! vector of observations*/
     typedef std::vector<Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>>
         Observations;
-  /*! for bursting mode support */
-  typedef std::shared_ptr<BursterClient> BursterClientPtr;
+    /*! for bursting mode support */
+    typedef std::shared_ptr<BursterClient> BursterClientPtr;
 
 public:
     /**
@@ -273,9 +272,8 @@ private:
     int completed_index_;
     bool wait_prepared_;
 
-  // for bursting mode support
-  BursterClientPtr burster_client_;
-  
+    // for bursting mode support
+    BursterClientPtr burster_client_;
 };
 
 #include "front_end.hxx"

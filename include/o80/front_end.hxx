@@ -23,7 +23,7 @@ FRONTEND::FrontEnd(std::string segment_id)
       waiting_for_completion_{CompletedCommandsTimeSeries::create_follower(
           segment_id + "_waiting_for_completion")},
       completion_reported_{CompletedCommandsTimeSeries::create_follower(
-									segment_id + "_completion_reported")},
+          segment_id + "_completion_reported")},
       burster_client_{nullptr}
 {
     shared_memory::get<long int>(segment_id_, "pulse_id", pulse_id_);
@@ -341,9 +341,9 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
 {
     share_commands(sent_command_ids_, false);
     if (burster_client_ == nullptr)
-      {
-	burster_client_.reset(new BursterClient(segment_id_));
-      }
+    {
+        burster_client_.reset(new BursterClient(segment_id_));
+    }
     burster_client_->burst(nb_iterations);
     if (observations_.is_empty())
     {
@@ -355,9 +355,9 @@ Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE> FRONTEND::burst(
 TEMPLATE_FRONTEND
 void FRONTEND::final_burst()
 {
-  if(burster_client_ != nullptr)
+    if (burster_client_ != nullptr)
     {
-      burster_client_->final_burst();
+        burster_client_->final_burst();
     }
 }
 

@@ -97,4 +97,29 @@ bool Burster::pulse()
 
     return true;
 }
+
+BursterClient::BursterClient(std::string segment_id)
+    : leader_{segment_id + "_synchronizer", true}, segment_id_{segment_id}
+{
+    set_bursting(1);
+}
+
+void BursterClient::burst(int nb_iterations)
+{
+    set_bursting(nb_iterations);
+    leader_.pulse();
+}
+
+void BursterClient::final_burst()
+{
+    leader_.stop_sync();
+    shared_memory::set<bool>(segment_id_, "should_burst", false);
+}
+
+void BursterClient::set_bursting(int nb_iterations)
+{
+    shared_memory::set<long int>(segment_id_, "bursting", nb_iterations);
+    shared_memory::set<long int>(segment_id_, "bursting_sync", nb_iterations);
+}
+
 }  // namespace o80
