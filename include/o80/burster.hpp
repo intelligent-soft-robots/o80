@@ -4,6 +4,7 @@
 
 #include "shared_memory/shared_memory.hpp"
 #include "synchronizer/follower.hpp"
+#include "synchronizer/leader.hpp"
 
 namespace o80
 {
@@ -56,4 +57,27 @@ private:
 
     std::shared_ptr<synchronizer::Follower> follower_;
 };
+
+/*! Client of Burster, i.e. used for commanding
+ *  an instance of Burster of the same segment_id
+ *  to perform a serie of pulses. Used internally
+ *  by Frontend's instances.
+ */
+class BursterClient
+{
+public:
+    typedef std::shared_ptr<synchronizer::Leader> LeaderPtr;
+
+    BursterClient(std::string segment_id);
+    void burst(int nb_iterations);
+    void final_burst();
+
+private:
+    void set_bursting(int nb_iterations);
+
+private:
+    synchronizer::Leader leader_;
+    std::string segment_id_;
+};
+
 }  // namespace o80

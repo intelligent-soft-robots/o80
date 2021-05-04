@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <vector>
+#include "burster.hpp"
 #include "o80_internal/command.hpp"
 #include "observation.hpp"
 #include "shared_memory/shared_memory.hpp"
@@ -12,22 +13,9 @@
 #include "time_series/multiprocess_time_series.hpp"
 #include "time_series/time_series.hpp"
 
-#include "logger.hpp"
-
 namespace o80
 
 {
-// used internally by the front-end and the back-end to set
-// the number of iterations the back-end should burst through
-namespace internal
-{
-void set_bursting(const std::string& segment_id, int nb_iterations);
-}
-
-/*! in bursting mode, used to send activation signal to
-    the standalone / backend */
-typedef std::shared_ptr<synchronizer::Leader> LeaderPtr;
-
 /*! A frontend sends commands to a related backend and
  *  read observations writen by this same backend.
  * @tparam QUEUE_SIZE size of the commands and observations
@@ -63,6 +51,8 @@ public:
     /*! vector of observations*/
     typedef std::vector<Observation<NB_ACTUATORS, ROBOT_STATE, EXTENDED_STATE>>
         Observations;
+    /*! for bursting mode support */
+    typedef std::shared_ptr<BursterClient> BursterClientPtr;
 
 public:
     /**
@@ -278,12 +268,12 @@ private:
     // written in this time series. For debug and introspection.
     CompletedCommandsTimeSeries completion_reported_;
 
-    // in burst mode: used to the send the activating signal to the backend.
-    LeaderPtr leader_;
-
     // for the use of prepare_wait
     int completed_index_;
     bool wait_prepared_;
+
+    // for bursting mode support
+    BursterClientPtr burster_client_;
 };
 
 #include "front_end.hxx"
