@@ -106,6 +106,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("add_command",
                  (void (frontend::*)(int, o80_STATE, Speed, Mode)) &
                      frontend::add_command)
+            .def("add_reinit_command",&frontend::add_reinit_command)
             .def("burst", &frontend::burst)
             .def("final_burst", &frontend::final_burst)
             .def("pulse_and_wait", &frontend::pulse_and_wait)
@@ -115,7 +116,8 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("latest", [](frontend& fe) { return fe.read(-1); })
             .def("pulse",
                  (observation(frontend::*)(Iteration)) & frontend::pulse)
-            .def("pulse", (observation(frontend::*)()) & frontend::pulse);
+            .def("pulse", (observation(frontend::*)()) & frontend::pulse)
+            .def("initial_states",&frontend::initial_states);
     }
 
     if constexpr (!internal::has_type<NO_BACKEND, EXCLUDED_CLASSES...>())
