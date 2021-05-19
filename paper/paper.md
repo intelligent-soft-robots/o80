@@ -8,14 +8,22 @@ tags:
   - shared memory
 authors:
   - name: Vincent Berenz^[corresponding author]
+    affiliation: 1 
   - name: Maximilien Naveau
+    affiliation: 1
   - name: Felix Widmaier
+    affiliation: 1
   - name: Manuel Wüthrich
+    affiliation: 1
   - name: Jean-Claude Passy
+    affiliation: 1
   - name: Simon Guist
+    affiliation: 1
   - name: Dieter Büchler
+    affiliation: 1
 affiliations:
  - name: Max Planck Institute for Intelligent Systems, Tübingen, Germany
+   index: 1
 date: 05 July 2020
 bibliography: paper.bib
 
