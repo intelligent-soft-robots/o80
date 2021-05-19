@@ -10,24 +10,20 @@ authors:
   - name: Vincent Berenz^[corresponding author]
     affiliation: 1 
   - name: Maximilien Naveau
-    affiliation: 2
+    affiliation: 1
   - name: Felix Widmaier
     affiliation: 1
   - name: Manuel Wüthrich
     affiliation: 1
   - name: Jean-Claude Passy
-    affiliation: 3
+    affiliation: 1
   - name: Simon Guist
     affiliation: 1
   - name: Dieter Büchler
     affiliation: 1
 affiliations:
- - name: Empirical Inference, Max Planck Institute for Intelligent Systems
+ - name: Max Planck Institute for Intelligent Systems, Tübingen, Germany
    index: 1
- - name: Movement Generation and Control, Max Planck Institute for Intelligent Systems
-   index: 2
- - name: Software Workshop, Max Planck Institute for Intelligent Systems
-   index: 3
 date: 05 July 2020
 bibliography: paper.bib
 
