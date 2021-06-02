@@ -37,7 +37,7 @@ bibliography: paper.bib
 
 o80 (pronounced "oh-eighty") is a software for synchronizing and organizing message exchange between (realtime) processes via simple customized Python APIs. Its target domain is robotics and machine learning. Our motivation for developing o80 is to ease the setup of robotics experiments (i.e. integration of various hardware and software) by machine learning scientists. Such setup typically requires time and technical effort, especially when realtime processes are involved. Ideally, scientists should have access to a simple Python API that hides the lower level communication details and simply allows to send actions and receive observations. o80 is a tool box for creating such API.
 
-o80 is in some aspects similar to ROS's actionlib [@actionlib], as both allow a process to create and monitor execution of commands executed by another process, with python and c++ interoperability. A particularity of o80 is its support for queues of command and the possibilities to request the server to automatically perform linear interpolation between them. o80 also introduces new synchronization methods (see "bursting mode" in the next section). Contrary to actionlib, o80 does not support network communication as it expects the processes it orchestrates to run on the same computer.
+o80 is in some aspects similar to ROS's actionlib [@actionlib], as both allow a process to create and monitor execution of commands executed by another process, with python and C++ interoperability. A particularity of o80 is its support for queues of command and the possibilities to request the server to automatically perform linear interpolation between them. o80 also introduces new synchronization methods (see "bursting mode" in the next section). Contrary to actionlib, o80 does not support network communication as it expects the processes it orchestrates to run on the same computer.
 
 # Overview
 
@@ -65,7 +65,7 @@ o80 library may be considered complex as it is versatile and can be used in the 
 
 # Modular Implementation
 
-o80 is based on open source packages that are maintained by the Max Planck Institute for Intelligent Systems, and which may be reused in other contexts. These packages are available on the GitHub domains "intelligent soft robots", "machines in motion", "mpi-is" and "open dynamic robot initiative". Examples of such packages are:
+o80 is based on open source packages that are maintained by the Max Planck Institute for Intelligent Systems, and which may be reused in other contexts. These packages are available on the GitHub Organizations "intelligent-soft-robots", "machines-in-motion", "mpi-is" and "open dynamic robot initiative". Examples of such packages are:
 
 - synchronizer: a library for synchronizing processes
 - shared memory: a wrapper over the boost interprocess library that makes exchange of serialized data over an interprocess shared memory trivial
