@@ -44,7 +44,8 @@ add_library( ${PROJECT_NAME} SHARED
   src/bool_state.cpp
   src/void_state.cpp
   src/frequency_manager.cpp
-  src/frequency_measure.cpp )
+  src/frequency_measure.cpp
+  src/item3d_state.cpp)
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/internal>

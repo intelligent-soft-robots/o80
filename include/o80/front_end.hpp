@@ -137,11 +137,11 @@ public:
                      Speed speed,
                      Mode mode);
 
-    /*! add to each actuator an overwriting command with 
+    /*! add to each actuator an overwriting command with
      *  the initial state (as returned by the initial_states method)
      *  as target state  */
     void add_reinit_command();
-  
+
     /*! requests the backend to purge its command queues (including current
       commands) during next iteration*/
     void purge() const;

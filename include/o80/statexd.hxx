@@ -7,21 +7,20 @@ namespace internal
 // state as encapsulated by the (tuple instance) values_ of the instances
 // StateXd. It uses template recursivity to loop over the values encapsulated by
 // the tuples.
-template < size_t INDEX = 0, 
-	     typename INCR, // o80::TimePoint (for speed and duration) or long int (for iteration)
-	     typename TUPLE,  
-	     size_t SIZE =
-	     std::tuple_size_v<
-	       std::remove_reference_t<TUPLE>>,
-	     typename COMMAND_TYPE> // Speed, Duration or Iteration
-  void intermediates(INCR&& start,
-		     INCR&& now,
-		     const TUPLE& start_state,
-		     const TUPLE& previous_desired_state,
-		     const TUPLE& target_state,
-		     const COMMAND_TYPE &command, 
-		     TUPLE& interpolated_state,
-		     bool use_duration=false)
+template <size_t INDEX = 0,
+          typename INCR,  // o80::TimePoint (for speed and duration) or long int
+                          // (for iteration)
+          typename TUPLE,
+          size_t SIZE = std::tuple_size_v<std::remove_reference_t<TUPLE>>,
+          typename COMMAND_TYPE>  // Speed, Duration or Iteration
+void intermediates(INCR &&start,
+                   INCR &&now,
+                   const TUPLE &start_state,
+                   const TUPLE &previous_desired_state,
+                   const TUPLE &target_state,
+                   const COMMAND_TYPE &command,
+                   TUPLE &interpolated_state,
+                   bool use_duration = false)
 {
     static o80::Duration_us duration;
 

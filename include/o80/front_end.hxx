@@ -177,11 +177,10 @@ void FRONTEND::add_command(int nb_actuator, ROBOT_STATE target_state, Mode mode)
 TEMPLATE_FRONTEND
 void FRONTEND::add_reinit_command()
 {
-  States<NB_ACTUATORS,ROBOT_STATE> init_states = initial_states();
-  for(int actuator=0;actuator<NB_ACTUATORS;actuator++)
+    States<NB_ACTUATORS, ROBOT_STATE> init_states = initial_states();
+    for (int actuator = 0; actuator < NB_ACTUATORS; actuator++)
     {
-      add_command(actuator,init_states.get(actuator),
-		  Mode::OVERWRITE);
+        add_command(actuator, init_states.get(actuator), Mode::OVERWRITE);
     }
 }
 

@@ -4,11 +4,13 @@
 #include "o80/command_types.hpp"
 #include "o80/frequency_manager.hpp"
 #include "o80/frequency_measure.hpp"
+#include "o80/item3d_state.hpp"
 #include "o80/memory_clearing.hpp"
 #include "o80/pybind11_helper.hpp"
 #include "o80/state1d.hpp"
 #include "o80/state2d.hpp"
 #include "o80/state3d.hpp"
+#include "o80/state6d.hpp"
 #include "o80/time.hpp"
 
 // are wrapped here only the non templated class if o80.
@@ -142,5 +144,106 @@ PYBIND11_MODULE(o80, m)
                 return;
             }
             state3d.set<2>(value);
+        });
+
+    pybind11::class_<o80::Item3dState>(m, "Item3dState")
+        .def(pybind11::init<>())
+        .def(pybind11::init<const std::array<double, 3>&,
+                            const std::array<double, 3>&>())
+        .def("set_position",
+             pybind11::overload_cast<double, double, double>(
+                 &Item3dState::set_position))
+        .def("set_velocity",
+             pybind11::overload_cast<double, double, double>(
+                 &Item3dState::set_velocity))
+        .def("set_position",
+             pybind11::overload_cast<const std::array<double, 3>&>(
+                 &Item3dState::set_position))
+        .def("set_velocity",
+             pybind11::overload_cast<const std::array<double, 3>&>(
+                 &Item3dState::set_velocity))
+        .def("get_position", &Item3dState::get_position)
+        .def("get_velocity", &Item3dState::get_velocity)
+        .def("get", &Item3dState::get)
+        .def("__str__", &Item3dState::to_string);
+
+    pybind11::class_<o80::State6d>(m, "State6d")
+        .def(pybind11::init<>())
+        .def(pybind11::init<double, double, double, double, double, double>())
+        .def("__str__",
+             [](const o80::State6d& state6d) {
+                 std::stringstream ss;
+                 ss << "position: " << state6d.get<0>() << ","
+                    << state6d.get<1>() << "," << state6d.get<2>() << " | "
+                    << "velocity: " << state6d.get<3>() << ","
+                    << state6d.get<4>() << "," << state6d.get<5>();
+                 return ss.str();
+             })
+        .def("get_position",
+             [](o80::State6d& state6d) {
+                 std::array<double, 3> position;
+                 position[0] = state6d.get<0>();
+                 position[1] = state6d.get<1>();
+                 position[2] = state6d.get<2>();
+                 return position;
+             })
+        .def("get_velocity",
+             [](o80::State6d& state6d) {
+                 std::array<double, 3> velocity;
+                 velocity[0] = state6d.get<3>();
+                 velocity[1] = state6d.get<4>();
+                 velocity[2] = state6d.get<5>();
+                 return velocity;
+             })
+        .def("set_position",
+             [](o80::State6d& state6d, const std::array<double, 3>& position) {
+                 state6d.set<0>(position[0]);
+                 state6d.set<1>(position[1]);
+                 state6d.set<2>(position[2]);
+                 return;
+             })
+        .def("set_velocity",
+             [](o80::State6d& state6d, const std::array<double, 3>& velocity) {
+                 state6d.set<3>(velocity[0]);
+                 state6d.set<4>(velocity[1]);
+                 state6d.set<5>(velocity[2]);
+                 return;
+             })
+        .def("get",
+             [](o80::State6d& state6d, int index) {
+                 if (index == 0) return state6d.get<0>();
+                 if (index == 1) return state6d.get<1>();
+                 if (index == 2) return state6d.get<2>();
+                 if (index == 3) return state6d.get<3>();
+                 if (index == 4) return state6d.get<4>();
+                 return state6d.get<5>();
+             })
+        .def("set", [](o80::State6d& state6d, int index, double value) {
+            if (index == 0)
+            {
+                state6d.set<0>(value);
+                return;
+            }
+            if (index == 1)
+            {
+                state6d.set<1>(value);
+                return;
+            }
+            if (index == 2)
+            {
+                state6d.set<2>(value);
+                return;
+            }
+            if (index == 3)
+            {
+                state6d.set<3>(value);
+                return;
+            }
+            if (index == 4)
+            {
+                state6d.set<4>(value);
+                return;
+            }
+            state6d.set<5>(value);
         });
 }
