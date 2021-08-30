@@ -5,7 +5,7 @@ namespace o80
 {
 template <class STATE>
 CommandStatus<STATE>::CommandStatus()
-    : starting_state_(), active_(false), direct_done_(false)
+  : starting_state_(), initialized_(false), active_(false), direct_done_(false)
 {
 }
 
