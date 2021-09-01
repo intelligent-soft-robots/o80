@@ -24,8 +24,7 @@ ament_export_dependencies(
   pybind11
   synchronizer
   shared_memory
-  real_time_tools
-  time_series )
+  time_series)
 
 # prepare to export all needed targets
 set(all_targets)

@@ -18,7 +18,7 @@
 
 using namespace o80;
 
-PYBIND11_MODULE(o80, m)
+PYBIND11_MODULE(o80_wrp, m)
 {
     m.def("clear_shared_memory", &clear_shared_memory);
 
