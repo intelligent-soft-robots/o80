@@ -90,6 +90,10 @@ o80 has been used in the context of reinforcement learning applied to real robot
 
 The code and documentation of this project is available open source online [@pamsource].
 
+## Franka Emica Panda Robot System
+
+o80 drivers for the Franka Emica Panda Robot System are also available [@o80_franka].
+
 # References
 
 
