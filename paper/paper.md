@@ -68,7 +68,7 @@ The o80 library may be considered complex, as it is versatile and can be used in
 o80 is based on open source packages that are maintained by the Max Planck Institute for Intelligent Systems, and that may be reused in other contexts. These packages are available on the GitHub organizations "intelligent-soft-robots", "machines-in-motion", "mpi-is", and "open dynamic robot initiative". Examples of such packages are:
 
 - synchronizer: a library for synchronizing processes
-- shared memory: a wrapper over the boost interprocess library that makes exchange of serialized data over an interprocess shared memory trivial
+- shared memory: a wrapper over the Boost interprocess library that makes exchange of serialized data over an interprocess shared memory trivial
 - time series: a templated circular buffer with time stamps, supporting multiprocess access and synchronization
 
 The complete list, the sources, the binaries, as well as the documentation of theses packages can be found online [@corerobotics].
