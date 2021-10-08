@@ -11,6 +11,10 @@ See : the [documentation](http://people.tuebingen.mpg.de/mpi-is-software/o80/doc
 
 See also: [o80 for the frank panda robot](https://github.com/Data-Science-in-Mechanical-Engineering/franka_o80)
 
+# Citing o80
+
+Berenz et al., (2021). The o80 C++ templated toolbox: Designing customized Python APIs for synchronizing realtime processes. Journal of Open Source Software, 6(66), 2752, https://doi.org/10.21105/joss.02752
+
 # Author
 Vincent Berenz, Max Planck Institute for Intelligent Systems, Empirical Inference Department
 
