@@ -27,7 +27,7 @@ template <class Sub, typename... Args>
 class MdState
 {
 public:
-    State(Args &&... args);
+    State(Args &&...args);
     State();
 
     template <int INDEX>
