@@ -168,7 +168,7 @@ bool CommandStatus<STATE>::finished(long int current_iteration,
     if (command_type_.type == Type::DURATION)
     {
         long int time_diff = time_diff_us(starting_time_, now);
-        if (time_diff > command_type_.duration.value)
+        if (time_diff >= command_type_.duration.value)
         {
             return true;
         }
