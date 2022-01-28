@@ -20,6 +20,7 @@ void CommandStatus<STATE>::copy(const CommandStatus<STATE>& from, bool full)
         starting_state_, from.starting_state_;
     }
     starting_time_ = from.starting_time_;
+    starting_iteration_ = from.starting_iteration_;
     initialized_ = from.initialized_;
     active_ = from.active_;
     direct_done_ = from.direct_done_;

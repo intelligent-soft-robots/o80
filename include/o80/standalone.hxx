@@ -37,6 +37,7 @@ STANDALONE::Standalone(DriverPtr driver_ptr,
       o8o_backend_(segment_id)
 {
     shared_memory::set<bool>(segment_id, "should_stop", false);
+    shared_memory::set<float>(segment_id, "frequency", frequency);
     reset_bursting(segment_id);
 }
 

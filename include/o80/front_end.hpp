@@ -66,6 +66,12 @@ public:
     // TODO: to revive
     // void start_logging(std::string logger_segment_id);
 
+    /*! Returns the frequency at which the backend is set to run.
+      This will return a value only if the backend has been instantiated
+      by a standalone. Otherwise, throws a runtime_error
+    */
+    float get_frequency() const;
+  
     /*!returns the number of actuators*/
     int get_nb_actuators() const;
 

@@ -37,6 +37,24 @@ FRONTEND::~FrontEnd()
 }
 
 TEMPLATE_FRONTEND
+float FRONTEND::get_frequency() const
+{
+  float value;
+  try
+    {
+      shared_memory::get<float>(segment_id_,"frequency",value);
+    }
+  catch (const shared_memory::Allocation_exception& e)
+    {
+      std::string error = std::string("failed to read the frequency of o80 backend ")+
+	segment_id_ + std::string(": only backend instantiated via a standalone provide "
+				  "their frequency.");
+      throw std::runtime_error(error);
+    }
+  return value;
+}
+
+TEMPLATE_FRONTEND
 int FRONTEND::get_nb_actuators() const
 {
     return NB_ACTUATORS;
