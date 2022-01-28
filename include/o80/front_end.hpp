@@ -71,7 +71,7 @@ public:
       by a standalone. Otherwise, throws a runtime_error
     */
     float get_frequency() const;
-  
+
     /*!returns the number of actuators*/
     int get_nb_actuators() const;
 

@@ -24,9 +24,9 @@ PYBIND11_MODULE(o80, m)
 
     m.def("time_now", &time_now);
 
-    m.def("time_diff",
-          [](const TimePoint& before, const TimePoint& after)
-          { return time_diff(before, after); });
+    m.def("time_diff", [](const TimePoint& before, const TimePoint& after) {
+        return time_diff(before, after);
+    });
 
     pybind11::class_<o80::Burster>(m, "Burster")
         .def(pybind11::init<std::string>())
@@ -109,48 +109,42 @@ PYBIND11_MODULE(o80, m)
         .def(pybind11::init<double, double>())
         .def("__str__", &State2d::to_string)
         .def("get",
-             [](o80::State2d& state2d, int index)
-             {
+             [](o80::State2d& state2d, int index) {
                  if (index == 0) return state2d.get<0>();
                  return state2d.get<1>();
              })
-        .def("set",
-             [](o80::State2d& state2d, int index, double value)
-             {
-                 if (index == 0)
-                 {
-                     state2d.set<0>(value);
-                     return;
-                 }
-                 state2d.set<1>(value);
-             });
+        .def("set", [](o80::State2d& state2d, int index, double value) {
+            if (index == 0)
+            {
+                state2d.set<0>(value);
+                return;
+            }
+            state2d.set<1>(value);
+        });
 
     pybind11::class_<o80::State3d>(m, "State3d")
         .def(pybind11::init<>())
         .def(pybind11::init<double, double, double>())
         .def("__str__", &State3d::to_string)
         .def("get",
-             [](o80::State3d& state3d, int index)
-             {
+             [](o80::State3d& state3d, int index) {
                  if (index == 0) return state3d.get<0>();
                  if (index == 1) return state3d.get<1>();
                  return state3d.get<2>();
              })
-        .def("set",
-             [](o80::State3d& state3d, int index, double value)
-             {
-                 if (index == 0)
-                 {
-                     state3d.set<0>(value);
-                     return;
-                 }
-                 if (index == 1)
-                 {
-                     state3d.set<1>(value);
-                     return;
-                 }
-                 state3d.set<2>(value);
-             });
+        .def("set", [](o80::State3d& state3d, int index, double value) {
+            if (index == 0)
+            {
+                state3d.set<0>(value);
+                return;
+            }
+            if (index == 1)
+            {
+                state3d.set<1>(value);
+                return;
+            }
+            state3d.set<2>(value);
+        });
 
     pybind11::class_<o80::Item3dState>(m, "Item3dState")
         .def(pybind11::init<>())
@@ -177,8 +171,7 @@ PYBIND11_MODULE(o80, m)
         .def(pybind11::init<>())
         .def(pybind11::init<double, double, double, double, double, double>())
         .def("__str__",
-             [](const o80::State6d& state6d)
-             {
+             [](const o80::State6d& state6d) {
                  std::stringstream ss;
                  ss << "position: " << state6d.get<0>() << ","
                     << state6d.get<1>() << "," << state6d.get<2>() << " | "
@@ -187,8 +180,7 @@ PYBIND11_MODULE(o80, m)
                  return ss.str();
              })
         .def("get_position",
-             [](o80::State6d& state6d)
-             {
+             [](o80::State6d& state6d) {
                  std::array<double, 3> position;
                  position[0] = state6d.get<0>();
                  position[1] = state6d.get<1>();
@@ -196,8 +188,7 @@ PYBIND11_MODULE(o80, m)
                  return position;
              })
         .def("get_velocity",
-             [](o80::State6d& state6d)
-             {
+             [](o80::State6d& state6d) {
                  std::array<double, 3> velocity;
                  velocity[0] = state6d.get<3>();
                  velocity[1] = state6d.get<4>();
@@ -205,24 +196,21 @@ PYBIND11_MODULE(o80, m)
                  return velocity;
              })
         .def("set_position",
-             [](o80::State6d& state6d, const std::array<double, 3>& position)
-             {
+             [](o80::State6d& state6d, const std::array<double, 3>& position) {
                  state6d.set<0>(position[0]);
                  state6d.set<1>(position[1]);
                  state6d.set<2>(position[2]);
                  return;
              })
         .def("set_velocity",
-             [](o80::State6d& state6d, const std::array<double, 3>& velocity)
-             {
+             [](o80::State6d& state6d, const std::array<double, 3>& velocity) {
                  state6d.set<3>(velocity[0]);
                  state6d.set<4>(velocity[1]);
                  state6d.set<5>(velocity[2]);
                  return;
              })
         .def("get",
-             [](o80::State6d& state6d, int index)
-             {
+             [](o80::State6d& state6d, int index) {
                  if (index == 0) return state6d.get<0>();
                  if (index == 1) return state6d.get<1>();
                  if (index == 2) return state6d.get<2>();
@@ -230,34 +218,32 @@ PYBIND11_MODULE(o80, m)
                  if (index == 4) return state6d.get<4>();
                  return state6d.get<5>();
              })
-        .def("set",
-             [](o80::State6d& state6d, int index, double value)
-             {
-                 if (index == 0)
-                 {
-                     state6d.set<0>(value);
-                     return;
-                 }
-                 if (index == 1)
-                 {
-                     state6d.set<1>(value);
-                     return;
-                 }
-                 if (index == 2)
-                 {
-                     state6d.set<2>(value);
-                     return;
-                 }
-                 if (index == 3)
-                 {
-                     state6d.set<3>(value);
-                     return;
-                 }
-                 if (index == 4)
-                 {
-                     state6d.set<4>(value);
-                     return;
-                 }
-                 state6d.set<5>(value);
-             });
+        .def("set", [](o80::State6d& state6d, int index, double value) {
+            if (index == 0)
+            {
+                state6d.set<0>(value);
+                return;
+            }
+            if (index == 1)
+            {
+                state6d.set<1>(value);
+                return;
+            }
+            if (index == 2)
+            {
+                state6d.set<2>(value);
+                return;
+            }
+            if (index == 3)
+            {
+                state6d.set<3>(value);
+                return;
+            }
+            if (index == 4)
+            {
+                state6d.set<4>(value);
+                return;
+            }
+            state6d.set<5>(value);
+        });
 }

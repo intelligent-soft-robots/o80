@@ -70,8 +70,9 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def(pybind11::init<>())
             .def("serializable_size", &serializer::serializable_size)
             .def("serialize",
-                 [](serializer& s, const observation& obs)
-                 { return s.serialize(obs); })
+                 [](serializer& s, const observation& obs) {
+                     return s.serialize(obs);
+                 })
             .def("deserialize", &serializer::deserialize);
     }
 
@@ -86,6 +87,7 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             frontend;
         pybind11::class_<frontend>(m, (prefix + "FrontEnd").c_str())
             .def(pybind11::init<std::string>())
+            .def("get_frequency", &frontend::get_frequency)
             .def("get_nb_actuators", &frontend::get_nb_actuators)
             .def("get_observations_since", &frontend::get_observations_since)
             .def("get_latest_observations", &frontend::get_latest_observations)
@@ -94,16 +96,16 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("is_backend_active", &frontend::backend_is_active)
             .def("purge", &frontend::purge)
             .def("add_command",
-                 (void(frontend::*)(int, o80_STATE, Iteration, Mode)) &
+                 (void (frontend::*)(int, o80_STATE, Iteration, Mode)) &
                      frontend::add_command)
             .def("add_command",
-                 (void(frontend::*)(int, o80_STATE, Duration_us, Mode)) &
+                 (void (frontend::*)(int, o80_STATE, Duration_us, Mode)) &
                      frontend::add_command)
             .def("add_command",
-                 (void(frontend::*)(int, o80_STATE, Mode)) &
+                 (void (frontend::*)(int, o80_STATE, Mode)) &
                      frontend::add_command)
             .def("add_command",
-                 (void(frontend::*)(int, o80_STATE, Speed, Mode)) &
+                 (void (frontend::*)(int, o80_STATE, Speed, Mode)) &
                      frontend::add_command)
             .def("add_reinit_command", &frontend::add_reinit_command)
             .def("burst", &frontend::burst)
@@ -129,24 +131,21 @@ void create_python_bindings(pybind11::module& m, std::string prefix)
             .def("is_active", &backend::is_active)
             .def("pulse", &backend::pulse)
             .def("pulse",
-                 [](backend& bc)
-                 {
+                 [](backend& bc) {
                      o80::TimePoint time_now = o80::time_now();
                      o80::States<NB_ACTUATORS, o80_STATE> states_;
                      o80_EXTENDED_STATE extended_state;
                      return bc.pulse(time_now, states_, extended_state);
                  })
             .def("pulse",
-                 [](backend& bc, o80_EXTENDED_STATE& extended_state)
-                 {
+                 [](backend& bc, o80_EXTENDED_STATE& extended_state) {
                      o80::TimePoint time_now = o80::time_now();
                      o80::States<NB_ACTUATORS, o80_STATE> states_;
                      return bc.pulse(time_now, states_, extended_state);
                  })
             .def("pulse",
                  [](backend& bc,
-                    const std::array<o80_STATE, NB_ACTUATORS>& dof_states)
-                 {
+                    const std::array<o80_STATE, NB_ACTUATORS>& dof_states) {
                      o80::TimePoint time_now = o80::time_now();
                      o80::States<NB_ACTUATORS, o80_STATE> states;
                      o80_EXTENDED_STATE extended_state;
@@ -185,8 +184,7 @@ void create_standalone_python_bindings(pybind11::module& m, std::string prefix)
           [](std::string segment_id,
              double frequency,
              bool bursting,
-             DriverArgs... driver_args)
-          {
+             DriverArgs... driver_args) {
               start_standalone<RobotDriver, RobotStandalone>(
                   segment_id, frequency, bursting, (driver_args)...);
           });
