@@ -5,7 +5,7 @@ namespace o80
 {
 template <int NB_ACTUATORS, int QUEUE_SIZE, class STATE>
 ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
-    std::string segment_id)
+									std::string segment_id, double period_us)
     : commands_{CommandsTimeSeries::create_leader(segment_id + "_commands",
                                                   QUEUE_SIZE)},
       commands_index_(-1),
@@ -24,6 +24,7 @@ ControllersManager<NB_ACTUATORS, QUEUE_SIZE, STATE>::ControllersManager(
         initialized_[i] = false;
         controllers_[i].set_completed_commands(completed_commands_);
         controllers_[i].set_starting_commands(starting_commands_);
+	controllers_[i].set_backend_period(period_us);
     }
     shared_memory::set<long int>(segment_id_, "pulse_id", pulse_id_);
     shared_memory::set<time_series::Index>(

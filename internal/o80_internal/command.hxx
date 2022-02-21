@@ -134,6 +134,63 @@ Command<STATE>::Command(long int pulse_id,
     id_ = Command<STATE>::get_next_id();
 }
 
+
+  template <class STATE>
+  void Command<STATE>::convert_to_iteration(const Duration_us& duration,
+			    long int current_iteration,
+			    double backend_period_us)
+  {
+    double duration_us = static_cast<double>(duration.value);
+    double nb_iterations = duration_us / backend_period_us ;
+    long int target_iteration = current_iteration + static_cast<long int>(nb_iterations+0.5);
+    Iteration iteration{target_iteration};
+    command_type_ = CommandType(iteration);
+  }
+
+  template <class STATE>
+  void Command<STATE>::convert_to_iteration(const Speed& speed,
+			    long int current_iteration,
+			    const STATE& current_state,
+			    double backend_period_us)
+  {
+    if constexpr (!std::is_base_of<SensorState, STATE>::value)
+		   {
+		     double duration_us = current_state.to_duration(speed.value,target_state_);
+		     convert_to_iteration(Duration_us{duration_us},
+					  current_iteration,
+					  backend_period_us);
+		   }
+  }
+
+  template <class STATE>
+  void Command<STATE>::convert_to_iteration(long int current_iteration,
+			    const STATE& current_state,
+			    double backend_period_us)
+  {
+    if(command_type_.type == Type::ITERATION)
+      {
+	return;
+      }
+    if(command_type_.type == Type::DIRECT)
+      {
+	return;
+      }
+    if(command_type_.type == Type::DURATION)
+      {
+	convert_to_iteration(command_type_.duration,
+			     current_iteration,
+			     backend_period_us);
+	return;
+      }
+    // speed
+    convert_to_iteration(command_type_.speed,
+			 current_iteration,
+			 current_state,
+			 backend_period_us);
+  }
+
+
+  
 template <class STATE>
 std::string Command<STATE>::to_string() const
 {

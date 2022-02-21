@@ -34,7 +34,7 @@ STANDALONE::Standalone(DriverPtr driver_ptr,
       burster_(nullptr),
       segment_id_(segment_id),
       driver_ptr_(driver_ptr),
-      o8o_backend_(segment_id)
+      o8o_backend_(segment_id,false,(1./frequency)*1e6)
 {
     shared_memory::set<bool>(segment_id, "should_stop", false);
     shared_memory::set<float>(segment_id, "frequency", frequency);

@@ -10,11 +10,11 @@
 #define BACKEND BackEnd<QUEUE_SIZE, NB_ACTUATORS, STATE, EXTENDED_STATE>
 
 TEMPLATE_BACKEND
-BACKEND::BackEnd(std::string segment_id, bool new_commands_observations)
+BACKEND::BackEnd(std::string segment_id, bool new_commands_observations, double period_us)
     : segment_id_(segment_id),
       observations_{ObservationsTimeSeries::create_leader(
           segment_id + "_observations", QUEUE_SIZE)},
-      controllers_manager_(segment_id),
+      controllers_manager_(segment_id,period_us),
       desired_states_(),
       initial_states_(),
       first_iteration_{true},

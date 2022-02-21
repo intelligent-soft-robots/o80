@@ -98,6 +98,13 @@ public:
         return Item3dState(r);
     }
 
+  double to_duration(double speed,
+		     const Item3dState& target_state) const
+{
+  return state6d_.to_duration(speed,target_state.state6d_);
+}
+  
+  
     template <class Archive>
     void serialize(Archive &archive)
     {

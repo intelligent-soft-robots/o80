@@ -25,7 +25,8 @@ bool finished(const o80::TimePoint &start,
               const T &target_state,
               const o80::Speed &speed)
 {
-    double value_diff = fabs(static_cast<double>(target_state) -
+  (void)(current_state);
+  double value_diff = fabs(static_cast<double>(target_state) -
                              static_cast<double>(start_state));
     double duration_us = value_diff / speed.value;
     long int expected_end =
@@ -45,6 +46,7 @@ T intermediate_state(const o80::TimePoint &start,
                      const T &target_state,
                      const o80::Speed &speed)
 {
+    (void)(current);
     double time_diff = static_cast<double>(time_diff_us(start, now));
     double value_diff = static_cast<double>(target_state - start_state);
     double desired;
@@ -75,6 +77,7 @@ T intermediate_state(const o80::TimePoint &start,
                      const T &target_state,
                      const o80::Duration_us &duration)
 {
+  (void)(current);
     long int passed = o80::time_diff_us(start, now);
     if (passed > duration.value)
     {
@@ -95,7 +98,8 @@ T intermediate_state(long int iteration_start,
                      const T &target_state,
                      const o80::Iteration &iteration)
 {
-    if (iteration_now >= iteration.value)
+  (void)(current_state);
+  if (iteration_now >= iteration.value)
     {
         return target_state;
     }
@@ -110,3 +114,13 @@ T intermediate_state(long int iteration_start,
     T ds = cast<T>(desired_state);
     return ds;
 }
+
+template <typename T>
+double to_duration(double speed,
+		   const T& start_state,
+		   const T& target_state)
+{
+  double value_diff = fabs(static_cast<double>(target_state-start_state));
+  return value_diff / speed;
+}
+		     

@@ -183,7 +183,7 @@ void FRONTEND::add_command(int nb_actuator,
                            Duration_us duration,
                            Mode mode)
 {
-    Command<ROBOT_STATE> command(
+  Command<ROBOT_STATE> command(
         pulse_id_, target_state, duration, nb_actuator, mode);
     buffer_commands_.append(command);
 }
@@ -296,10 +296,10 @@ void FRONTEND::wait_for_completion(std::set<int>& command_ids,
         completion_reported_.append(command_id);
         if (command_ids.empty())
         {
-            return;
+	  return;
         }
         completed_index++;
-        usleep(10);
+        usleep(1);
     }
 }
 

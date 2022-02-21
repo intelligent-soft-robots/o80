@@ -95,3 +95,9 @@ Sub State<T, Sub>::intermediate_state(long int start_iteration,
                                    target_state.value,
                                    iteration);
 }
+
+template <typename T, class Sub>
+double State<T, Sub>::to_duration(double speed, const Sub& target_state) const
+{
+  return o80::to_duration(speed,this->get(),target_state.get());
+}

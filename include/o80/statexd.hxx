@@ -184,7 +184,8 @@ bool StateXd<Args...>::finished(const o80::TimePoint &start,
                                 const StateXd<Args...> &target_state,
                                 const o80::Speed &speed) const
 {
-    return internal::all_finished(start,
+  (void)(current_state);
+  return internal::all_finished(start,
                                   now,
                                   start_state.values_,
                                   previous_desired_state.values_,
@@ -202,6 +203,7 @@ StateXd<Args...> StateXd<Args...>::intermediate_state(
     const StateXd<Args...> &target_state,
     const o80::Speed &speed) const
 {
+  (void)(current_state);
     StateXd<Args...> interpolated_state;
     internal::intermediates(start,
                             now,
@@ -223,7 +225,8 @@ StateXd<Args...> StateXd<Args...>::intermediate_state(
     const StateXd<Args...> &target_state,
     const o80::Duration_us &duration) const
 {
-    StateXd<Args...> interpolated_state;
+  (void)(current_state);
+  StateXd<Args...> interpolated_state;
     internal::intermediates(start,
                             now,
                             start_state.values_,
@@ -244,7 +247,8 @@ StateXd<Args...> StateXd<Args...>::intermediate_state(
     const StateXd<Args...> &target_state,
     const o80::Iteration &iteration) const
 {
-    StateXd<Args...> interpolated_state;
+  (void)(current_state);
+  StateXd<Args...> interpolated_state;
     internal::intermediates(start_iteration,
                             current_iteration,
                             start_state.values_,
@@ -254,4 +258,13 @@ StateXd<Args...> StateXd<Args...>::intermediate_state(
                             interpolated_state.values_,
                             false);
     return interpolated_state;
+}
+
+template <typename ... Args>
+double StateXd<Args...>::to_duration(double speed,
+				     const StateXd<Args...>& target_state) const
+{
+  double current = static_cast<double>(std::get<0>(this->values_));
+  double target = static_cast<double>(std::get<0>(target_state.values_));
+  return o80::to_duration(speed,current,target);
 }

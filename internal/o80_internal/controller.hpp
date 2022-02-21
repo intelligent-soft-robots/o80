@@ -42,6 +42,8 @@ public:
 
     void set_command(const Command<STATE>& command);
 
+  void set_backend_period(double backend_period_us);
+  
     bool stop_current(const STATE& current_state,
                       Microseconds control_iteration);
 
@@ -88,6 +90,7 @@ private:
     // or returning the same desired state (i.e. command
     // queue was empty)
     bool reapplied_desired_state_;
+  double backend_period_us_;
 };
 }  // namespace o80
 

@@ -13,6 +13,7 @@
 #include "command_type.hpp"
 #include "o80/command_types.hpp"
 #include "o80/mode.hpp"
+#include "o80/sensor_state.hpp"
 #include "shared_memory/serializer.hpp"
 #include "shared_memory/shared_memory.hpp"
 #include "time_stamp.hpp"
@@ -63,6 +64,23 @@ public:
     std::string to_string() const;
     void print() const;
 
+public:
+
+  void convert_to_iteration(long int current_iteration,
+			    const STATE& current_state,
+			    double backend_period_us);
+  
+private:
+
+  void convert_to_iteration(const Duration_us& duration,
+			    long int current_iteration,
+			    double backend_period_us);
+
+  void convert_to_iteration(const Speed& speed,
+			    long int current_iteration,
+			    const STATE& current_state,
+			    double backend_period_us);
+ 
 private:
     void copy(const Command<STATE>& from, bool full);
 

@@ -5,7 +5,7 @@ namespace o80
 {
 template <class STATE>
 Controller<STATE>::Controller()
-    : current_state_(nullptr), reapplied_desired_state_(true)
+  : current_state_(nullptr), reapplied_desired_state_(true),backend_period_us_(-1.)
 {
 }
 
@@ -48,6 +48,13 @@ void Controller<STATE>::set_starting_commands(
     starting_commands_ = &starting_commands;
 }
 
+template <class STATE>
+void Controller<STATE>::set_backend_period(
+					   double backend_period_us)
+{
+  backend_period_us_ = backend_period_us;
+}
+  
 template <class STATE>
 void Controller<STATE>::set_command(const Command<STATE>& command)
 {
@@ -105,6 +112,13 @@ Command<STATE>* Controller<STATE>::get_current_command(
     // getting top (lower command_id) command
     current_command_ = queue_.front();
 
+    if(backend_period_us_>0)
+      {
+	current_command_.convert_to_iteration(current_iteration,
+					      current_state,
+					      backend_period_us_);
+      }
+    
     // for debug and introspection
     starting_commands_->append(current_command_.get_id());
 

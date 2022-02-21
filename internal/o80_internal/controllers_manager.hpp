@@ -22,7 +22,7 @@ public:
         CompletedCommandsTimeSeries;
 
 public:
-    ControllersManager(std::string segment_id);
+  ControllersManager(std::string segment_id, double period_us);
 
     void process_commands(long int current_iteration);
 

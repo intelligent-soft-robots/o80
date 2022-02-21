@@ -50,8 +50,13 @@ public:
      *        If true, information will be writen in the observation
      *        only when the desired state of any actuator changed
      *        (when false: an observation is writen for each iteration)
+     * @param period (default -1)
+     *        If a positive value, should be the expected period at which the
+     *        iterate method will be called. It will help improve speed and 
+     *        duration to be more accurate (by relying on the number of iterations
+     *        rather than the computer clock).
      */
-    BackEnd(std::string segment_id, bool new_commands_observations = false);
+  BackEnd(std::string segment_id, bool new_commands_observations = false, double period_us=-1);
 
     /**
      * @brief delete the shared memory segments

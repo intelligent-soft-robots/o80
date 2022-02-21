@@ -55,5 +55,15 @@ T intermediate_state(long int start_iteration,
                      const T &target_state,
                      const o80::Iteration &iteration);
 
+  template <typename T>
+  /*! Compute the duration (in microseconds) to reach
+   *  target_state starting at start_state when interpolating
+   *  at a specified speed (unit per microseconds)
+   */
+  double to_duration(double speed,
+		     const T& start_state,
+		     const T& target_state);
+		     
+  
 #include "interpolation.hxx"
 }  // namespace o80

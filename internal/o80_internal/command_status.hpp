@@ -46,6 +46,9 @@ public:
     const CommandType& get_command_type() const;
 
 private:
+  void convert_to_iteration_command(double backend_frequency);
+  
+private:
     // for shared_memory::serializer to be able to serialize
     // a command into a string (used internally by exchange_manager)
     friend shared_memory::private_serialization;

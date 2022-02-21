@@ -64,6 +64,8 @@ public:
                            const Sub &target_state,
                            const o80::Iteration &iteration) const;
 
+  double to_duration(double speed, const Sub& target_state) const; 
+  
     template <class Archive>
     void serialize(Archive &archive)
     {
