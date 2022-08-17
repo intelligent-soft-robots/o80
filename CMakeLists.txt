@@ -37,6 +37,7 @@ set(all_target_exports)
 ###########
 
 add_library( ${PROJECT_NAME} SHARED
+  src/memory_clearing.cpp
   src/time_stamp.cpp
   src/time.cpp
   src/command_type.cpp
