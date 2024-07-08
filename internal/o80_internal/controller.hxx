@@ -327,7 +327,7 @@ const STATE& Controller<STATE>::get_desired_state(
             command_status.set_inactive();
             get_current_command(current_iteration + 1,
                                 current_state,
-                                previously_desired_state,
+                                desired_state_,
                                 time_now);
         }
 
