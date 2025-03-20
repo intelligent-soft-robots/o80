@@ -110,7 +110,7 @@ bool CommandStatus<STATE>::set_initial_conditions(
 
     else if (command_type.type == Type::ITERATION)
     {
-        if (command_type.iteration.value <= starting_iteration)
+        if (command_type.iteration.value < starting_iteration)
         {
             return false;
         }
