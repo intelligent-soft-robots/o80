@@ -4,6 +4,7 @@
 #pragma once
 
 #include <memory>
+#include <set>
 #include <vector>
 #include "burster.hpp"
 #include "o80_internal/command.hpp"
