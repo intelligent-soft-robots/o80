@@ -103,28 +103,22 @@ Command<STATE>* Controller<STATE>::get_current_command(
         }
     }
 
-    // nothing going on
-    if (queue_.empty())
+    while (!queue_.empty())
     {
-        return NULL;
-    }
+        current_command_ = queue_.front();
 
-    // getting top (lower command_id) command
-    current_command_ = queue_.front();
+        if(backend_period_us_>0)
+          {
+	    current_command_.convert_to_iteration(current_iteration,
+					          current_state,
+					          backend_period_us_);
+          }
 
-    if(backend_period_us_>0)
-      {
-	current_command_.convert_to_iteration(current_iteration,
-					      current_state,
-					      backend_period_us_);
-      }
-    
-    // for debug and introspection
-    starting_commands_->append(current_command_.get_id());
+        // for debug and introspection
+        starting_commands_->append(current_command_.get_id());
 
-    queue_.pop();
+        queue_.pop();
 
-    {
         CommandStatus<STATE>& command_status =
             current_command_.get_mutable_command_status();
         const CommandType& command_type = current_command_.get_command_type();
@@ -147,15 +141,19 @@ Command<STATE>* Controller<STATE>::get_current_command(
             // (which should be fine from the user perspective, as target state
             // is almost
             // current state)
+            // It also happens for an iteration command whose target iteration
+            // already passed when the backend received it.
             share_completed_command(current_command_);
             command_status.set_inactive();
-            return NULL;
+            continue;
         }
 
         command_status.set_active();
+        return &(current_command_);
     }
 
-    return &(current_command_);
+    // nothing going on
+    return NULL;
 }
 
 template <class STATE>
