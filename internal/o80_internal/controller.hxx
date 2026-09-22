@@ -5,7 +5,9 @@ namespace o80
 {
 template <class STATE>
 Controller<STATE>::Controller()
-  : current_state_(nullptr), reapplied_desired_state_(true),backend_period_us_(-1.)
+    : current_state_(nullptr),
+      reapplied_desired_state_(true),
+      backend_period_us_(-1.)
 {
 }
 
@@ -49,12 +51,11 @@ void Controller<STATE>::set_starting_commands(
 }
 
 template <class STATE>
-void Controller<STATE>::set_backend_period(
-					   double backend_period_us)
+void Controller<STATE>::set_backend_period(double backend_period_us)
 {
-  backend_period_us_ = backend_period_us;
+    backend_period_us_ = backend_period_us;
 }
-  
+
 template <class STATE>
 void Controller<STATE>::set_command(const Command<STATE>& command)
 {
@@ -107,12 +108,11 @@ Command<STATE>* Controller<STATE>::get_current_command(
     {
         current_command_ = queue_.front();
 
-        if(backend_period_us_>0)
-          {
-	    current_command_.convert_to_iteration(current_iteration,
-					          current_state,
-					          backend_period_us_);
-          }
+        if (backend_period_us_ > 0)
+        {
+            current_command_.convert_to_iteration(
+                current_iteration, current_state, backend_period_us_);
+        }
 
         // for debug and introspection
         starting_commands_->append(current_command_.get_id());
@@ -323,10 +323,8 @@ const STATE& Controller<STATE>::get_desired_state(
         {
             share_completed_command(current_command_);
             command_status.set_inactive();
-            get_current_command(current_iteration + 1,
-                                current_state,
-                                desired_state_,
-                                time_now);
+            get_current_command(
+                current_iteration + 1, current_state, desired_state_, time_now);
         }
 
         return desired_state_;
